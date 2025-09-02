@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,11 +11,12 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="{{ asset('js/inspection.js') }}" defer></script>
+    
 
 
 </head>
 <body class="bg-light">
-
+    <form id="myForm" method="POST">
   <div class="container my-4" id="report">
     <h1 class="text-center mb-4">Trip Inspection Report</h1>
 
@@ -189,7 +191,7 @@
   </div>
 </fieldset>
 
-       <form class="card shadow p-4">
+       
       <!-- Carrier Agent Report -->
       <fieldset class="mb-3">
         <legend class="fw-bold">Carrier/Agent's Report</legend>
@@ -227,10 +229,10 @@
         </div>
         </fieldset>
 
-      <button type="button" id="downloadPDF" class="btn btn-primary w-100">Submit Report</button>
-    </form>
+      <button type="button" id="submitReport" class="btn btn-primary w-100" data-url="{{ url('/menu') }}">Submit Report</button>
+    
   </div>
-     
+</form>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
