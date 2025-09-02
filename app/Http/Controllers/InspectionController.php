@@ -13,7 +13,11 @@ class InspectionController extends Controller
     // Report::create($request->all());
 
     // Redirigir con mensaje de éxito
-     return redirect()->back()->with('success', 'Inspection report saved successfully.');
+      return response()->json([
+        'success' => true,
+        'message' => 'Inspection saved successfully!'
+    ]);
+
 
 }
 }
