@@ -1,4 +1,4 @@
-import Swal from 'sweetalert2';
+
 
 // Set default date and time values
         document.addEventListener('DOMContentLoaded', function() {
@@ -126,42 +126,7 @@ import Swal from 'sweetalert2';
 });
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('myForm');
-
-    form.addEventListener('submit', function(e) {
-        const confirmado = confirm("¿Estás seguro de querer guardar los cambios?");
-        if (!confirmado) {
-            e.preventDefault(); // Evita que se envíe si el usuario cancela
-        }
-    });
-});
 
 
 //confirmar formulario
-document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('submitReport');
-    if (!btn) return; // Evita errores si el botón no existe
 
-    btn.addEventListener('click', () => {
-        Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Se enviará el reporte",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, enviar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                const url = btn.dataset.url;
-                if (url) {
-                    window.location.href = url; // Redirige
-                } else {
-                    console.error('No se encontró la URL en data-url');
-                }
-            }
-        });
-    });
-});

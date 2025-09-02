@@ -16,11 +16,12 @@
 
 </head>
 <body class="bg-light">
-    <form id="myForm" method="POST">
+    <form id="myForm" method="POST" action="{{ route('Inspection.save') }}">
+       @csrf
   <div class="container my-4" id="report">
     <h1 class="text-center mb-4">Trip Inspection Report</h1>
 
-    <form class="card shadow p-4">
+    
       <!-- Type of Inspection -->
       <fieldset class="mb-3">
         <legend class="fw-bold">Type of Inspection</legend>
@@ -229,10 +230,67 @@
         </div>
         </fieldset>
 
-      <button type="button" id="submitReport" class="btn btn-primary w-100" data-url="{{ url('/menu') }}">Submit Report</button>
+      <button type="submit"   class="btn btn-primary w-100" >Submit Report</button>
     
   </div>
-</form>
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('myForm');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // evita envío inmediato
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Do you want to save this inspection report?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, save it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Creamos un formulario temporal para enviar el POST con CSRF
+                const tempForm = document.createElement('form');
+                tempForm.method = 'POST';
+                tempForm.action = form.action;
+
+                // Añadimos CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = '_token';
+                csrfInput.value = '{{ csrf_token() }}';
+                tempForm.appendChild(csrfInput);
+
+                // Copiamos los campos del formulario original
+                Array.from(form.elements).forEach(el => {
+                    if (el.name && !el.disabled && (el.type !== 'submit' && el.type !== 'button')) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = el.name;
+                        input.value = el.value;
+                        tempForm.appendChild(input);
+                    }
+                });
+
+                document.body.appendChild(tempForm);
+                tempForm.submit(); // enviamos el formulario
+            }
+            // si cancela, no pasa nada
+        });
+    });
+});
+    </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  @if(session('success'))
+<script>
+Swal.fire({
+    title: 'Success!',
+    text: "{{ session('success') }}",
+    icon: 'success',
+    confirmButtonText: 'OK'
+});
+</script>
+@endif
 </body>
 </html>

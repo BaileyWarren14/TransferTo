@@ -3,17 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu principal</title>
-    <link {{ asset('css/menu.css') }}>
+    <title>Document</title>
 </head>
 <body>
-    <div class="menu">
-        <h1>Menú Principal</h1>
-        <button onclick="location.href='{{ url('/new') }}'">New</button>
-        <button onclick="location.href='{{ url('/details') }}'">Details</button>
-    </div>
     @if(session('success'))
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     Swal.fire({
         title: '¡Éxito!',
@@ -23,5 +16,7 @@
     });
 </script>
 @endif
+
 </body>
 </html>
+
