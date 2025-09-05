@@ -17,7 +17,7 @@
 </head>
 <body class="bg-light">
     <form id="myForm" method="POST" action="{{ route('Inspection.save') }}">
-       @csrf
+      @csrf
   <div class="container my-4" id="report">
     <h1 class="text-center mb-4">Trip Inspection Report</h1>
 
@@ -234,17 +234,53 @@
     
   </div>
     </form>
-    
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  @if(session('success'))
-<script>
-Swal.fire({
-    title: 'Success!',
-    text: "{{ session('success') }}",
-    icon: 'success',
-    confirmButtonText: 'OK'
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('myForm');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault(); // prevenimos envío inmediato
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Do you want to save the inspection data?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, save it',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Creamos un form temporal para enviar con POST y CSRF
+                const tempForm = document.createElement('form');
+                tempForm.method = 'POST';
+                tempForm.action = form.action;
+
+                // Clonamos todos los inputs
+                [...form.elements].forEach(el => {
+                    if (el.name && (el.type !== 'submit' && el.type !== 'button')) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = el.name;
+                        input.value = el.value;
+                        tempForm.appendChild(input);
+                    }
+                });
+
+                // CSRF token
+                const token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '_token';
+                token.value = "{{ csrf_token() }}";
+                tempForm.appendChild(token);
+
+                document.body.appendChild(tempForm);
+                tempForm.submit(); // enviamos el POST real
+            }
+        });
+    });
 });
 </script>
-@endif
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
 </body>
 </html>

@@ -13,13 +13,17 @@ return new class extends Migration
     {
         Schema::create('drivers', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
+            
+            $table->string('name');
+            $table->string('lastname');
+            $table->string('phone_number')->nullable();
+            $table->string('email')->unique();
+            $table->string('password');
+
+            $table->string('social_security_number', 9)->unique();
             $table->string('license_number')->unique();
-            $table->date('license_expiry_date');
-            $table->integer('years_experience')->nullable();
             $table->enum('status', ['available', 'on_trip', 'on_leave', 'unavailable'])->default('available');
             
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
             });
     }

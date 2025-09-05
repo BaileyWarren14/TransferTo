@@ -13,12 +13,16 @@ return new class extends Migration
     {
         Schema::create('administrators', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
-            $table->enum('access_level', ['full', 'limited', 'read_only']);
+            
+            $table->string('name');
+            $table->string('lastname');
+            $table->string('phone_number')->nullable();
+            $table->string('email')->unique();
+            $table->string('password');
             $table->string('department')->nullable();
             $table->string('position');
             
-            $table->foreign('user_id')->references('id')->on('users_transfer')->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
+use App\Http\Controllers\Auth\LoginController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +26,20 @@ Route::get('/details', function () {
 
 //Route::view('/menu', 'menu')->name('menu');
 
+Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+
+// Procesar login
+Route::post('/login', [LoginController::class, 'login']);
+
+// Logout
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Dashboard protegido
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth');
+
+Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store');
 
 
 
