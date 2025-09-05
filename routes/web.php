@@ -44,5 +44,5 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-Route::get('/device-location', [DeviceController::class, 'getLocation']);
+
 Route::get('/dashboard', [DeviceController::class, 'index'])->name('dashboard');
