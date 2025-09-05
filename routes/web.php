@@ -2,8 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
-use App\Http\Controllers\LoginController;
+//use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogController;
+use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\RegisterController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -46,3 +48,9 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 Route::get('/dashboard', [DeviceController::class, 'index'])->name('dashboard');
+
+// Mostrar formulario de registro
+Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
+
+// Procesar envío del formulario
+Route::post('/register', [RegisterController::class, 'register'])->name('register.post');

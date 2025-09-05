@@ -73,7 +73,7 @@
             @csrf
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="example@example.com" required>
+                <input type="email" class="form-control" id="email" name="email" placeholder="example@email.com" required>
                 <div class="invalid-feedback">Please enter a valid email.</div>
             </div>
             <div class="mb-3">
@@ -82,6 +82,7 @@
                 <div class="invalid-feedback">Password is required.</div>
             </div>
             <button type="submit" class="btn btn-login w-100">Log In</button>
+            <a href="{{ route('register') }}" class="btn btn-register w-100">Register</a>
         </form>
     </div>
 
