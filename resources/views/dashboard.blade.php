@@ -10,38 +10,69 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     #map { height: 400px; width: 100%; margin-top: 20px; }
-    .chart-container { width: 150px; display: inline-block; margin: 20px; position: relative; }
-    .chart-container canvas { position: absolute; left: 0; top: 0; }
-    .chart-label { position: absolute; width: 100%; text-align: center; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; font-size: 14px; }
+    .chart-container {
+        width: 200px;
+        height: 200px;
+        display: inline-block;
+        margin: 20px;
+        position: relative;
+        text-align: center;
+    }
+    .chart-label {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+        font-size: 18px;
+    }
+    .chart-title {
+        margin-top: 210px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    .charts-wrapper {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
 </style>
 </head>
 <body class="container">
 
-<h1 class="mt-3">Truck Dashboard</h1>
+<h1 class="mt-3 text-center">Truck Dashboard</h1>
 
-<div class="d-flex justify-content-center">
-    <div class="chart-container" style="width: 200px; height: 200px;">
+<div class="charts-wrapper">
+    <div class="chart-container">
         <canvas id="driveChart"></canvas>
         <div class="chart-label" id="driveLabel"></div>
-        <p class="text-center">Drive (11h)</p>
+       <div class="d-flex justify-content-center mt-2">
+        <span class="badge bg-primary px-3 py-2">Drive</span>
     </div>
-    <div class="chart-container" style="width: 200px; height: 200px;">
+    </div>
+    <div class="chart-container">
         <canvas id="shiftChart"></canvas>
         <div class="chart-label" id="shiftLabel"></div>
-        <p class="text-center">Shift (14h)</p>
+        <div class="d-flex justify-content-center mt-2">
+        <span class="badge bg-success px-3 py-2">Shift</span>
     </div>
-    <div class="chart-container" style="width: 200px; height: 200px;">
+    </div>
+    <div class="chart-container">
         <canvas id="cycleChart"></canvas>
         <div class="chart-label" id="cycleLabel"></div>
-        <p class="text-center">Cycle (70h)</p>
+       <div class="d-flex justify-content-center mt-2">
+        <span class="badge bg-secondary px-3 py-2">Cycle</span>
+    </div>
     </div>
 </div>
 
 <div id="map"></div>
 
 <script>
-   function createCountdownChart(id, labelId, totalHours) {
-    const ctx = document.getElementById(id).getContext('2d');
+function createCountdownChart(canvasId, labelId, totalHours, color) {
+    const ctx = document.getElementById(canvasId).getContext('2d');
     const totalSeconds = totalHours * 3600;
 
     const chart = new Chart(ctx, {
@@ -50,7 +81,7 @@
             labels: ['Remaining', 'Elapsed'],
             datasets: [{
                 data: [totalSeconds, 0],
-                backgroundColor: ['#007bff', '#e9ecef'],
+                backgroundColor: [color, '#e9ecef'],
                 borderWidth: 0
             }]
         },
@@ -84,33 +115,35 @@
     return chart;
 }
 
-const driveChart = createCountdownChart('driveChart', 'driveLabel', 11);
-const shiftChart = createCountdownChart('shiftChart', 'shiftLabel', 14);
-const cycleChart = createCountdownChart('cycleChart', 'cycleLabel', 70);
-    // 🌍 Leaflet Map: Real-time GPS
-    const map = L.map('map').setView([0,0], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: 'Map data © OpenStreetMap contributors'
-    }).addTo(map);
-    const marker = L.marker([0,0]).addTo(map);
+// Crear los tres cronómetros con colores diferentes
+createCountdownChart('driveChart', 'driveLabel', 11, '#007bff'); // azul
+createCountdownChart('shiftChart', 'shiftLabel', 14, '#28a745'); // verde
+createCountdownChart('cycleChart', 'cycleLabel', 70, '#6c757d'); // gris
 
-    function updateLocation() {
-        if(navigator.geolocation){
-            navigator.geolocation.getCurrentPosition(position => {
-                const lat = position.coords.latitude;
-                const lng = position.coords.longitude;
-                marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 13);
-            }, err => {
-                console.error("Error obtaining GPS location: " + err.message);
-            });
-        } else {
-            console.error("Geolocation not supported.");
-        }
+// 🌍 Leaflet Map: Real-time GPS
+const map = L.map('map').setView([0,0], 13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data © OpenStreetMap contributors'
+}).addTo(map);
+const marker = L.marker([0,0]).addTo(map);
+
+function updateLocation() {
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            marker.setLatLng([lat, lng]);
+            map.setView([lat, lng], 13);
+        }, err => {
+            console.error("Error obtaining GPS location: " + err.message);
+        });
+    } else {
+        console.error("Geolocation not supported.");
     }
+}
 
-    updateLocation();
-    setInterval(updateLocation, 300000); // update every 5 min
+updateLocation();
+setInterval(updateLocation, 300000); // update every 5 min
 </script>
 
 </body>

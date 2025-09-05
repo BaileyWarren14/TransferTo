@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\LogController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -27,9 +27,9 @@ Route::get('/details', function () {
 
 //Route::view('/menu', 'menu')->name('menu');
 
-Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
+Route::get('/log', [LogController::class, 'showLoginForm'])->name('login');
 
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/log', [LogController::class, 'login'])->name('login.post');
 
 
 Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store');
