@@ -2,7 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\DeviceController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -28,16 +29,8 @@ Route::get('/details', function () {
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 
-// Procesar login
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 
-// Logout
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-// Dashboard protegido
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
 
 Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store');
 
@@ -49,3 +42,7 @@ Route::post('/inspection/save', [InspectionController::class, 'save'])->name('In
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+
+Route::get('/device-location', [DeviceController::class, 'getLocation']);
+Route::get('/dashboard', [DeviceController::class, 'index'])->name('dashboard');

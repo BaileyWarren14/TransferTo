@@ -6,50 +6,20 @@ use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
-    //
-    /**
-     * Mostrar el formulario de login.
-     */
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view('login'); // resources/views/login.blade.php
     }
 
-    /**
-     * Procesar login.
-     */
+
     public function login(Request $request)
     {
-        // Validar datos
-        $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        // Intentar login
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
-
-            // Redirigir al dashboard o a donde quieras
-            return redirect()->intended('dashboard');
+        if (Auth::attempt($credentials)) {
+            return redirect()->intended('/dashboard');
         }
 
-        // Si falla
-        return back()->withErrors([
-            'email' => 'Invalid email or password.',
-        ])->onlyInput('email');
-    }
-
-    /**
-     * Cerrar sesión.
-     */
-    public function logout(Request $request)
-    {
-        Auth::logout();
-
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect('/login');
+        return back()->with('error', 'Credenciales incorrectas');
     }
 }
