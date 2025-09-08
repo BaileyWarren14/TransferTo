@@ -1,80 +1,187 @@
-<!-- Sidebar -->
+<!-- sidebar.blade.php -->
+<!-- Incluye Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 <style>
 body {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
+/* Sidebar por defecto */
 .sidebar {
     height: 100%;
-    width: 0;
+    width: 250px;
     position: fixed;
-    z-index: 1000;
     top: 0;
     left: 0;
     background-color: #2a5298;
+    z-index: 1000;
     overflow-x: hidden;
-    transition: 0.5s;
+    transition: width 0.3s, left 0.3s;
     padding-top: 60px;
 }
 
+/* Sidebar colapsado en desktop */
+.sidebar.collapsed {
+    width: 80px;
+}
+
+/* Sidebar activado en móvil */
+.sidebar.active {
+    left: 0;
+}
+
+/* Desktop: main content */
+.main-content {
+    margin-left: 250px;
+    transition: margin-left 0.3s;
+    padding: 20px;
+}
+
+/* Desktop: sidebar colapsado */
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+
+/* Responsive: móvil */
+@media (max-width: 768px) {
+    .sidebar {
+        left: -250px; /* fuera de pantalla */
+        width: 250px; 
+    }
+    .main-content {
+        margin-left: 0;
+    }
+}
 .sidebar a {
-    padding: 15px 30px;
+    padding: 15px;
     text-decoration: none;
     font-size: 18px;
     color: #fff;
-    display: block;
+    display: flex;
+    align-items: center;
     transition: 0.3s;
+}
+
+.sidebar a i {
+    margin-right: 10px;
 }
 
 .sidebar a:hover {
     background-color: #1e3c72;
 }
 
-.sidebar .closebtn {
+.sidebar.collapsed {
+    width: 80px; /* ancho reducido */
+}
+
+.sidebar.collapsed a span {
+    display: none; /* oculta texto */
+}
+
+.sidebar.collapsed a i {
+    margin: 0 auto; /* centra iconos */
+}
+
+/* Toggle dentro del sidebar */
+#sidebarToggle {
     position: absolute;
     top: 10px;
-    right: 20px;
-    font-size: 36px;
-}
-
-.hamburger {
-    font-size: 30px;
+    right: 15px;
+    background-color: #2a5298;
+    color: #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    color: #2a5298;
-    padding: 10px;
-    position: fixed;
-    top: 10px;
-    left: 10px;
     z-index: 1100;
-    transition: 0.3s;
+    transition: transform 0.3s;
 }
 
-.hamburger:hover {
-    color: #1e3c72;
-}
-
+/* Main content */
 .main-content {
-    transition: margin-left 0.5s;
+    margin-left: 250px;
+    transition: margin-left 0.3s;
     padding: 20px;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+
+/* Botón logout */
+.btn-logout {
+    background: none;
+    border: none;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    text-align: left;
+    font-size: 18px;
+}
+.btn-logout i {
+    margin-right: 10px;
+}
+
+/* Responsive: móvil */
+@media (max-width: 768px) {
+    .sidebar {
+        left: -250px; /* fuera de la pantalla */
+        width: 250px;
+    }
+    .sidebar.active {
+        left: 0;
+    }
+    .sidebar.collapsed {
+        width: 250px; /* no colapsa en móvil */
+    }
+    .main-content {
+        margin-left: 0;
+    }
 }
 </style>
 
 <div id="mySidebar" class="sidebar">
-    <a href="javascript:void(0)" class="closebtn" onclick="closeSidebar()">&times;</a>
-    <a href="{{ url('/dashboard') }}">Dashboard</a>
-    <a href="{{ url('/new') }}">New</a>
-    <a href="{{ url('/details') }}">Details</a>
+    <div id="sidebarToggle">
+        <i class="fas fa-angle-left"></i>
+    </div>
+    <a href="{{ url('/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+    <a href="{{ url('/new') }}"><i class="fas fa-plus-circle"></i> <span>New</span></a>
+    <a href="{{ url('/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+    <!-- Logout -->
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+        </button>
+    </form>
 </div>
 
-<span class="hamburger" onclick="openSidebar()">&#9776;</span>
+<div class="main-content">
+    @yield('content')
+</div>
 
 <script>
-function openSidebar() {
-    document.getElementById("mySidebar").style.width = "250px";
-    document.querySelector('.main-content').style.marginLeft = "250px";
-}
-function closeSidebar() {
-    document.getElementById("mySidebar").style.width = "0";
-    document.querySelector('.main-content').style.marginLeft = "0";
-}
+const sidebar = document.getElementById("mySidebar");
+const toggleBtn = document.getElementById("sidebarToggle");
+
+toggleBtn.addEventListener("click", function() {
+    if (window.innerWidth <= 768) {
+        sidebar.classList.toggle("active"); // abre/cierra sidebar en móvil
+    } else {
+        sidebar.classList.toggle("collapsed"); // colapsa en desktop
+    }
+
+    const icon = toggleBtn.querySelector("i");
+    if (window.innerWidth <= 768) {
+        icon.className = sidebar.classList.contains("active") ? "fas fa-angle-right" : "fas fa-angle-left";
+    } else {
+        icon.className = sidebar.classList.contains("collapsed") ? "fas fa-angle-right" : "fas fa-angle-left";
+    }
+});
 </script>

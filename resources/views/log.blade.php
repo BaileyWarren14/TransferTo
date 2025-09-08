@@ -43,6 +43,11 @@
             </div>
 
     </div>
+@if(session('error'))
+    <div class="alert alert-danger">
+        {{ session('error') }}
+    </div>
+@endif
 
 <script>
     // Validación y feedback de formulario

@@ -1,0 +1,90 @@
+body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar {
+    height: 100%;
+    width: 250px; /* ancho por defecto */
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    background-color: #2a5298;
+    overflow-x: hidden;
+    transition: width 0.3s;
+    padding-top: 60px;
+}
+
+.sidebar a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.sidebar a i {
+    margin-right: 10px;
+}
+
+.sidebar a:hover {
+    background-color: #1e3c72;
+}
+
+.sidebar.collapsed {
+    width: 80px; /* ancho reducido */
+}
+
+.sidebar.collapsed a span {
+    display: none; /* oculta texto */
+}
+
+.sidebar.collapsed a i {
+    margin: 0 auto; /* centra iconos */
+}
+
+.hamburger {
+    font-size: 24px;
+    cursor: pointer;
+    color: #2a5298;
+    position: fixed;
+    top: 15px;
+    left: 260px; /* ajusta según sidebar */
+    z-index: 1100;
+    transition: left 0.3s;
+}
+
+.sidebar.collapsed ~ .hamburger {
+    left: 90px;
+}
+
+.main-content {
+    margin-left: 250px;
+    transition: margin-left 0.3s;
+    padding: 20px;
+}
+
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+}
+/* Botón toggle dentro del sidebar */
+#sidebarToggle {
+    position: absolute;
+    top: 5px; /* más arriba */
+    right: 15px; /* pegado al borde derecho */
+    background-color: #2a5298;
+    color: #fff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s;
+    z-index: 1100;
+}

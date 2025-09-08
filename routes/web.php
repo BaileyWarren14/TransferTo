@@ -31,17 +31,16 @@ Route::get('/details', function () {
 //Route::view('/menu', 'menu')->name('menu');
 
 
-//proteger el dashboard con autenticacion
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
 
-//Rutas del login
+// Login de drivers
 Route::get('/log', [LogController::class, 'showLoginForm'])->name('log');
-
 Route::post('/log', [LogController::class, 'login'])->name('login.post');
-
 Route::post('/logout', [LogController::class, 'logout'])->name('logout');
+
+// Login de admins
+Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.post');
+Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 
 
 //ruta del trip inspection
@@ -71,16 +70,21 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
 
 
-//para los admins
-Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
-Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.post');
-Route::middleware('auth:admin')->get('/admin/dashboard', function() {
-    return view('admin.dashboard');
-});
-
+// Dashboard para drivers
+// Dashboard para drivers (protegido por guard 'driver')
 Route::middleware(['auth:driver'])->group(function () {
-    Route::get('/dashboard', [LogController::class, 'dashboard'])->name('driver.dashboard');
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('driver.dashboard');
 });
 
+// Dashboard para admins (protegido por guard 'admin')
+Route::middleware(['auth:admin'])->group(function () {
+    Route::get('/admin/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+});
 
+//para el log out de usuarios
+Route::post('/logout', [LogController::class, 'logout'])->name('logout');
 

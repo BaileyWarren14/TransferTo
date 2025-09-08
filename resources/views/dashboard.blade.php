@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app')
+
+@section('content')
 <title>Dashboard</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -40,10 +38,11 @@
     }
 </style>
 </head>
-
+<h1>Welcome to Truck Dashboard</h1>
+    <p>Bienvenido, {{ auth()->guard('driver')->user()->name }}</p>
 <body class="container">
 
-<h1 class="mt-3 text-center">Truck Dashboard</h1>
+<h1 class="mt-3 text-center"></h1>
 
 <div class="charts-wrapper">
     <div class="chart-container">
@@ -147,5 +146,7 @@ updateLocation();
 setInterval(updateLocation, 300000); // update every 5 min
 </script>
 
-</body>
-</html>
+@endsection
+
+
+

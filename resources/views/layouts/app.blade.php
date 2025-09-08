@@ -5,51 +5,37 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>@yield('title', 'TruckApp')</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-    body { transition: margin-left 0.3s; }
-    #sidebar { left: -250px; z-index: 1000; }
-    #sidebar.active { left: 0; }
-    #content { margin-left: 0; transition: margin-left 0.3s; }
-    #content.shifted { margin-left: 250px; }
-    .hamburger {
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        z-index: 1100;
-        font-size: 1.5rem;
-        background: none;
-        border: none;
-        color: #007bff;
-    }
-    .nav-link:hover { background-color: rgba(255,255,255,0.1); border-radius: 5px; }
-</style>
 </head>
-<body>
+<body style="margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 
-<button class="hamburger d-md-none">☰</button>
+{{-- Incluir el sidebar --}}
+{{-- Mostrar sidebar según el guard activo --}}
+     @if(auth()->guard('driver')->check())
+        @include('layouts.sidebar')
+    @elseif(auth()->guard('admin')->check())
+        @include('layouts.sidebar_admin')
+    @endif
 
-@include('layouts.sidebar')
 
-<div id="content" class="container-fluid p-4">
+{{-- Contenido principal --}}
+<div id="content" style="margin-left: 250px; padding: 20px; transition: margin-left 0.3s;">
+    @if(session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+    @endif
+
     @yield('content')
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const sidebar = document.getElementById('sidebar');
-    const content = document.getElementById('content');
-    const hamburger = document.querySelector('.hamburger');
-    const closeBtn = document.getElementById('closeSidebar');
+const sidebar = document.getElementById('sidebar');
+const content = document.getElementById('content');
+const toggleBtn = document.getElementById("sidebarToggle");
 
-    hamburger.addEventListener('click', () => {
-        sidebar.classList.add('active');
-        content.classList.add('shifted');
-    });
-
-    closeBtn.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        content.classList.remove('shifted');
-    });
+toggleBtn.addEventListener("click", function() {
+    sidebar.classList.toggle("collapsed");
+    content.style.marginLeft = sidebar.classList.contains("collapsed") ? "80px" : "250px";
+});
 </script>
 
 </body>
