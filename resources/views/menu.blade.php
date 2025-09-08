@@ -1,12 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu principal</title>
-    <link {{ asset('css/menu.css') }}>
-</head>
-<body>
+@extends('layouts.app')
+<link href="{{ asset('css/menu.css') }}" rel="stylesheet">
+@section('content')
+@include('layouts.sidebar')
     <div class="menu">
         <h1>Menú Principal</h1>
         <button onclick="location.href='{{ url('/new') }}'">New</button>
@@ -23,5 +18,4 @@
     });
 </script>
 @endif
-</body>
-</html>
+@endsection

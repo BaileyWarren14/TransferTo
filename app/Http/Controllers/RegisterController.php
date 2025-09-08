@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 
@@ -14,18 +16,37 @@ class RegisterController extends Controller
 
     public function register(Request $request)
     {
+        // Validación de los datos
         $request->validate([
             'name' => 'required|string|max:255',
-            'email'=> 'required|email|unique:users,email',
-            'password'=> 'required|string|min:6|confirmed',
+            'lastname' => 'required|string|max:255',
+            'phone_number' => 'required|numeric|digits_between:10,10',
+            'social_security_number' => 'required|string|max:20|unique:drivers,social_security_number',
+            'license_number' => 'required|string|max:50|unique:drivers,license_number',
+            'email' => 'required|email|unique:drivers,email',
+            'password' => 'required|confirmed|min:6',
         ]);
 
-        User::create([
+        // Crear el usuario
+        $user = User::create([
             'name' => $request->name,
-            'email'=> $request->email,
-            'password'=> Hash::make($request->password),
+            'lastname' => $request->lastname,
+            'phone_number' => $request->phone_number,
+            'social_security_number' => Hash::make($request->social_security_number),
+            'license_number' => $request->license_number,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
         ]);
 
-        return redirect()->route('log')->with('success', 'Account created successfully. Please login.');
+
+        // Loguear automáticamente después de registrarse
+        auth()->login($user);
+
+        if (!$user) {
+            return back()->with('error', 'No se pudo registrar el usuario.');
+        }
+
+        // Redirigir al dashboard o donde quieras
+        return redirect()->route('dashboard')->with('success', 'User registered successfully!');
     }
 }

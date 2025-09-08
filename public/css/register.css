@@ -1,0 +1,85 @@
+body {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    min-height: 100vh; /* ✅ usar min-height en vez de height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px; /* ✅ para que respire en pantallas pequeñas */
+}
+
+.register-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    max-height: 90vh;   /* ✅ límite de altura */
+    overflow-y: auto;   /* ✅ scroll si el formulario es muy largo */
+}
+
+.register-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+}
+
+.register-card h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #2a5298;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 5px rgba(42,82,152,0.5);
+    border-color: #2a5298;
+}
+
+.btn-register {
+    background-color: #2a5298;
+    color: #fff;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.btn-register:hover {
+    background-color: #1e3c72;
+    transform: scale(1.05);
+}
+
+.feedback {
+    font-size: 0.9rem;
+    color: red;
+    margin-top: 0.5rem;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 1rem auto;
+    width: 80px;
+}
+
+.link-login {
+    text-align: center;
+    margin-top: 1rem;
+}
+.link-login a {
+    color: #2a5298;
+    text-decoration: none;
+}
+.link-login a:hover {
+    text-decoration: underline;
+}
+
+/* ✅ Responsive en móviles */
+@media (max-width: 576px) {
+    body {
+        padding: 10px;
+        align-items: flex-start; /* sube el formulario */
+    }
+    .register-card {
+        padding: 1.5rem;
+        max-height: 100vh; /* en móvil puede ocupar toda la altura */
+    }
+}

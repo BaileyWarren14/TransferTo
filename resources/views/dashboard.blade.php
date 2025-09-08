@@ -40,6 +40,7 @@
     }
 </style>
 </head>
+
 <body class="container">
 
 <h1 class="mt-3 text-center">Truck Dashboard</h1>

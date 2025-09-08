@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
 //use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogController;
+
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\RegisterController;
 
@@ -29,10 +30,21 @@ Route::get('/details', function () {
 
 //Route::view('/menu', 'menu')->name('menu');
 
-Route::get('/log', [LogController::class, 'showLoginForm'])->name('login');
+
+//proteger el dashboard con autenticacion
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth');
+
+//Rutas del login
+Route::get('/log', [LogController::class, 'showLoginForm'])->name('log');
 
 Route::post('/log', [LogController::class, 'login'])->name('login.post');
 
+Route::post('/logout', [LogController::class, 'logout'])->name('logout');
+
+
+//ruta del trip inspection
 
 Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store');
 
@@ -54,3 +66,21 @@ Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('
 
 // Procesar envío del formulario
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
+
+
+Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
+
+
+//para los admins
+Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.post');
+Route::middleware('auth:admin')->get('/admin/dashboard', function() {
+    return view('admin.dashboard');
+});
+
+Route::middleware(['auth:driver'])->group(function () {
+    Route::get('/dashboard', [LogController::class, 'dashboard'])->name('driver.dashboard');
+});
+
+
+
