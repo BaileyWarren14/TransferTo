@@ -1,0 +1,27 @@
+/* Dark mode para input-group */
+body.dark-mode .input-group .form-control {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .input-group .input-group-text {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+    color: #f0f0f0 !important;
+}
+
+/* Radio buttons y labels */
+body.dark-mode .form-check-input {
+    background-color: #1e1e1e !important;
+    border-color: #333 !important;
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: #2a5298 !important; /* opcional: color azul cuando está seleccionado */
+    border-color: #2a5298 !important;
+}
+
+body.dark-mode .form-check-label {
+    color: #f0f0f0 !important;
+}

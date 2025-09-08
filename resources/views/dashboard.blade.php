@@ -57,6 +57,20 @@
     background-color: #f5f5f5;
     box-sizing: border-box; /* para que padding no afecte al width */
 }
+/* Dark Mode para app-body */
+body.dark-mode .app-body {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+body.dark-mode .app-body input,
+body.dark-mode .app-body select,
+body.dark-mode .app-body textarea,
+body.dark-mode .app-body button {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-color: #333 !important;
+}
 
 </style>
 

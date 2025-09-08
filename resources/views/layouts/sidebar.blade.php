@@ -36,13 +36,15 @@ body {
 /* Desktop: main content */
 .main-content {
     margin-left: 250px;
-    transition: margin-left 0.3s;
+    width: calc(100% - 250px); /* ancho dinámico según sidebar */
+    transition: margin-left 0.3s, width 0.3s;
     padding: 20px;
 }
 
 /* Desktop: sidebar colapsado */
 .sidebar.collapsed ~ .main-content {
     margin-left: 80px;
+    width: calc(100% - 80px); /* se ajusta automáticamente */
 }
 
 
@@ -114,6 +116,30 @@ body {
 /* Responsive: móvil */
 
 @media (max-width: 768px) {
+
+    #content, .main-content, #main-content {
+        margin-left: 0 !important;
+        padding-top: 70px !important;   /* espacio para mobile navbar */
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        width: 100% !important;
+        position: relative !important;
+        left: 0 !important;
+        transform: none !important;
+    }
+
+    /* Anula cualquier selector sibling que intente empujar al content */
+    #mySidebar.collapsed ~ #content,
+    #mySidebar.collapsed ~ .main-content,
+    #mySidebar.active ~ #content,
+    #mySidebar.active ~ .main-content {
+        margin-left: 0 !important;
+    }
+
+    /* Si por alguna razón hay estilos inline añadidos por JS, forzamos estos atributos CSS */
+    #content[style] { margin-left: 0 !important; left: 0 !important; transform: none !important; }
+
+
     .sidebar {
         position: fixed;
         top: 0;
@@ -130,10 +156,12 @@ body {
         margin-left: 0 !important; /* ocupar todo el ancho */
         padding-top: 70px; /* espacio para navbar */
     }
-    .main-content {
-        margin-left: 0;
-        padding-top: 70px;
+    /* el sidebar nunca debe empujar el contenido en móvil */
+    .sidebar.active ~ .main-content,
+    .sidebar.collapsed ~ .main-content {
+        margin: 0 !important;
     }
+    
     .mobile-navbar {
         display: flex;
         position: fixed;
@@ -153,6 +181,55 @@ body {
     }
 }
 
+/* Dark Mode */
+body.dark-mode {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+/* Sidebar */
+body.dark-mode .sidebar {
+    
+}
+
+body.dark-mode .sidebar a {
+    color: #f0f0f0;
+}
+
+body.dark-mode .sidebar a:hover {
+    background-color: #333;
+}
+
+/* Main content */
+body.dark-mode .main-content {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+/* Inputs, selects, textareas */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-color: #333 !important;
+}
+
+/* Buttons */
+body.dark-mode button {
+   
+}
+
+/* Labels */
+body.dark-mode label {
+    color: #f0f0f0 !important;
+}
+
+/* Placeholders */
+body.dark-mode ::placeholder {
+    color: #aaa !important;
+}
+
 </style>
 
 <div id="mySidebar" class="sidebar">
@@ -169,25 +246,56 @@ body {
             <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
         </button>
     </form>
+
+    <div class="sidebar-footer mt-auto" style="padding: 15px; color: #fff;">
+        <label for="darkModeToggle" style="display: flex; align-items: center; cursor: pointer;">
+            <i class="fas fa-moon me-2"></i>
+            Dark Mode
+            <input type="checkbox" id="darkModeToggle" style="margin-left: auto;">
+        </label>
+    </div>
+
+
+
 </div>
 
 
 <script>
 const sidebar = document.getElementById("mySidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
+const darkModeToggle = document.getElementById("darkModeToggle");
+const body = document.body;
 
+// Toggle sidebar
 toggleBtn.addEventListener("click", function() {
-    if (window.innerWidth <= 768) {
-        sidebar.classList.toggle("active"); // abre/cierra sidebar en móvil
-    } else {
-        sidebar.classList.toggle("collapsed"); // colapsa en desktop
-    }
-
     const icon = toggleBtn.querySelector("i");
+    
     if (window.innerWidth <= 768) {
+        // Móvil
+        sidebar.classList.toggle("active");
         icon.className = sidebar.classList.contains("active") ? "fas fa-angle-right" : "fas fa-angle-left";
     } else {
+        // Desktop
+        sidebar.classList.toggle("collapsed");
         icon.className = sidebar.classList.contains("collapsed") ? "fas fa-angle-right" : "fas fa-angle-left";
     }
 });
+
+  // Inicializar dark mode desde localStorage
+    if (localStorage.getItem("darkMode") === "enabled") {
+        body.classList.add("dark-mode");
+        darkModeToggle.checked = true;
+    }
+
+    // Cambiar modo oscuro
+    darkModeToggle.addEventListener("change", function() {
+        if (this.checked) {
+            body.classList.add("dark-mode");
+            localStorage.setItem("darkMode", "enabled");
+        } else {
+            body.classList.remove("dark-mode");
+            localStorage.setItem("darkMode", "disabled");
+        }
+    });
 </script>
+

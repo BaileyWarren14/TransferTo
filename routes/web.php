@@ -49,8 +49,9 @@ Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store')
 
 
 
-// routes/web.php
-Route::post('/inspection/save', [InspectionController::class, 'save'])->name('Inspection.save');
+// Para las peticiones de la inspeccion
+Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
+Route::post('/inspections/store', [InspectionController::class, 'store'])->name('inspections.store');
 
 Auth::routes();
 

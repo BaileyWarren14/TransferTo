@@ -1,14 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+@extends('layouts.app')
+
+
+@section('content')
     <title>Fuel Form</title>
 
     <!-- Bootstrap CSS desde CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+
+    <style>
+/* Dark Mode específico para Fuel Form */
+body.dark-mode .container,
+body.dark-mode .card {
+    background-color: #1e1e1e; /* fondo oscuro */
+    color: #f0f0f0;            /* texto claro */
+}
+
+body.dark-mode .form-control {
+    background-color: #2a2a2a !important; /* inputs oscuros */
+    color: #f0f0f0 !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode .form-control::placeholder {
+    color: #bbb !important; /* placeholder más claro */
+}
+
+body.dark-mode .form-label {
+    color: #f0f0f0 !important;
+}
+
+body.dark-mode .btn-primary {
+    background-color: #2a5298 !important;
+    border-color: #2a5298 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #1e3c72 !important;
+    border-color: #1e3c72 !important;
+}
+
+/* Si quieres que los bordes de los inputs tengan efecto al focus */
+body.dark-mode .form-control:focus {
+    background-color: #2a2a2a !important;
+    color: #f0f0f0 !important;
+    border-color: #2a5298 !important;
+    box-shadow: 0 0 0 0.2rem rgba(42,82,152,.25);
+}
+</style>
+
+
     <div class="container mt-4">
         <div class="card shadow-lg p-4 rounded-3">
             <h3 class="mb-4 text-center">Fuel Log Form</h3>
@@ -92,5 +133,6 @@
 
     <!-- Bootstrap JS desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+
+@endsection

@@ -28,7 +28,7 @@
 </div>
 
 {{-- Contenido principal --}}
-<div id="content" style="margin-left: 250px; padding: 20px; transition: margin-left 0.3s;">
+<div id="content" class="main-content">
     @if(session('error'))
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif

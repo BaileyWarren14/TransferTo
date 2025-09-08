@@ -4,21 +4,47 @@
   <title>Trip Inspection Report</title>
   <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Responsivo -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!--  <link href="{{ asset('js/inspection.css') }}" rel="stylesheet">  -->
 
    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="{{ asset('js/inspection.js') }}" defer></script>
     
+<style>
+  /* Dark mode para radios dentro de input-group */
+body.dark-mode .input-group .form-check-input {
+    background-color: #1e1e1e; /* fondo del círculo */
+    border-color: #333; /* borde del círculo */
+    accent-color: #2a5298; /* color cuando está seleccionado */
+}
+
+body.dark-mode .input-group .form-check-label {
+    color: #f0f0f0; /* color del texto */
+}
+
+/* Opcional: el contenedor de los radios */
+body.dark-mode .input-group .input-group-text {
+    background-color: #1e1e1e;
+    border-color: #333;
+    color: #f0f0f0;
+}
+
+</style>
 
 
-</head>
-<body class="bg-light">
-    <form id="myForm" method="POST" action="{{ route('Inspection.save') }}">
+
+  @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+    <form id="myForm" method="POST" action="{{ route('inspections.store') }}">
       @csrf
   <div class="container my-4" id="report">
     <h1 class="text-center mb-4">Trip Inspection Report</h1>
 
     
+
+
+
       <!-- Type of Inspection -->
       <fieldset class="mb-3">
         <legend class="fw-bold">Type of Inspection</legend>
@@ -33,43 +59,43 @@
       </fieldset>
 
       <!-- Truck Info -->
-<fieldset class="mb-3">
-  <legend class="fw-bold">Truck Information</legend>
-  <div class="row g-2">
-    <div class="col-md-6">
-      <label for="truck_number" class="form-label">Truck/Tractor #</label>
-      <input type="text" class="form-control" id="truck_number" name="truck_number">
-    </div>
-    <div class="col-md-6">
-      <label for="odometer" class="form-label">Odometer Reading</label>
-      <div class="input-group">
-        <input type="text" class="form-control" id="odometer" name="odometer">
-        <div class="input-group-text">
-          <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="radio" name="unit" value="km" id="km">
-            <label class="form-check-label" for="km">Km</label>
-          </div>
-          <div class="form-check form-check-inline mb-0">
-            <input class="form-check-input" type="radio" name="unit" value="miles" id="miles">
-            <label class="form-check-label" for="miles">Miles</label>
+  <fieldset class="mb-3">
+    <legend class="fw-bold">Truck Information</legend>
+    <div class="row g-2">
+      <div class="col-md-6">
+        <label for="truck_number" class="form-label">Truck/Tractor #</label>
+        <input type="text" class="form-control" id="truck_number" name="truck_number">
+      </div>
+      <div class="col-md-6">
+        <label for="odometer" class="form-label">Odometer Reading</label>
+        <div class="input-group">
+          <input type="text" class="form-control" id="odometer" name="odometer">
+          <div class="input-group-text">
+            <div class="form-check form-check-inline mb-0">
+              <input class="form-check-input" type="radio" name="unit" value="km" id="km">
+              <label class="form-check-label" for="km">Km</label>
+            </div>
+            <div class="form-check form-check-inline mb-0">
+              <input class="form-check-input" type="radio" name="unit" value="miles" id="miles">
+              <label class="form-check-label" for="miles">Miles</label>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</fieldset>
+  </fieldset>
 
       <!-- Condition -->
       <fieldset class="mb-3">
         <legend class="fw-bold">Condition</legend>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="condition" value="no_defect" id="nodefect">
+          <input class="form-check-input" type="checkbox" name="condition" value="no_defect" id="nodefect">
           <label class="form-check-label" for="nodefect">
             I detected no defect or deficiency in this commercial motor vehicle.
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="condition" value="defects" id="defects">
+          <input class="form-check-input" type="checkbox" name="condition" value="defects" id="defects">
           <label class="form-check-label" for="defects">
             I found the following defects as noted below:
           </label>
@@ -156,6 +182,7 @@
             <label for="trailer2" class="form-label">Trailer #2</label>
             <input type="text" class="form-control" id="trailer2" name="trailer2">
           </div>
+          
         </div>
       </fieldset>
 
@@ -276,6 +303,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+
+
 </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
