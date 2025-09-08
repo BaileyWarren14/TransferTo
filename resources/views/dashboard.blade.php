@@ -1,13 +1,18 @@
 @extends('layouts.app')
 
+
 @section('content')
-<title>Dashboard</title>
+
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-    #map { height: 400px; width: 100%; margin-top: 20px; }
+    #map {
+        height: 400px;
+        width: 100%;
+        margin-top: 20px;
+    }
+
     .chart-container {
         width: 200px;
         height: 200px;
@@ -16,6 +21,7 @@
         position: relative;
         text-align: center;
     }
+
     .chart-label {
         position: absolute;
         width: 100%;
@@ -26,51 +32,73 @@
         font-weight: bold;
         font-size: 18px;
     }
+
     .chart-title {
         margin-top: 210px;
         font-weight: bold;
         font-size: 16px;
     }
+
     .charts-wrapper {
         display: flex;
         justify-content: center;
         flex-wrap: wrap;
     }
+
+    .dashboard-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .app-body {
+    width: 100%;
+    min-height: 100vh; /* altura completa del viewport */
+    padding: 20px;
+    background-color: #f5f5f5;
+    box-sizing: border-box; /* para que padding no afecte al width */
+}
+
 </style>
-</head>
+
+
 <h1>Welcome to Truck Dashboard</h1>
     <p>Bienvenido, {{ auth()->guard('driver')->user()->name }}</p>
-<body class="container">
+<div class="app-body">
+    <div class="charts-wrapper">
+        <div class="chart-container">
+            <canvas id="driveChart"></canvas>
+            <div class="chart-label" id="driveLabel"></div>
+            <div class="d-flex justify-content-center mt-2">
+                <span class="badge bg-primary px-3 py-2">Drive</span>
+            </div>
+        </div>
 
-<h1 class="mt-3 text-center"></h1>
+        <div class="chart-container">
+            <canvas id="shiftChart"></canvas>
+            <div class="chart-label" id="shiftLabel"></div>
+            <div class="d-flex justify-content-center mt-2">
+                <span class="badge bg-success px-3 py-2">Shift</span>
+            </div>
+        </div>
 
-<div class="charts-wrapper">
-    <div class="chart-container">
-        <canvas id="driveChart"></canvas>
-        <div class="chart-label" id="driveLabel"></div>
-       <div class="d-flex justify-content-center mt-2">
-        <span class="badge bg-primary px-3 py-2">Drive</span>
+        <div class="chart-container">
+            <canvas id="cycleChart"></canvas>
+            <div class="chart-label" id="cycleLabel"></div>
+            <div class="d-flex justify-content-center mt-2">
+                <span class="badge bg-secondary px-3 py-2">Cycle</span>
+            </div>
+        </div>
     </div>
-    </div>
-    <div class="chart-container">
-        <canvas id="shiftChart"></canvas>
-        <div class="chart-label" id="shiftLabel"></div>
-        <div class="d-flex justify-content-center mt-2">
-        <span class="badge bg-success px-3 py-2">Shift</span>
-    </div>
-    </div>
-    <div class="chart-container">
-        <canvas id="cycleChart"></canvas>
-        <div class="chart-label" id="cycleLabel"></div>
-       <div class="d-flex justify-content-center mt-2">
-        <span class="badge bg-secondary px-3 py-2">Cycle</span>
-    </div>
-    </div>
+
+    <div id="map"></div>
+
 </div>
 
-<div id="map"></div>
-
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+   
+
 function createCountdownChart(canvasId, labelId, totalHours, color) {
     const ctx = document.getElementById(canvasId).getContext('2d');
     const totalSeconds = totalHours * 3600;
@@ -116,15 +144,16 @@ function createCountdownChart(canvasId, labelId, totalHours, color) {
 }
 
 // Crear los tres cronómetros con colores diferentes
-createCountdownChart('driveChart', 'driveLabel', 11, '#007bff'); // azul
-createCountdownChart('shiftChart', 'shiftLabel', 14, '#28a745'); // verde
-createCountdownChart('cycleChart', 'cycleLabel', 70, '#6c757d'); // gris
+createCountdownChart('driveChart', 'driveLabel', 11, '#007bff');
+createCountdownChart('shiftChart', 'shiftLabel', 14, '#28a745');
+createCountdownChart('cycleChart', 'cycleLabel', 70, '#6c757d');
 
-// 🌍 Leaflet Map: Real-time GPS
+// Leaflet Map: Real-time GPS
 const map = L.map('map').setView([0,0], 13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data © OpenStreetMap contributors'
 }).addTo(map);
+
 const marker = L.marker([0,0]).addTo(map);
 
 function updateLocation() {
@@ -134,19 +163,19 @@ function updateLocation() {
             const lng = position.coords.longitude;
             marker.setLatLng([lat, lng]);
             map.setView([lat, lng], 13);
-        }, err => {
-            console.error("Error obtaining GPS location: " + err.message);
+        }, err => { 
+            console.error("Error obtaining GPS location: " + err.message); 
         });
-    } else {
-        console.error("Geolocation not supported.");
+    } else { 
+        console.error("Geolocation not supported."); 
     }
 }
 
 updateLocation();
-setInterval(updateLocation, 300000); // update every 5 min
+setInterval(updateLocation, 300000); // actualizar cada 5 min
+
+
 </script>
 
+
 @endsection
-
-
-

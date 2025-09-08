@@ -16,6 +16,16 @@
         @include('layouts.sidebar_admin')
     @endif
 
+    <!-- Mobile navbar -->
+<div class="mobile-navbar d-md-none">
+    <a href="{{ url('/dashboard') }}">Dashboard</a>
+    <a href="{{ url('/new') }}">New</a>
+    <a href="{{ url('/details') }}">Details</a>
+    <form method="POST" action="{{ route('logout') }}" style="display:inline;">
+        @csrf
+        <button type="submit" style="background:none; border:none; color:white;">Logout</button>
+    </form>
+</div>
 
 {{-- Contenido principal --}}
 <div id="content" style="margin-left: 250px; padding: 20px; transition: margin-left 0.3s;">

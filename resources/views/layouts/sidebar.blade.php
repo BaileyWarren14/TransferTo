@@ -45,16 +45,7 @@ body {
     margin-left: 80px;
 }
 
-/* Responsive: móvil */
-@media (max-width: 768px) {
-    .sidebar {
-        left: -250px; /* fuera de pantalla */
-        width: 250px; 
-    }
-    .main-content {
-        margin-left: 0;
-    }
-}
+
 .sidebar a {
     padding: 15px;
     text-decoration: none;
@@ -103,16 +94,8 @@ body {
     transition: transform 0.3s;
 }
 
-/* Main content */
-.main-content {
-    margin-left: 250px;
-    transition: margin-left 0.3s;
-    padding: 20px;
-}
 
-.sidebar.collapsed ~ .main-content {
-    margin-left: 80px;
-}
+
 
 /* Botón logout */
 .btn-logout {
@@ -129,21 +112,47 @@ body {
 }
 
 /* Responsive: móvil */
+
 @media (max-width: 768px) {
     .sidebar {
-        left: -250px; /* fuera de la pantalla */
+        position: fixed;
+        top: 0;
+        left: -250px; /* oculto */
         width: 250px;
+        height: 100%;
+        transition: left 0.3s;
+        z-index: 2000; /* encima del contenido */
     }
     .sidebar.active {
-        left: 0;
+        left: 0; /* visible */
     }
-    .sidebar.collapsed {
-        width: 250px; /* no colapsa en móvil */
+    .main-content {
+        margin-left: 0 !important; /* ocupar todo el ancho */
+        padding-top: 70px; /* espacio para navbar */
     }
     .main-content {
         margin-left: 0;
+        padding-top: 70px;
+    }
+    .mobile-navbar {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #2a5298;
+        z-index: 1000;
+        justify-content: space-around;
+        padding: 10px 0;
+    }
+    .mobile-navbar a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        text-align: center;
     }
 }
+
 </style>
 
 <div id="mySidebar" class="sidebar">
@@ -162,9 +171,6 @@ body {
     </form>
 </div>
 
-<div class="main-content">
-    @yield('content')
-</div>
 
 <script>
 const sidebar = document.getElementById("mySidebar");
