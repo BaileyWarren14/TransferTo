@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Inspection;
@@ -30,60 +30,64 @@ class InspectionController extends Controller
 
     public function store(Request $request)
     {
-        $inspection = new Inspection();
+          
+            $inspection = new Inspection();
+            $inspection->driver_id = Auth::id();
+            $inspection->truck_number = $request->truck_number;
+            $inspection->odometer = $request->odometer;
+            $inspection->unit = $request->unit;
+            $inspection->conditions = $request->conditions;
+            $inspection->remarks = $request->remarks;
+            $inspection->signature = $request->signature;
+            $inspection->inspection_date = $request->inspection_date;
+            $inspection->inspection_time = $request->inspection_time;
+            $inspection->trailer1 = $request->trailer1;
+            $inspection->trailer2 = $request->trailer2;
 
-        // Usuario logueado
-        $inspection->driver_id = Auth::id();
-        $inspection->truck_id = $request->truck_id;
-        $inspection->trailer_id = $request->trailer_id;
+            // 🔹 Manejo de Pre-trip y Post-trip
+            $inspection->pre_trip = $request->has('pre_trip');
+            $inspection->post_trip = $request->has('post_trip');
 
-        // Tipo de inspección
-        $inspection->pre_trip = $request->has('pre_trip');
-        $inspection->post_trip = $request->has('post_trip');
+            // 🔹 Guardamos checklist como JSON
 
-        // Información del camión
-        $inspection->truck_number = $request->truck_number;
-        $inspection->odometer = $request->odometer;
-        $inspection->unit = $request->unit;
+            $inspection->checklist = json_encode($request->checklist);
 
-        // Condición
-        $inspection->condition = $request->condition;
+            $inspection->save();
 
-        // Checklist dinámico
-        $checklist_fields = [
-            'air_compressor','air_lines','axles','battery','belts','body_frame','brakes_adjustment','brakes_service',
-            'brakes_parking','charging_system','clutch','cooling_system','coupling_devices','documents','doors',
-            'drive_lines','emergency_equipment','emergency_windows','engine','exhaust_system','fire_extinguishers',
-            'first_aid','fluid_leaks','frame','fuel_system','heater','horns','inspection_decals','interior_ligths',
-            'lights_reflectors','load_security_device','lubrication_system','mirrows','mud_flaps','oil_pressure',
-            'rear_end','recording_devices','seats','suspension','steering_mechanism','transmission','wheels_tires',
-            'windows','wipers','other'
-        ];
+            return response()->json([
+                'success' => true,
+                'inspection_id' => $inspection->id
+            ]);
 
-        foreach ($checklist_fields as $field) {
-            $inspection->$field = $request->has($field);
+        
+        
+
+        
+        
+       
+
+
+    
+    }
+    public function generatePDF ($id)
+    {
+        
+        $inspection = Inspection::findOrFail($id);
+         $checklist = [];
+        if (!empty($inspection->checklist)) {
+            if (is_array($inspection->checklist)) {
+                $checklist = $inspection->checklist;
+            } else {
+                // Si es string separado por comas
+                $checklist = explode(',', $inspection->checklist);
+                // Opcional: limpiar espacios extra
+                $checklist = array_map('trim', $checklist);
+            }
         }
 
-        // Trailer info
-        $inspection->trailer1 = $request->trailer1;
-        $inspection->trailer2 = $request->trailer2;
+         $pdf = Pdf::loadView('pdf', compact('inspection', 'checklist'));
+        return $pdf->download('inspection.pdf');
 
-        // Remarks
-        $inspection->remarks = $request->remarks;
-
-        // Firma automática (si el usuario está logueado)
-        if (Auth::check()) {
-            $inspection->signature = Auth::user()->first_name . ' ' . Auth::user()->last_name;
-        }
-
-        // Fecha y hora automáticas
-        $inspection->inspection_date = now()->toDateString();
-        $inspection->inspection_time = now()->toTimeString();
-
-        // Guardamos en DB
-        $inspection->save();
-
-        return redirect()->route('inspections.create')->with('success', 'Inspection saved successfully!');
     }
 }
 

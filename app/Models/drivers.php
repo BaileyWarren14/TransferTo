@@ -9,7 +9,7 @@ class drivers extends Model
     //
     
 
-    protected $table = 'drivers'; // tu tabla
+    protected $table = 'drivers'; // tabla
     protected $fillable = [
     'name',
     'lastname',

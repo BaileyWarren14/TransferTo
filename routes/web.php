@@ -51,7 +51,17 @@ Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store')
 
 // Para las peticiones de la inspeccion
 Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
-Route::post('/inspections/store', [InspectionController::class, 'store'])->name('inspections.store');
+Route::middleware(['auth:driver'])->group(function () {
+    Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
+    Route::post('/inspections/store', [InspectionController::class, 'store'])->name('inspections.store');
+});
+
+
+
+
+//Para generar el pdf
+Route::get('/inspections/pdf/{id}', [InspectionController::class, 'generatePDF'])->name('inspections.pdf');
+
 
 Auth::routes();
 

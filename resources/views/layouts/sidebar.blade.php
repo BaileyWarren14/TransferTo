@@ -297,5 +297,12 @@ toggleBtn.addEventListener("click", function() {
             localStorage.setItem("darkMode", "disabled");
         }
     });
+
+
+    // Dentro de sidebar.blade.php
+darkModeToggle.addEventListener("change", function() {
+    const event = new CustomEvent("sidebarDarkMode", { detail: this.checked });
+    window.dispatchEvent(event);
+});
 </script>
 
