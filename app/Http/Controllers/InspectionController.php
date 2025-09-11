@@ -21,11 +21,12 @@ class InspectionController extends Controller
     
      public function create()
     {
-        $driver = Auth::user(); // usuario logueado
+         $driver = Auth::user(); // usuario logueado
         $trucks = Truck::where('status', 'active')->get(); // camiones activos
         $trailers = Trailer::all(); // todos los trailers
 
-        return view('inspection.create', compact('driver', 'trucks', 'trailers'));
+        // Ajuste aquí: referencia correcta a la vista
+        return view('driver.inspections.new', compact('driver', 'trucks', 'trailers'));
     }
 
     public function store(Request $request)
@@ -67,16 +68,64 @@ class InspectionController extends Controller
                 'inspection_id' => $inspection->id
             ]);
 
-        
-        
-
-        
-        
-       
-
-
     
     }
+
+
+    public function index()
+    {
+         $inspections = Inspection::with('driver')
+                    ->orderBy('inspection_date', 'desc')
+                    ->orderBy('inspection_time', 'desc')
+                    ->take(15)
+                    ->get();
+
+         return view('driver.inspections.list_inspection', ['inspections' => $inspections]);
+    }
+    public function edit($id)
+    {
+        $inspection = Inspection::findOrFail($id);
+        return view('driver.inspections.edit_inspection', compact('inspection'));
+    }
+    
+    public function update(Request $request, $id)
+    {
+         $inspection = Inspection::findOrFail($id);
+
+            // Actualizar campos básicos
+            $inspection->truck_number = $request->truck_number;
+            $inspection->odometer = $request->odometer;
+            $inspection->unit = $request->unit;
+            $inspection->conditions = $request->conditions;
+            $inspection->remarks = $request->remarks;
+            $inspection->signature = $request->signature;
+            $inspection->inspection_date = $request->inspection_date;
+            $inspection->inspection_time = $request->inspection_time;
+            $inspection->trailer1 = $request->trailer1;
+            $inspection->trailer2 = $request->trailer2;
+
+            $inspection->signature_agent = $request->signature_agent;
+            $inspection->date_today2 = $request->date_today2;
+            $inspection->hour_inspection2 = $request->hour_inspection2;
+
+            // Manejo de Pre-trip y Post-trip
+            $inspection->pre_trip = $request->has('pre_trip');
+            $inspection->post_trip = $request->has('post_trip');
+
+            // Manejo de above_not_corrected y above_corrected
+            $inspection->above_not_corrected = $request->has('above_not_corrected');
+            $inspection->above_corrected = $request->has('above_corrected');
+
+            // Guardar checklist como JSON
+            $inspection->checklist = json_encode($request->checklist);
+
+            $inspection->save();
+
+            return redirect()->route('driver.inspections.index')
+                            ->with('success', 'Inspection updated successfully.');
+            }
+
+
     public function generatePDF ($id)
     {
         

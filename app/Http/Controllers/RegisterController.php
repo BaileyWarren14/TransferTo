@@ -46,7 +46,17 @@ class RegisterController extends Controller
             return back()->with('error', 'No se pudo registrar el usuario.');
         }
 
-        // Redirigir al dashboard o donde quieras
-        return redirect()->route('dashboard')->with('success', 'User registered successfully!');
+        // Guardar mensaje en sesión
+        session()->flash('user_created', true);
+
+        // Redirigir a la ruta donde mostramos el SweetAlert
+        return redirect()->route('register.success', ['user_id' => $user->id]);
+    }
+    public function registerSuccess($user_id)
+    {
+        $user = User::findOrFail($user_id);
+
+        // Mostrar la vista con SweetAlert
+        return view('register_success', compact('user'));
     }
 }

@@ -18,9 +18,10 @@
 
     <!-- Mobile navbar -->
 <div class="mobile-navbar d-md-none">
-    <a href="{{ url('/dashboard') }}">Dashboard</a>
-    <a href="{{ url('/new') }}">New</a>
-    <a href="{{ url('/details') }}">Details</a>
+    <a href="{{ url('/driver/dashboard') }}">Dashboard</a>
+    <a href="{{ url('/driver/log_book') }}">Logs</a>
+    <a href="{{ url('/driver/list') }}">Inspections</a>
+    <a href="{{ url('/driver/details') }}">Details</a>
     <form method="POST" action="{{ route('logout') }}" style="display:inline;">
         @csrf
         <button type="submit" style="background:none; border:none; color:white;">Logout</button>
@@ -43,31 +44,17 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const sidebar = document.getElementById('sidebar');
-const content = document.getElementById('content');
-const toggleBtn = document.getElementById("sidebarToggle");
-
-const darkModeToggle = document.getElementById("darkModeToggle");
-const body = document.body;
-const mobileDarkModeToggle = document.getElementById("mobileDarkModeToggle");
-
-toggleBtn.addEventListener("click", function() {
-    sidebar.classList.toggle("collapsed");
-    content.style.marginLeft = sidebar.classList.contains("collapsed") ? "80px" : "250px";
-});
-
-// Función para activar/desactivar dark mode
 function setDarkMode(enabled) {
     if (enabled) {
         body.classList.add("dark-mode");
         localStorage.setItem("darkMode", "enabled");
-        darkModeToggle.checked = true;
-        if(mobileDarkModeToggle) mobileDarkModeToggle.checked = true;
+        if (darkModeToggle) darkModeToggle.checked = true;
+        if (mobileDarkModeToggle) mobileDarkModeToggle.checked = true;
     } else {
         body.classList.remove("dark-mode");
         localStorage.setItem("darkMode", "disabled");
-        darkModeToggle.checked = false;
-        if(mobileDarkModeToggle) mobileDarkModeToggle.checked = false;
+        if (darkModeToggle) darkModeToggle.checked = false;
+        if (mobileDarkModeToggle) mobileDarkModeToggle.checked = false;
     }
 }
 
@@ -76,25 +63,12 @@ if (localStorage.getItem("darkMode") === "enabled") {
     setDarkMode(true);
 }
 
-// Sidebar checkbox
-darkModeToggle.addEventListener("change", function() {
-    setDarkMode(this.checked);
-    // Disparar evento global para otros listeners (opcional)
-    const event = new CustomEvent("sidebarDarkMode", { detail: this.checked });
-    window.dispatchEvent(event);
-});
-
-// Mobile navbar checkbox
+// Listener para el switch de móvil
 if (mobileDarkModeToggle) {
-    mobileDarkModeToggle.addEventListener("change", function() {
+    mobileDarkModeToggle.addEventListener("change", function () {
         setDarkMode(this.checked);
     });
 }
-
-// Opcional: escuchar evento global
-window.addEventListener("sidebarDarkMode", function(e) {
-    if(mobileDarkModeToggle) mobileDarkModeToggle.checked = e.detail;
-});
 
 </script>
 

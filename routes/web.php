@@ -11,6 +11,11 @@ use App\Http\Controllers\RegisterController;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/driver/log_book', function () {
+    return view('driver.log_book'); // new.blade.php
+})->name('log_book');
+
 Route::get('trip', function () {
     return view('trip_inspection');
 });
@@ -20,16 +25,21 @@ Route::get('triped', function () {
 Route::get('menu', function () {
     return view('menu');
 })->name('menu');
-Route::get('/new', function () {
-    return view('new'); // new.blade.php
+Route::get('/driver/new', function () {
+    return view('driver.inspections.new'); // new.blade.php
 })->name('new');
 
-Route::get('/details', function () {
-    return view('details'); // details.blade.php
+Route::get('/driver/details', function () {
+    return view('driver.details.details'); // details.blade.php
 })->name('details');
 
-//Route::view('/menu', 'menu')->name('menu');
+//para mostrar la lista de logs
 
+
+
+//Route::view('/menu', 'menu')->name('menu');
+//Para el registro de usuarios al registrarse correctamente
+Route::get('/register/success/{user_id}', [RegisterController::class, 'registerSuccess'])->name('register.success');
 
 
 // Login de drivers
@@ -48,22 +58,44 @@ Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('adm
 Route::post('/fuel/store', [FuelController::class, 'store'])->name('fuel.store');
 
 
-
+// Alias para que Laravel no truene con middleware auth
+Route::get('/login', function () {
+    return redirect()->route('log');
+})->name('login');
 // Para las peticiones de la inspeccion
-Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
+//Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
 Route::middleware(['auth:driver'])->group(function () {
     Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
     Route::post('/inspections/store', [InspectionController::class, 'store'])->name('inspections.store');
+    //para listar las inspecciones
+    Route::get('/driver/list', [InspectionController::class, 'index'])->name('driver.inspections');
+    //editar inspecciones
+    Route::get('/driver/inspections/{id}/edit', [InspectionController::class, 'edit'])
+        ->name('driver.inspections.edit_inspection');
+
+    Route::put('/inspections/{id}', [InspectionController::class, 'edit'])->name('driver.inspections.edit');
+
+    // Ruta para mostrar el formulario de edición
+    Route::get('/driver/inspections/{id}/edit', [InspectionController::class, 'edit'])
+        ->name('driver.inspections.edit_inspection');
+
+    // Ruta para procesar la actualización (PUT)
+    Route::put('/driver/inspections/{id}', [InspectionController::class, 'update'])
+        ->name('driver.inspections.update');
+    // Ruta para listar inspecciones (la que falta)
+    Route::get('/driver/inspections', [InspectionController::class, 'index'])
+    ->name('driver.inspections.list_inspection');
+
+    
+
+
+    //Para generar el pdf
+    Route::get('/inspections/pdf/{id}', [InspectionController::class, 'generatePDF'])->name('inspections.pdf');
 });
 
 
 
-
-//Para generar el pdf
-Route::get('/inspections/pdf/{id}', [InspectionController::class, 'generatePDF'])->name('inspections.pdf');
-
-
-Auth::routes();
+//Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -84,8 +116,8 @@ Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index'
 // Dashboard para drivers
 // Dashboard para drivers (protegido por guard 'driver')
 Route::middleware(['auth:driver'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
+    Route::get('/driver/dashboard', function () {
+        return view('/driver/dashboard');
     })->name('driver.dashboard');
 });
 

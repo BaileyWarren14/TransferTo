@@ -236,9 +236,10 @@ body.dark-mode ::placeholder {
     <div id="sidebarToggle">
         <i class="fas fa-angle-left"></i>
     </div>
-    <a href="{{ url('/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-    <a href="{{ url('/new') }}"><i class="fas fa-plus-circle"></i> <span>New</span></a>
-    <a href="{{ url('/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+    <a href="{{ url('/driver/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+    <a href="{{ url('/driver/log_book') }}"><i class="fas fa-tachometer-alt"></i> <span>Logs</span></a>
+    <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span>Inspections</span></a>
+    <a href="{{ url('/driver/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
     <!-- Logout -->
     <form method="POST" action="{{ route('logout') }}">
         @csrf

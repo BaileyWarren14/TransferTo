@@ -27,7 +27,7 @@ class LogController extends Controller
         // Login de driver
         if (Auth::guard('driver')->attempt($credentials)) {
             $request->session()->regenerate(); // importante para seguridad
-            return redirect()->intended('/dashboard'); 
+            return redirect()->intended('/driver/dashboard'); 
         }
 
          // Login de admin
