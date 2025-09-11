@@ -139,7 +139,7 @@ body.dark-mode .input-group .input-group-text {
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="drive_lines" id="drive_lines" name="checklist[]"><label class="form-check-label" for="brakdrive_lineses_adjustment">Drive Lines</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="emergency_equipment" id="emergency_equipment" name="checklist[]"><label class="form-check-label" for="emergency_equipment">Emergency Equipment</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="emergency_windows" id="emergency_windows" name="checklist[]"><label class="form-check-label" for="emergency_windows">Emergency Windows/Exits</label></div>
-            <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="engine" id="engine"> name="checklist[]"<label class="form-check-label" for="engine">Engine</label></div>
+            <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="engine" id="engine" name="checklist[]"><label class="form-check-label" for="engine">Engine</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="exhaust_system" id="exhaust_system" name="checklist[]"><label class="form-check-label" for="exhaust_system">Exhaust System</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fire_extinguishers" id="fire_extinguishers" name="checklist[]"><label class="form-check-label" for="fire_extinguishers">Fire Extinguishers</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="first_aid" id="first_aid" name="checklist[]"><label class="form-check-label" for="first_aid">First Aid Kit</label></div>
@@ -225,11 +225,11 @@ body.dark-mode .input-group .input-group-text {
         <legend class="fw-bold">Carrier/Agent's Report</legend>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="above_corrected" value="above_corrected" id="above_corrected">
-          <label class="form-check-label" for="pretrip">Above defects corrected.</label>
+          <label class="form-check-label" for="above_corrected">Above defects corrected.</label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="inspection_type" value="post-trip" id="posttrip">
-          <label class="form-check-label" for="posttrip">Above defects need not be corrected for safe operation of vehicle.</label>
+          <input class="form-check-input" type="checkbox" name="above_not_corrected" value="above_not_corrected-trip" id="above_not_corrected">
+          <label class="form-check-label" for="above_not_corrected">Above defects need not be corrected for safe operation of vehicle.</label>
         </div>
       </fieldset>
 

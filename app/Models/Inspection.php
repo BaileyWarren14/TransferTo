@@ -15,7 +15,8 @@ class Inspection extends Model
         'driver_id', 'truck_id', 'trailer_id',
         'pre_trip', 'post_trip', 'truck_number', 'odometer', 'unit',
         'conditions', 'remarks', 'signature', 'inspection_date', 'inspection_time',
-        'checklist','trailer1','trailer2'
+        'checklist','trailer1','trailer2','above_not_corrected','above_corrected',
+        'signature_agent','date_today2','hour_inspection2'
     ];
      protected $casts = [
         'pre_trip' => 'boolean',
