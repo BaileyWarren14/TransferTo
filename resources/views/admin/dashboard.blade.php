@@ -2,5 +2,5 @@
 
 @section('content')
 <h1>Admin Dashboard</h1>
-<p>Bienvenido, {{ auth()->guard('admin')->user()->name }}</p>
+<p>Welcome, {{ auth()->guard('admin')->user()->name }}</p>
 @endsection

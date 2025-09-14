@@ -76,7 +76,7 @@ body.dark-mode .app-body button {
 
 
 <h1>Welcome to Truck Dashboard</h1>
-    <p>Bienvenido, {{ auth()->guard('driver')->user()->name }}</p>
+    <p>Welcome, {{ auth()->guard('driver')->user()->name }}</p>
 <div class="app-body">
     <div class="charts-wrapper">
         <div class="chart-container">

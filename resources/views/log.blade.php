@@ -29,11 +29,17 @@
                 <input type="email" class="form-control" id="email" name="email" placeholder="example@email.com" required>
                 <div class="invalid-feedback">Please enter a valid email.</div>
             </div>
-            <div class="mb-3">
+             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
-                <div class="invalid-feedback">Password is required.</div>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <span id="toggleIcon">👁️</span>
+                    </button>
+                    <div class="invalid-feedback">Password is required.</div>
+                </div>
             </div>
+            <br>
             <button type="submit" class="btn btn-login w-100">Log In</button>
             
         </form>
@@ -43,10 +49,47 @@
             </div>
 
     </div>
+
+    <script>
+        // Toggle password visibility - Siempre disponible
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('togglePassword');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        if (toggleBtn && passwordInput) {
+            toggleBtn.addEventListener('click', function() {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    toggleIcon.textContent = '🙈';
+                } else {
+                    passwordInput.type = 'password';
+                    toggleIcon.textContent = '👁️';
+                }
+            });
+        }
+    </script>
+
 @if(session('error'))
     <div class="alert alert-danger">
         {{ session('error') }}
     </div>
+@endif
+@if(session('success'))
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: '¡Éxito!',
+        text: '{{ session("success") }}',
+        confirmButtonText: 'OK'
+    }).then(() => {
+        // Redirigir al login, aunque ya estás en la página log
+        window.location.href = "{{ route('log') }}";
+    });
+     
+    //
+   
+</script>
 @endif
 
 <script>

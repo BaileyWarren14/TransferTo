@@ -1,3 +1,4 @@
+<!-- sidebar.blade.php -->
 <!-- Incluye Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -8,18 +9,44 @@ body {
     padding: 0;
 }
 
+/* Sidebar por defecto */
 .sidebar {
     height: 100%;
-    width: 250px; /* ancho por defecto */
+    width: 250px;
     position: fixed;
-    z-index: 1000;
     top: 0;
     left: 0;
     background-color: #2a5298;
+    z-index: 1000;
     overflow-x: hidden;
-    transition: width 0.3s;
+    transition: width 0.3s, left 0.3s;
     padding-top: 60px;
 }
+
+/* Sidebar colapsado en desktop */
+.sidebar.collapsed {
+    width: 80px;
+}
+
+/* Sidebar activado en móvil */
+.sidebar.active {
+    left: 0;
+}
+
+/* Desktop: main content */
+.main-content {
+    margin-left: 250px;
+    width: calc(100% - 250px); /* ancho dinámico según sidebar */
+    transition: margin-left 0.3s, width 0.3s;
+    padding: 20px;
+}
+
+/* Desktop: sidebar colapsado */
+.sidebar.collapsed ~ .main-content {
+    margin-left: 80px;
+    width: calc(100% - 80px); /* se ajusta automáticamente */
+}
+
 
 .sidebar a {
     padding: 15px;
@@ -41,45 +68,25 @@ body {
 
 .sidebar.collapsed {
     width: 80px; /* ancho reducido */
+    
 }
 
 .sidebar.collapsed a span {
     display: none; /* oculta texto */
+}
+.sidebar.collapsed span{
+display: none; /* oculta texto */
 }
 
 .sidebar.collapsed a i {
     margin: 0 auto; /* centra iconos */
 }
 
-.hamburger {
-    font-size: 24px;
-    cursor: pointer;
-    color: #2a5298;
-    position: fixed;
-    top: 15px;
-    left: 260px; /* ajusta según sidebar */
-    z-index: 1100;
-    transition: left 0.3s;
-}
-
-.sidebar.collapsed ~ .hamburger {
-    left: 90px;
-}
-
-.main-content {
-    margin-left: 250px;
-    transition: margin-left 0.3s;
-    padding: 20px;
-}
-
-.sidebar.collapsed ~ .main-content {
-    margin-left: 80px;
-}
-/* Botón toggle dentro del sidebar */
+/* Toggle dentro del sidebar */
 #sidebarToggle {
     position: absolute;
-    top: 5px; /* más arriba */
-    right: 15px; /* pegado al borde derecho */
+    top: 10px;
+    right: 15px;
     background-color: #2a5298;
     color: #fff;
     border-radius: 50%;
@@ -89,42 +96,216 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.3s;
     z-index: 1100;
+    transition: transform 0.3s;
 }
+
+
+
+
+/* Botón logout */
+.btn-logout {
+    background: none;
+    border: none;
+    color: white;
+    padding: 15px;
+    width: 100%;
+    text-align: left;
+    font-size: 18px;
+}
+.btn-logout i {
+    margin-right: 10px;
+}
+
+/* Responsive: móvil */
+
+@media (max-width: 768px) {
+
+    #content, .main-content, #main-content {
+        margin-left: 0 !important;
+        padding-top: 70px !important;   /* espacio para mobile navbar */
+        padding-left: 15px !important;
+        padding-right: 15px !important;
+        width: 100% !important;
+        position: relative !important;
+        left: 0 !important;
+        transform: none !important;
+    }
+
+    /* Anula cualquier selector sibling que intente empujar al content */
+    #mySidebar.collapsed ~ #content,
+    #mySidebar.collapsed ~ .main-content,
+    #mySidebar.active ~ #content,
+    #mySidebar.active ~ .main-content {
+        margin-left: 0 !important;
+    }
+
+    /* Si por alguna razón hay estilos inline añadidos por JS, forzamos estos atributos CSS */
+    #content[style] { margin-left: 0 !important; left: 0 !important; transform: none !important; }
+
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -250px; /* oculto */
+        width: 250px;
+        height: 100%;
+        transition: left 0.3s;
+        z-index: 2000; /* encima del contenido */
+    }
+    .sidebar.active {
+        left: 0; /* visible */
+    }
+    .main-content {
+        margin-left: 0 !important; /* ocupar todo el ancho */
+        padding-top: 70px; /* espacio para navbar */
+    }
+    /* el sidebar nunca debe empujar el contenido en móvil */
+    .sidebar.active ~ .main-content,
+    .sidebar.collapsed ~ .main-content {
+        margin: 0 !important;
+    }
+    
+    .mobile-navbar {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #2a5298;
+        z-index: 1000;
+        justify-content: space-around;
+        padding: 10px 0;
+    }
+    .mobile-navbar a {
+        color: #fff;
+        text-decoration: none;
+        font-size: 16px;
+        text-align: center;
+    }
+}
+
+/* Dark Mode */
+body.dark-mode {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+/* Sidebar */
+body.dark-mode .sidebar {
+    
+}
+
+body.dark-mode .sidebar a {
+    color: #f0f0f0;
+}
+
+body.dark-mode .sidebar a:hover {
+    background-color: #333;
+}
+
+/* Main content */
+body.dark-mode .main-content {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+/* Inputs, selects, textareas */
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-color: #333 !important;
+}
+
+/* Buttons */
+body.dark-mode button {
+   
+}
+
+/* Labels */
+body.dark-mode label {
+    color: #f0f0f0 !important;
+}
+
+/* Placeholders */
+body.dark-mode ::placeholder {
+    color: #aaa !important;
+}
+
 </style>
-</head>
-<body>
 
 <div id="mySidebar" class="sidebar">
     <div id="sidebarToggle">
         <i class="fas fa-angle-left"></i>
     </div>
-    <a href="{{ url('/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-    <a href="{{ url('/new') }}"><i class="fas fa-plus-circle"></i> <span>Register User</span></a>
-    <a href="{{ url('/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+    <a href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+    <a href="{{ route('admin.trucks') }}"><i class="fas fa-truck"></i> <span>Trucks</span></a>
+    <a href="{{ route('admin.trailers') }}"><i class="fas fa-exchange-alt"></i> <span>Trailers</span></a>
+    <a href="{{ route('admin.drivers') }}"><i class="fas fa-users"></i> <span>Drivers</span></a>
+    <a href="{{ route('admin.details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
     <!-- Logout -->
     <form method="POST" action="{{ route('logout') }}">
         @csrf
-        <button  type="submit" class="btn btn-logout" style="background:none; border:none; color:white; padding:15px; width:100%; text-align:left;">
+        <button type="submit" class="btn-logout">
             <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
         </button>
     </form>
+
+    <div class="sidebar-footer mt-auto" style="padding: 15px; color: #fff;">
+        <label for="darkModeToggle" style="display: flex; align-items: center; cursor: pointer;">
+            <i class="fas fa-moon me-2"></i>
+            <span class="sidebar-text">Dark Mode</span>
+            <input type="checkbox" id="darkModeToggle" style="margin-left: auto;">
+        </label>
+    </div>
 </div>
 
-
-<div class="main-content">
-    
-    
-</div>
 
 <script>
 const sidebar = document.getElementById("mySidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
+const darkModeToggle = document.getElementById("darkModeToggle");
+const body = document.body;
 
+// Toggle sidebar
 toggleBtn.addEventListener("click", function() {
-    sidebar.classList.toggle("collapsed");
     const icon = toggleBtn.querySelector("i");
-    icon.className = sidebar.classList.contains("collapsed") ? "fas fa-angle-right" : "fas fa-angle-left";
+    
+    if (window.innerWidth <= 768) {
+        // Móvil
+        sidebar.classList.toggle("active");
+        icon.className = sidebar.classList.contains("active") ? "fas fa-angle-right" : "fas fa-angle-left";
+    } else {
+        // Desktop
+        sidebar.classList.toggle("collapsed");
+        icon.className = sidebar.classList.contains("collapsed") ? "fas fa-angle-right" : "fas fa-angle-left";
+    }
+});
+
+  // Inicializar dark mode desde localStorage
+    if (localStorage.getItem("darkMode") === "enabled") {
+        body.classList.add("dark-mode");
+        darkModeToggle.checked = true;
+    }
+
+    // Cambiar modo oscuro
+    darkModeToggle.addEventListener("change", function() {
+        if (this.checked) {
+            body.classList.add("dark-mode");
+            localStorage.setItem("darkMode", "enabled");
+        } else {
+            body.classList.remove("dark-mode");
+            localStorage.setItem("darkMode", "disabled");
+        }
+    });
+
+
+    // Dentro de sidebar.blade.php
+darkModeToggle.addEventListener("change", function() {
+    const event = new CustomEvent("sidebarDarkMode", { detail: this.checked });
+    window.dispatchEvent(event);
 });
 </script>
+

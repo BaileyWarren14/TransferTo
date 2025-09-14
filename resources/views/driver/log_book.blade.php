@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-
 @section('content')
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Logbook Chart</title>
@@ -13,20 +12,19 @@
     }
     .chart-container {
         width: 100%;
-        max-width: 1000px;
+        
         margin: auto;
         background: white;
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
+        height: 200px; /* altura fija para ver cuadrícula clara */
     }
     canvas {
         width: 100% !important;
-        height: auto !important;
+        height: 100% !important;
     }
 </style>
-</head>
-<body>
 
 <h2 style="text-align:center;">Logbook Style Chart</h2>
 
@@ -37,25 +35,28 @@
 <script>
 const ctx = document.getElementById('logbookChart').getContext('2d');
 
-// Eje X: m1-m11, n1-n11, m1
-const labels = [
-    'M','1','2','3','4','5','6','7','8','9','10','11','N',
-    '1','2','3','4','5','6','7','8','9','10','11',
-    'M'
-];
+// Etiquetas cada 15 minutos
+let labels = [];
+for (let h = 0; h < 24; h++) {
+    labels.push(`${h}:00`);
+    labels.push(`${h}:15`);
+    labels.push(`${h}:30`);
+    labels.push(`${h}:45`);
+}
 
-// Eje Y: off, sb, d, on → convertimos a valores numéricos para la gráfica
-const yCategories = ['off', 'sb', 'd', 'on'];
+// Categorías Y
+const yCategories = ['OFF', 'SB', 'D', 'ON', 'WT'];
+const statusMap = { 'OFF': 0, 'SB': 1, 'D': 2, 'ON': 3, 'WT': 4 };
 
+// Datos de ejemplo (ajústalos a tu caso)
+const data = [];
+for (let i = 0; i < labels.length; i++) {
+    if (i < 20) data.push(statusMap.OFF);
+    else if (i < 40) data.push(statusMap.D);
+    else if (i < 60) data.push(statusMap.ON);
+    else data.push(statusMap.SB);
+}
 
-// Ejemplo de datos
-const data = [
-    0,0,0,0,0,1,2,3,0,1,2,
-    3,0,1,2,3,0,1,2,3,0,1,
-    2,0,0
-];
-
-// Configuración del gráfico
 const logbookChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -63,7 +64,7 @@ const logbookChart = new Chart(ctx, {
         datasets: [{
             label: 'Driver Status',
             data: data,
-            borderColor: 'black',
+            borderColor: 'blue',
             borderWidth: 2,
             pointRadius: 0,
             tension: 0,
@@ -73,14 +74,15 @@ const logbookChart = new Chart(ctx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false, // << clave para móvil
-        aspectRatio: 2, // proporción ancho/alto (ajústalo a tu gusto, ej. 1.5 para más alto)
+        maintainAspectRatio: false,
+        aspectRatio: 2.5,
         scales: {
             y: {
                 type: 'category',
                 labels: yCategories,
+                reverse: true,
                 grid: {
-                    drawTicks: false,
+                    drawTicks: true,
                     color: '#ccc'
                 },
                 title: {
@@ -90,19 +92,29 @@ const logbookChart = new Chart(ctx, {
             },
             x: {
                 grid: {
-                    drawTicks: false,
-                    color: '#eee'
+                    drawTicks: true,
+                    color: (ctx) => {
+                        // Hora completa (más fuerte) vs subdivisiones (más claras)
+                        return ctx.tick.label && ctx.tick.label.includes(":00") ? '#666' : '#ddd';
+                    }
+                },
+                ticks: {
+                    autoSkip: false,
+                    callback: function(value, index) {
+                        // Solo mostrar etiquetas de hora completa
+                        return labels[index].includes(":00") ? labels[index] : '';
+                    },
+                    maxRotation: 90,
+                    minRotation: 90
                 },
                 title: {
                     display: true,
-                    text: 'Time Segments'
+                    text: 'Hour'
                 }
             }
         },
         plugins: {
-            legend: {
-                display: false
-            },
+            legend: { display: false },
             tooltip: {
                 callbacks: {
                     label: function(context) {
@@ -115,5 +127,4 @@ const logbookChart = new Chart(ctx, {
     }
 });
 </script>
-
 @endsection

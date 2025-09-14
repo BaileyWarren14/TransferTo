@@ -7,15 +7,22 @@ use Illuminate\Notifications\Notifiable;
 
 class Admin extends Authenticatable
 {
-    use Notifiable;
+     use Notifiable;
 
-    protected $table = 'administrators'; // tu tabla de administradores
+    protected $table = 'administrators';
 
     protected $fillable = [
         'name',
+        'lastname',
+        'phone_number',
         'email',
         'password',
+        'department',
+        'position',
     ];
 
-    protected $hidden = ['password'];
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 }

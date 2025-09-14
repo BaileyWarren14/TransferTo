@@ -103,7 +103,7 @@
           $checklist = json_decode($inspection->checklist, true) ?? [];
         @endphp
 
-        <div class="col-md-4">
+        
            <div class="col-md-4">
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="air_compressor" id="air_compressor" name="checklist[]" {{ in_array('air_compressor', $checklist) ? 'checked' : '' }}><label class="form-check-label" for="air_compressor">Air Compressor</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="air_lines" id="air_lines" name="checklist[]" {{ in_array('air_lines', $checklist) ? 'checked' : '' }}><label class="form-check-label" for="air_lines">Air Lines</label></div>
@@ -157,8 +157,8 @@
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="wipers" id="wipers" name="checklist[]" {{ in_array('wipers', $checklist) ? 'checked' : '' }}><label class="form-check-label" for="wipers">Wipers/Washers</label></div>
             <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="other" id="other"name="checklist[]" {{ in_array('other', $checklist) ? 'checked' : '' }}><label class="form-check-label" for="other">Other</label></div>
           </div>
-        </div>
-      </div>
+        
+      
     </fieldset>
 
     <!-- Trailer Info -->

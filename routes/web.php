@@ -4,9 +4,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InspectionController;
 //use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogController;
-
+use App\Http\Controllers\DutyStatusController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -90,8 +91,17 @@ Route::middleware(['auth:driver'])->group(function () {
 
 
     //Para generar el pdf
-    Route::get('/inspections/pdf/{id}', [InspectionController::class, 'generatePDF'])->name('inspections.pdf');
+    Route::get('/driver/inspections/pdf/{id}', [InspectionController::class, 'generatePDF'])->name('driver.inspections.pdf');
 });
+
+//para los cambios de estado 
+// Mostrar el formulario
+Route::get('/driver/change_duty_status', [DutyStatusController::class, 'create'])
+    ->name('driver.duty_status.changeDutyStatus.create');
+
+// Guardar los datos
+Route::post('/driver/change_duty_status', [DutyStatusController::class, 'store'])
+    ->name('driver.duty_status.changeDutyStatus.store');
 
 
 
@@ -130,4 +140,42 @@ Route::middleware(['auth:admin'])->group(function () {
 
 //para el log out de usuarios
 Route::post('/logout', [LogController::class, 'logout'])->name('logout');
+
+
+
+//para crear administradores de forma temporal
+
+
+    Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
+    Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
+
+
+
+//para el admin
+//para obtener los drivers, editarlos y eliminarlos, agregar  OPERACIONES CRUD en drivers
+Route::middleware(['auth:admin'])->group(function () {
+    Route::get('/admin/drivers', [DriverController::class, 'index'])->name('drivers.index');
+    Route::get('/admin/drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+    Route::post('/admin/drivers', [DriverController::class, 'store'])->name('drivers.store');
+    Route::get('/admin/drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('/admin/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('/admin/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
+});
+
+Route::prefix('admin')->middleware('auth:admin')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Trucks
+    Route::get('/trucks', [TruckController::class, 'index'])->name('admin.trucks');
+
+    // Trailers
+    Route::get('/trailers', [TrailerController::class, 'index'])->name('admin.trailers');
+
+    // Drivers
+    Route::get('/drivers', [DriverController::class, 'index'])->name('admin.drivers');
+
+    // Details
+    Route::get('/details', [AdminDashboardController::class, 'details'])->name('admin.details');
+});
 

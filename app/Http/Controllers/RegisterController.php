@@ -21,7 +21,7 @@ class RegisterController extends Controller
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
             'phone_number' => 'required|numeric|digits_between:10,10',
-            'social_security_number' => 'required|string|max:20|unique:drivers,social_security_number',
+            'social_security_number' => 'required|string|min:10|max:10|unique:drivers,social_security_number',
             'license_number' => 'required|string|max:50|unique:drivers,license_number',
             'email' => 'required|email|unique:drivers,email',
             'password' => 'required|confirmed|min:6',
@@ -36,21 +36,17 @@ class RegisterController extends Controller
             'license_number' => $request->license_number,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-        ]);
-
-
-        // Loguear automáticamente después de registrarse
-        auth()->login($user);
+        ]);        
 
         if (!$user) {
             return back()->with('error', 'No se pudo registrar el usuario.');
         }
 
         // Guardar mensaje en sesión
-        session()->flash('user_created', true);
+        
 
         // Redirigir a la ruta donde mostramos el SweetAlert
-        return redirect()->route('register.success', ['user_id' => $user->id]);
+         return redirect()->route('log')->with('success', 'User created successfully. Please log in.');
     }
     public function registerSuccess($user_id)
     {

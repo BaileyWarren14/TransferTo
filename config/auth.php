@@ -36,10 +36,7 @@ return [
     */
 
     'guards' => [
-    'web' => [
-        'driver' => 'session',
-        'provider' => 'drivers', // apunta a los drivers
-    ],
+    
     'driver' => [
         'driver' => 'session',
         'provider' => 'drivers',

@@ -21,7 +21,7 @@ class InspectionController extends Controller
     
      public function create()
     {
-         $driver = Auth::user(); // usuario logueado
+        $driver = Auth::user(); // usuario logueado
         $trucks = Truck::where('status', 'active')->get(); // camiones activos
         $trailers = Trailer::all(); // todos los trailers
 
@@ -74,7 +74,10 @@ class InspectionController extends Controller
 
     public function index()
     {
+        $driverId = Auth::id();
+
          $inspections = Inspection::with('driver')
+                    ->where('driver_id', $driverId) // solo las inspecciones del usuario logueado
                     ->orderBy('inspection_date', 'desc')
                     ->orderBy('inspection_time', 'desc')
                     ->take(15)
@@ -152,7 +155,7 @@ class InspectionController extends Controller
             'rear_end','recording_devices','seats','suspension','steering_mechanism',
             'transmission','wheels_tires','windows','wipers','other'
         ];
-        $pdf = Pdf::loadView('pdf', [
+        $pdf = Pdf::loadView('driver.inspections.pdf', [
             'inspection' => $inspection,
             'checklist' => $checklist, // pasamos ya como array
             'items'      => $items,
