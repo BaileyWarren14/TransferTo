@@ -124,9 +124,11 @@ class InspectionController extends Controller
 
             $inspection->save();
 
-            return redirect()->route('driver.inspections.index')
-                            ->with('success', 'Inspection updated successfully.');
-            }
+            return response()->json([
+                'success' => true,
+                'inspection_id' => $inspection->id
+            ]);
+        }
 
 
     public function generatePDF ($id)

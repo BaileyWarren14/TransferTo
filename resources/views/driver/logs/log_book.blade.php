@@ -11,19 +11,42 @@
         background-color: #f5f5f5;
     }
     .chart-container {
-        width: 100%;
-        
+        width: 100%;       
         margin: auto;
         background: white;
-        padding: 20px;
+        padding-top: 20px;
+        
+        
         border-radius: 10px;
         box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
-        height: 200px; /* altura fija para ver cuadrícula clara */
+        height: 150px; /* altura fija para ver cuadrícula clara */
     }
     canvas {
         width: 100% !important;
         height: 100% !important;
     }
+    /* Altura dinámica según pantalla */
+    @media (max-width: 576px) { /* móviles */
+        .chart-container {
+            height: 150px; 
+            width: 95vw; /* ocupar todo el ancho de la pantalla */
+            margin-left: -25px; 
+            margin-right: -30px; 
+            border-radius: 0; /* opcional: quitar bordes en móvil */
+        }
+    }
+    @media (min-width: 577px) and (max-width: 992px) { /* tablets */
+        .chart-container {
+            height: 150px; 
+            width: 95vw; /* ocupar todo el ancho de la pantalla */
+            margin-left: -25px; 
+            margin-right: -30px; 
+            border-radius: 0; /* opcional: quitar bordes en móvil */
+            
+        }
+    }
+
+    
 </style>
 
 <h2 style="text-align:center;">Logbook Style Chart</h2>
@@ -37,12 +60,36 @@ const ctx = document.getElementById('logbookChart').getContext('2d');
 
 // Etiquetas cada 15 minutos
 let labels = [];
-for (let h = 0; h < 24; h++) {
-    labels.push(`${h}:00`);
-    labels.push(`${h}:15`);
-    labels.push(`${h}:30`);
-    labels.push(`${h}:45`);
+
+// Medianoche inicio
+labels.push("M"); // etiqueta visible
+labels.push('');
+    labels.push('');
+    labels.push('');
+// De 1 a 11 AM
+for (let h = 1; h <= 11; h++) {
+    labels.push(h.toString());   // hora completa, etiqueta visible
+    labels.push('');              // +15 min, sin etiqueta
+    labels.push('');              // +30 min, sin etiqueta
+    labels.push('');              // +45 min, sin etiqueta
 }
+
+// Mediodía
+labels.push("N"); // etiqueta visible
+labels.push('');
+    labels.push('');
+    labels.push('');
+
+// De 1 a 11 PM
+for (let h = 1; h <= 11; h++) {
+    labels.push(h.toString());   // hora completa
+    labels.push('');
+    labels.push('');
+    labels.push('');
+}
+
+// Medianoche fin
+labels.push("M"); // etiqueta visible
 
 // Categorías Y
 const yCategories = ['OFF', 'SB', 'D', 'ON', 'WT'];
@@ -87,29 +134,41 @@ const logbookChart = new Chart(ctx, {
                 },
                 title: {
                     display: true,
-                    text: 'Status'
+                    text: ''
                 }
+                
             },
             x: {
                 grid: {
-                    drawTicks: true,
-                    color: (ctx) => {
-                        // Hora completa (más fuerte) vs subdivisiones (más claras)
-                        return ctx.tick.label && ctx.tick.label.includes(":00") ? '#666' : '#ddd';
-                    }
+                    
+                     drawTicks: true,
+                    tickLength: 5,
+                    // Colores de línea según subdivisión
+                    color: function(ctx) {
+                        const index = ctx.index;
+                        // Línea principal en la etiqueta de hora
+                        if (index % 4 === 0) return '#666'; 
+                        // Líneas subdivisión
+                        return '#ddd';
+                    },
+                    borderColor: '#333'
                 },
                 ticks: {
                     autoSkip: false,
+                    
                     callback: function(value, index) {
                         // Solo mostrar etiquetas de hora completa
-                        return labels[index].includes(":00") ? labels[index] : '';
+                        return labels[index];
                     },
-                    maxRotation: 90,
-                    minRotation: 90
+                     font: {
+                        size: 10 // tamaño de labels eje X
+                    },
+                    maxRotation: 0,
+                    minRotation: 0
                 },
                 title: {
                     display: true,
-                    text: 'Hour'
+                    text: ''
                 }
             }
         },

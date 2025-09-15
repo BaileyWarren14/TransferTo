@@ -1,8 +1,30 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+    /* Modo oscuro para tabla y contenedores */
+body.dark-mode {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+/* Apunta a toda la tabla y sus secciones */
+body.dark-mode .table,
+body.dark-mode .table thead,
+body.dark-mode .table tbody,
+body.dark-mode .table tr,
+body.dark-mode .table th,
+body.dark-mode .table td {
+    background-color: #1e1e1e !important;
+    color: #f0f0f0 !important;
+    border-color: #333 !important;
+}
+
+</style>
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Last 15 Inspections</h2>
+    
+    
+    <h2 style="text-align: center;">Last 15 Inspections</h2>
     <a href="{{ route('inspections.create') }}" class="btn btn-success">Add New Inspection</a>
 </div>
 
@@ -32,7 +54,9 @@
             <td>{{ $inspection->inspection_time }}</td>
             <td>
                 <a href="{{ route('driver.inspections.edit_inspection', $inspection->id) }}" class="btn btn-sm btn-primary">Editar</a>
+                <a href="{{ route('driver.inspections.pdf', $inspection->id) }}" class="btn btn-sm btn-success">Download PDF</a>
             </td>
+            
         </tr>
         @endforeach
     </tbody>

@@ -8,14 +8,16 @@ use App\Http\Controllers\DutyStatusController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\TruckController;
+use App\Http\Controllers\LogbookController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::get('/driver/log_book', function () {
-    return view('driver.log_book'); // new.blade.php
-})->name('log_book');
+    return view('driver.logs.log_book'); // new.blade.php
+})->name('driver.logs.log_book');
 
 Route::get('trip', function () {
     return view('trip_inspection');
@@ -129,7 +131,12 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/dashboard', function () {
         return view('/driver/dashboard');
     })->name('driver.dashboard');
+    
 });
+
+//Para que se hagan y guarden lso cambios del duty
+    Route::get('/change_duty_status', [DutyStatusController::class, 'create'])->name('driver.duty_status.create');
+    Route::post('/change_duty_status', [DutyStatusController::class, 'store'])->name('driver.duty_status.store');
 
 // Dashboard para admins (protegido por guard 'admin')
 Route::middleware(['auth:admin'])->group(function () {
@@ -179,3 +186,18 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('/details', [AdminDashboardController::class, 'details'])->name('admin.details');
 });
 
+
+//Ruta para obtener el odometer del truck mediante el plate
+Route::get('/trucks/find/{plate}', [TruckController::class, 'findByPlate'])
+    ->name('trucks.find');
+
+
+//Para poder automatizar el registro del log a las 00:00
+Route::get('/logbook/{logbook}', [LogbookController::class, 'show'])->name('logbook.show');
+
+// Mostrar Logbook diario
+Route::get('/driver/logs/today', [LogbookController::class, 'today'])
+    ->name('driver.logs.today')
+    ->middleware('auth:driver');
+
+    // Guardar estado (ya existe)

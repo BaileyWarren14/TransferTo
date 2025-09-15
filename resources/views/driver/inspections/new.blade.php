@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!--  <link href="{{ asset('js/inspection.css') }}" rel="stylesheet">  -->
 
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="{{ asset('js/inspection.js') }}" defer></script>
     
@@ -33,7 +33,9 @@ body.dark-mode .input-group .input-group-text {
 
 </style>
 
-
+    <a href="{{ url()->previous() }}" class="btn btn-secondary">
+       <i class="fas fa-arrow-left me-1"></i> Back
+    </a>
 
   @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
@@ -202,9 +204,14 @@ body.dark-mode .input-group .input-group-text {
 
     <!-- Driver Name & Signature -->
     <div class="col-md-4">
-      <input type="text" name="signature" id="signature" class="form-control" placeholder="Enter name & signature">
+      <input type="text" 
+            name="signature" 
+            id="signature" 
+            class="form-control" 
+            placeholder="Enter name & signature"
+            value="{{ Auth::user()->name }}" readonly>
       <label for="signature" class="form-label d-block">Driver's Name & Signature</label>
-    </div>
+  </div>
 
     <!-- Date -->
     <div class="col-md-4">
@@ -264,8 +271,62 @@ body.dark-mode .input-group .input-group-text {
   </div>
     </form>
     <script>
+        document.getElementById('truck_number').addEventListener('blur', function() {
+        let plate = this.value.trim();
+        if (!plate) return;
+
+        let url = "{{ route('trucks.find', ':plate') }}".replace(':plate', plate);
+
+        console.log("Fetching:", url);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Response:", data);
+                if (data.success) {
+                    document.getElementById('odometer').value = data.odometer;
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Truck not found',
+                        text: 'The truck plate you entered does not exist.',
+                        confirmButtonText: 'OK'
+                    });
+                    document.getElementById('odometer').value = ""; // limpiar odómetro
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'There was a problem fetching the truck data.',
+                    confirmButtonText: 'Close'
+                });
+            });
+    });
+
+//Para generar la fecha y hora en automatico
+document.addEventListener('DOMContentLoaded', () => {
+    const now = new Date();
+    
+    // Fecha en formato YYYY-MM-DD
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    document.getElementById('inspection_date').value = `${yyyy}-${mm}-${dd}`;
+
+    // Hora en formato HH:MM
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    document.getElementById('inspection_time').value = `${hh}:${min}`;
+});
+
+  
+//para guardar la inspection en la bd y poder descargar el pdf
+
      document.getElementById('myForm').addEventListener('submit', function(e){
-    e.preventDefault(); // evitar envío normal
+     e.preventDefault(); // evitar envío normal
 
     let formData = new FormData(this);
 
@@ -277,6 +338,7 @@ body.dark-mode .input-group .input-group-text {
     .then(res => res.json())
     .then(data => {
         if(data.success){
+          document.getElementById('myForm').reset();
             Swal.fire({
                 title: 'Inspection Saved!',
                 text: "Do you want to download the PDF report?",

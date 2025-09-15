@@ -243,7 +243,7 @@ body.dark-mode ::placeholder {
     <a href="{{ url('/driver/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
     <a href="{{ url('/driver/log_book') }}"><i class="fas fa-chart-line"></i> <span>Logs</span></a>
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span>Duty Status</span></a>
-    <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span>Inspections</span></a>
+    <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span>DOT Inspection Mode</span></a>
     <a href="{{ url('/driver/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
     <!-- Logout -->
     <form method="POST" action="{{ route('logout') }}">
@@ -260,6 +260,14 @@ body.dark-mode ::placeholder {
             <input type="checkbox" id="darkModeToggle" style="margin-left: auto;">
         </label>
     </div>
+    <div class="sidebar-footer mt-2" style="padding: 15px; color: #fff;">
+    <label for="languageToggle" style="display: flex; align-items: center; cursor: pointer;">
+        <i class="fas fa-language me-2"></i>
+        <span class="sidebar-text" id="languageLabel">ES / EN</span>
+        <input type="checkbox" id="languageToggle" style="margin-left: auto;">
+    </label>
+</div>
+
 </div>
 
 
@@ -307,5 +315,34 @@ darkModeToggle.addEventListener("change", function() {
     const event = new CustomEvent("sidebarDarkMode", { detail: this.checked });
     window.dispatchEvent(event);
 });
+const languageToggle = document.getElementById("languageToggle");
+const languageLabel = document.getElementById("languageLabel");
+
+// Inicializar idioma desde localStorage
+if (localStorage.getItem("language") === "en") {
+    languageToggle.checked = true; // inglés activo
+    document.documentElement.lang = "en";
+} else {
+    languageToggle.checked = false; // español activo por defecto
+    document.documentElement.lang = "es";
+}
+
+// Cambiar idioma
+languageToggle.addEventListener("change", function() {
+    if (this.checked) {
+        localStorage.setItem("language", "en");
+        document.documentElement.lang = "en";
+        languageLabel.textContent = "EN / ES";
+    } else {
+        localStorage.setItem("language", "es");
+        document.documentElement.lang = "es";
+        languageLabel.textContent = "ES / EN";
+    }
+    
+    // Opcional: disparar un evento global para que otras partes de JS reaccionen
+    const event = new CustomEvent("languageChanged", { detail: this.checked ? "en" : "es" });
+    window.dispatchEvent(event);
+});
+
 </script>
 

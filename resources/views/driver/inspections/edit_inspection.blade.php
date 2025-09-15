@@ -21,7 +21,9 @@
       background-color: #1e1e1e; border-color: #333; color: #f0f0f0;
   }
 </style>
-
+ <a href="{{ url()->previous() }}" class="btn btn-secondary">
+       <i class="fas fa-arrow-left me-1"></i> Back
+    </a>
 @if(session('success'))
     <div class="alert alert-success">{{ session('success') }}</div>
 @endif
@@ -235,6 +237,45 @@
 </form>
 
 <script>
+//Para obtener en automatico el odometer
+document.getElementById('truck_number').addEventListener('blur', function() {
+        let plate = this.value.trim();
+        if (!plate) return;
+
+        let url = "{{ route('trucks.find', ':plate') }}".replace(':plate', plate);
+
+        console.log("Fetching:", url);
+
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Response:", data);
+                if (data.success) {
+                    document.getElementById('odometer').value = data.odometer;
+                } else {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Truck not found',
+                        text: 'The truck plate you entered does not exist.',
+                        confirmButtonText: 'OK'
+                    });
+                    document.getElementById('odometer').value = ""; // limpiar odómetro
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'There was a problem fetching the truck data.',
+                    confirmButtonText: 'Close'
+                });
+            });
+    });
+
+
+
+
 document.getElementById('myForm').addEventListener('submit', function(e){
     e.preventDefault();
     let formData = new FormData(this);
@@ -253,10 +294,7 @@ document.getElementById('myForm').addEventListener('submit', function(e){
             Swal.fire('Error', 'Failed to update inspection', 'error');
         }
     })
-    .catch(err => {
-        console.error(err);
-        Swal.fire('Error', err.message, 'error');
-    });
+    
 });
 </script>
 @endsection

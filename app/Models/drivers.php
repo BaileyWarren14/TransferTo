@@ -17,7 +17,8 @@ class drivers extends Model
     'email',
     'social_security_number',
     'password',
-    'license_number'
+    'license_number',
+    'status'
 ];
 protected $hidden = ['password'];
 }
