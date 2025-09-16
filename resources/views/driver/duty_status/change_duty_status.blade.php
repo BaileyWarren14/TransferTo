@@ -94,6 +94,11 @@
 
     </style>
 <div class="container mt-4">
+    <div class="text-center mb-3">
+        <a href="{{ route('driver.logs.today') }}" class="btn btn-info px-4 py-2 rounded-pill">
+            View Today's Logs
+        </a>
+    </div>
     <form id="dutyStatusForm" action="{{ route('driver.duty_status.store') }}" method="POST">
         @csrf
         <div class="card shadow-lg p-4 rounded-4">
@@ -204,7 +209,7 @@
                 Swal.showLoading();
             }
         });
-
+/*  Para ubicacion completa
         navigator.geolocation.getCurrentPosition(position => {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
@@ -224,6 +229,31 @@
                     locationInput.value = `${lat}, ${lng}`;
                     Swal.close(); // Cerrar SweetAlert de carga
                     Swal.fire('Error', 'Could not retrieve full address.', 'error');
+                });
+
+                */
+               navigator.geolocation.getCurrentPosition(position => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data.address) {
+                        const city = data.address.city || data.address.town || data.address.village || '';
+                        const state = data.address.state || '';
+                        const country = data.address.country || '';
+                        locationInput.value = [city, state, country].filter(Boolean).join(', ');
+                    } else {
+                        locationInput.value = `${lat}, ${lng}`;
+                    }
+                    Swal.close(); // Cerrar SweetAlert de carga
+                })
+                .catch(err => {
+                    console.error("Error getting address:", err);
+                    locationInput.value = `${lat}, ${lng}`;
+                    Swal.close(); // Cerrar SweetAlert de carga
+                    Swal.fire('Error', 'Could not retrieve address.', 'error');
                 });
         }, err => {
             Swal.close(); // Cerrar SweetAlert de carga

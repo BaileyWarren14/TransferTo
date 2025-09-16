@@ -15,35 +15,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/driver/log_book', function () {
-    return view('driver.logs.log_book'); // new.blade.php
-})->name('driver.logs.log_book');
-
-Route::get('trip', function () {
-    return view('trip_inspection');
-});
-Route::get('triped', function () {
-    return view('new');
-});
-Route::get('menu', function () {
-    return view('menu');
-})->name('menu');
-Route::get('/driver/new', function () {
-    return view('driver.inspections.new'); // new.blade.php
-})->name('new');
-
-Route::get('/driver/details', function () {
-    return view('driver.details.details'); // details.blade.php
-})->name('details');
-
-//para mostrar la lista de logs
-
-
-
-//Route::view('/menu', 'menu')->name('menu');
-//Para el registro de usuarios al registrarse correctamente
-Route::get('/register/success/{user_id}', [RegisterController::class, 'registerSuccess'])->name('register.success');
-
 
 // Login de drivers
 Route::get('/log', [LogController::class, 'showLoginForm'])->name('log');
@@ -94,16 +65,72 @@ Route::middleware(['auth:driver'])->group(function () {
 
     //Para generar el pdf
     Route::get('/driver/inspections/pdf/{id}', [InspectionController::class, 'generatePDF'])->name('driver.inspections.pdf');
+
+    Route::get('/driver/log_book', function () {
+        return view('driver.logs.log_book'); // new.blade.php
+    })->name('driver.logs.log_book');
+
+    Route::get('trip', function () {
+        return view('trip_inspection');
+    });
+    Route::get('triped', function () {
+        return view('new');
+    });
+    Route::get('menu', function () {
+        return view('menu');
+    })->name('menu');
+    Route::get('/driver/new', function () {
+        return view('driver.inspections.new'); // new.blade.php
+    })->name('new');
+
+    Route::get('/driver/details', function () {
+        return view('driver.details.details'); // details.blade.php
+    })->name('details');
+
+    //para mostrar la lista de logs
+
+
+
+    //Route::view('/menu', 'menu')->name('menu');
+    //Para el registro de usuarios al registrarse correctamente
+    Route::get('/register/success/{user_id}', [RegisterController::class, 'registerSuccess'])->name('register.success');
+
+    //para los cambios de estado 
+    // Mostrar el formulario
+    Route::get('/driver/change_duty_status', [DutyStatusController::class, 'create'])
+        ->name('driver.duty_status.changeDutyStatus.create');
+
+    // Guardar los datos
+    Route::post('/driver/change_duty_status', [DutyStatusController::class, 'store'])
+        ->name('driver.duty_status.changeDutyStatus.store');
+
+
+    Route::get('/dashboard', [DeviceController::class, 'index'])->name('dashboard');
+
+    // Mostrar formulario de registro
+    Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
+
+    // Procesar envío del formulario
+    Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
+
+
+    Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
+
+    //Para que se hagan y guarden lso cambios del duty
+    Route::get('/change_duty_status', [DutyStatusController::class, 'create'])->name('driver.duty_status.create');
+    Route::post('/change_duty_status', [DutyStatusController::class, 'store'])->name('driver.duty_status.store');
+
+    
+    //Ruta para obtener el odometer del truck mediante el plate
+    Route::get('/trucks/find/{plate}', [TruckController::class, 'findByPlate'])
+        ->name('trucks.find');
+
+    Route::get('today', [LogbookController::class, 'today'])->name('driver.logs.today');
+    Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
+
+
+
 });
-
-//para los cambios de estado 
-// Mostrar el formulario
-Route::get('/driver/change_duty_status', [DutyStatusController::class, 'create'])
-    ->name('driver.duty_status.changeDutyStatus.create');
-
-// Guardar los datos
-Route::post('/driver/change_duty_status', [DutyStatusController::class, 'store'])
-    ->name('driver.duty_status.changeDutyStatus.store');
 
 
 
@@ -113,16 +140,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 
-Route::get('/dashboard', [DeviceController::class, 'index'])->name('dashboard');
 
-// Mostrar formulario de registro
-Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
-
-// Procesar envío del formulario
-Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
-
-
-Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
 
 
 // Dashboard para drivers
@@ -134,9 +152,7 @@ Route::middleware(['auth:driver'])->group(function () {
     
 });
 
-//Para que se hagan y guarden lso cambios del duty
-    Route::get('/change_duty_status', [DutyStatusController::class, 'create'])->name('driver.duty_status.create');
-    Route::post('/change_duty_status', [DutyStatusController::class, 'store'])->name('driver.duty_status.store');
+
 
 // Dashboard para admins (protegido por guard 'admin')
 Route::middleware(['auth:admin'])->group(function () {
@@ -187,17 +203,19 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 });
 
 
-//Ruta para obtener el odometer del truck mediante el plate
-Route::get('/trucks/find/{plate}', [TruckController::class, 'findByPlate'])
-    ->name('trucks.find');
-
 
 //Para poder automatizar el registro del log a las 00:00
-Route::get('/logbook/{logbook}', [LogbookController::class, 'show'])->name('logbook.show');
+//Route::get('/logbook/{logbook}', [LogbookController::class, 'show'])->name('logbook.show');
 
 // Mostrar Logbook diario
-Route::get('/driver/logs/today', [LogbookController::class, 'today'])
-    ->name('driver.logs.today')
-    ->middleware('auth:driver');
+//Route::get('/driver/logs/today', [LogbookController::class, 'today'])
+  //  ->name('driver.logs.today')
+    //->middleware('auth:driver');
 
     // Guardar estado (ya existe)
+Route::prefix('driver/logs')->middleware('auth:driver')->group(function () {
+    
+});;
+
+
+//Route::get('/logbook/today', [LogbookController::class, 'today'])->name('logbook.today');

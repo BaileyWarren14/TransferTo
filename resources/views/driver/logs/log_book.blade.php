@@ -49,11 +49,19 @@
     
 </style>
 
+    <!-- 🔹 Botón para ir a show.blade.php -->
+    <div class="text-center mb-3">
+       <a href="{{ route('driver.logs.show') }}" class="btn btn-primary">Ver Logs</a>
+
+    </div>
+
 <h2 style="text-align:center;">Logbook Style Chart</h2>
 
 <div class="chart-container">
     <canvas id="logbookChart"></canvas>
 </div>
+
+
 
 <script>
 const ctx = document.getElementById('logbookChart').getContext('2d');

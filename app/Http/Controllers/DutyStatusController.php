@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\dutystatuslog; // Modelo para la tabla donde guardas logs
 use App\Models\Driver;        // Modelo del driver
+use Carbon\Carbon;
 
 class DutyStatusController extends Controller
 {
@@ -33,14 +34,14 @@ class DutyStatusController extends Controller
 
         // Obtener driver autenticado
         $driver = Auth::guard('driver')->user();
-
+        $changedAt = Carbon::now('America/Denver');
         // Guardar en la tabla de logs
         DutyStatusLog::create([
             'driver_id' => $driver->id,
             'status' => $data['status'],
             'location' => $data['location'],
             'notes' => $data['notes'] ?? null,
-            'changed_at' => now(),
+            'changed_at' => $changedAt,
         ]);
 
         // Actualizar el estado actual del driver
