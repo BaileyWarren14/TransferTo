@@ -1,3 +1,4 @@
+
 <!-- sidebar.blade.php -->
 <!-- Incluye Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -234,17 +235,38 @@ body.dark-mode ::placeholder {
     color: #aaa !important;
 }
 
+/* Card oscura */
+    body.dark-mode .dark-card {
+        background-color: #1e293b; /* slate-800 */
+        color: #f8fafc; /* blanco */
+        border: 1px solid #334155; /* slate-700 */
+    }
+
+    /* Lista en modo oscuro */
+    body.dark-mode .dark-list .list-group-item {
+        background-color: #0f172a; /* slate-900 */
+        color: #f8fafc; /* blanco */
+        border-color: #334155;
+    }
+
+    /* Alert en modo oscuro */
+    body.dark-mode .dark-alert {
+        background-color: #7f1d1d;
+        color: #f8fafc;
+        border-color: #991b1b;
+    }
 </style>
 
 <div id="mySidebar" class="sidebar">
     <div id="sidebarToggle">
         <i class="fas fa-angle-left"></i>
     </div>
-    <a href="{{ route('admin.dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-    <a href="{{ route('admin.trucks') }}"><i class="fas fa-truck"></i> <span>Trucks</span></a>
-    <a href="{{ route('admin.trailers') }}"><i class="fas fa-exchange-alt"></i> <span>Trailers</span></a>
-    <a href="{{ route('admin.drivers') }}"><i class="fas fa-users"></i> <span>Drivers</span></a>
-    <a href="{{ route('admin.details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+    <a href="{{ url('/admin/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+    <a href="{{ url('/admin/trucks') }}"><i class="fas fa-chart-line"></i> <span>Trucks</span></a>
+    <a href="{{ url('/admin/trailers') }}"><i class="fas fa-toggle-on"></i> <span>Trailers</span></a>
+    <a href="{{ url('/admin/drivers') }}"><i class="fas fa-plus-circle"></i> <span>Drivers</span></a>
+    <a href="{{ url('/admin/admin') }}"><i class="fas fa-info-circle"></i> <span>Admins</span></a>
+    <!--<a href="{{ url('/admin/') }}"><i class="fas fa-info-circle"></i> <span>Status</span></a>-->
     <!-- Logout -->
     <form method="POST" action="{{ route('logout') }}">
         @csrf
@@ -260,6 +282,14 @@ body.dark-mode ::placeholder {
             <input type="checkbox" id="darkModeToggle" style="margin-left: auto;">
         </label>
     </div>
+    <div class="sidebar-footer mt-2" style="padding: 15px; color: #fff;">
+    <label for="languageToggle" style="display: flex; align-items: center; cursor: pointer;">
+        <i class="fas fa-language me-2"></i>
+        <span class="sidebar-text" id="languageLabel">ES / EN</span>
+        <input type="checkbox" id="languageToggle" style="margin-left: auto;">
+    </label>
+</div>
+
 </div>
 
 
@@ -307,5 +337,34 @@ darkModeToggle.addEventListener("change", function() {
     const event = new CustomEvent("sidebarDarkMode", { detail: this.checked });
     window.dispatchEvent(event);
 });
+const languageToggle = document.getElementById("languageToggle");
+const languageLabel = document.getElementById("languageLabel");
+
+// Inicializar idioma desde localStorage
+if (localStorage.getItem("language") === "en") {
+    languageToggle.checked = true; // inglés activo
+    document.documentElement.lang = "en";
+} else {
+    languageToggle.checked = false; // español activo por defecto
+    document.documentElement.lang = "es";
+}
+
+// Cambiar idioma
+languageToggle.addEventListener("change", function() {
+    if (this.checked) {
+        localStorage.setItem("language", "en");
+        document.documentElement.lang = "en";
+        languageLabel.textContent = "EN / ES";
+    } else {
+        localStorage.setItem("language", "es");
+        document.documentElement.lang = "es";
+        languageLabel.textContent = "ES / EN";
+    }
+    
+    // Opcional: disparar un evento global para que otras partes de JS reaccionen
+    const event = new CustomEvent("languageChanged", { detail: this.checked ? "en" : "es" });
+    window.dispatchEvent(event);
+});
+
 </script>
 

@@ -8,7 +8,11 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * Libreria normalize para diferentes navegadores
+     * librerias de hojas de estilos webkit
+     * 
      */
+
     public function up(): void
     {
         Schema::create('drivers', function (Blueprint $table) {

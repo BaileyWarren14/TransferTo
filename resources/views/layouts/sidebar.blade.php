@@ -234,6 +234,26 @@ body.dark-mode ::placeholder {
     color: #aaa !important;
 }
 
+/* Card oscura */
+    body.dark-mode .dark-card {
+        background-color: #1e293b; /* slate-800 */
+        color: #f8fafc; /* blanco */
+        border: 1px solid #334155; /* slate-700 */
+    }
+
+    /* Lista en modo oscuro */
+    body.dark-mode .dark-list .list-group-item {
+        background-color: #0f172a; /* slate-900 */
+        color: #f8fafc; /* blanco */
+        border-color: #334155;
+    }
+
+    /* Alert en modo oscuro */
+    body.dark-mode .dark-alert {
+        background-color: #7f1d1d;
+        color: #f8fafc;
+        border-color: #991b1b;
+    }
 </style>
 
 <div id="mySidebar" class="sidebar">
@@ -245,6 +265,7 @@ body.dark-mode ::placeholder {
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span>Duty Status</span></a>
     <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span>DOT Inspection Mode</span></a>
     <a href="{{ url('/driver/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+    <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span>Truck information</span></a>
     <!-- Logout -->
     <form method="POST" action="{{ route('logout') }}">
         @csrf

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Driver;
 
 class DriverController extends Controller
 {
@@ -19,7 +20,7 @@ class DriverController extends Controller
     public function index()
     {
         $drivers = Driver::all();
-        return view('admin.drivers.index', compact('drivers'));
+        return view('admin.drivers.drivers', compact('drivers'));
     }
 
     /**
@@ -27,7 +28,7 @@ class DriverController extends Controller
      */
     public function create()
     {
-        return view('admin.drivers.create');
+        return view('admin.drivers.new_driver');
     }
 
     /**

@@ -40,4 +40,5 @@ class Inspection extends Model
     {
         return $this->belongsTo(Trailer::class);
     }
+    
 }

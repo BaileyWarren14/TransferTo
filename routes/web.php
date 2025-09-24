@@ -10,6 +10,9 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TruckController;
 use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\TimezoneController;
+use App\Http\Controllers\DriverController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -22,9 +25,9 @@ Route::post('/log', [LogController::class, 'login'])->name('login.post');
 Route::post('/logout', [LogController::class, 'logout'])->name('logout');
 
 // Login de admins
-Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
-Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.post');
-Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
+//Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
+//Route::post('/admin/login', [AdminLoginController::class, 'login'])->name('admin.login.post');
+//Route::post('/admin/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 
 
 //ruta del trip inspection
@@ -125,9 +128,13 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/trucks/find/{plate}', [TruckController::class, 'findByPlate'])
         ->name('trucks.find');
 
+    //Ruta para mostrar los cambios de estado en el dia
     Route::get('today', [LogbookController::class, 'today'])->name('driver.logs.today');
+    //ruta para ver el libro electronico
     Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
 
+    //Ruta para entrar a ver la informacion del truck actual
+    Route::get('/driver/about', [TruckController::class, 'about'])->name('driver.about_truck.about_truck');
 
 
 });
@@ -153,13 +160,33 @@ Route::middleware(['auth:driver'])->group(function () {
 });
 
 
-
 // Dashboard para admins (protegido por guard 'admin')
 Route::middleware(['auth:admin'])->group(function () {
+    // Dashboard
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    // Trucks
+    Route::get('/admin/trucks', [TruckController::class, 'index'])->name('admin.trucks');
+
+    // Trailers
+    Route::get('/admin/trailers', [TrailerController::class, 'index'])->name('admin.trailers');
+
+    // Drivers
+    Route::get('/admin/drivers', [DriverController::class, 'index'])->name('admin.drivers');
+
+    // Crear admin
+    Route::get('/admin/drivers/create', [AdminController::class, 'create'])->name('admin.create');
+    Route::post('/admin/drivers/store', [AdminController::class, 'store'])->name('admin.store');
+
+    // CRUD de drivers (admin maneja a los drivers)
+    Route::get('/admin/drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('/admin/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
+    Route::delete('/admin/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
 });
+
+
 
 //para el log out de usuarios
 Route::post('/logout', [LogController::class, 'logout'])->name('logout');
@@ -169,38 +196,17 @@ Route::post('/logout', [LogController::class, 'logout'])->name('logout');
 //para crear administradores de forma temporal
 
 
-    Route::get('/admin/create', [AdminController::class, 'create'])->name('admin.create');
-    Route::post('/admin/store', [AdminController::class, 'store'])->name('admin.store');
+   
 
 
-
-//para el admin
-//para obtener los drivers, editarlos y eliminarlos, agregar  OPERACIONES CRUD en drivers
-Route::middleware(['auth:admin'])->group(function () {
-    Route::get('/admin/drivers', [DriverController::class, 'index'])->name('drivers.index');
-    Route::get('/admin/drivers/create', [DriverController::class, 'create'])->name('drivers.create');
-    Route::post('/admin/drivers', [DriverController::class, 'store'])->name('drivers.store');
-    Route::get('/admin/drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
-    Route::put('/admin/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
-    Route::delete('/admin/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
-});
-
-Route::prefix('admin')->middleware('auth:admin')->group(function () {
     // Dashboard
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    //Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Trucks
-    Route::get('/trucks', [TruckController::class, 'index'])->name('admin.trucks');
-
-    // Trailers
-    Route::get('/trailers', [TrailerController::class, 'index'])->name('admin.trailers');
-
-    // Drivers
-    Route::get('/drivers', [DriverController::class, 'index'])->name('admin.drivers');
+    
 
     // Details
-    Route::get('/details', [AdminDashboardController::class, 'details'])->name('admin.details');
-});
+    //Route::get('/details', [AdminDashboardController::class, 'details'])->name('admin.details');
+
 
 
 

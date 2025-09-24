@@ -7,7 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body style="margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
-
+@include('sweetalert2::index')
 {{-- Incluir el sidebar --}}
 {{-- Mostrar sidebar según el guard activo --}}
      @if(auth()->guard('driver')->check())
@@ -50,6 +50,7 @@
         <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span>Duty Status</span></a>
         <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span>DOT Inspection Mode</span></a>
         <a href="{{ url('/driver/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+        <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span>Truck information</span></a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="btn-logout">
@@ -228,5 +229,23 @@ if (mobileDarkModeToggle) {
     });
 }
 </script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Obtener la zona horaria del navegador
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+        // Enviar la zona horaria al backend para guardarla en sesión
+        fetch("/set-timezone", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+            body: JSON.stringify({ timezone: timezone })
+        });
+    });
+</script>
+
 </body>
 </html>

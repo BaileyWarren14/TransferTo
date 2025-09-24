@@ -3,9 +3,11 @@
 
 @section('content')
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+<link rel="stylesheet" href="{{ asset('css/leaflet.css') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"> 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <style>
     #map {
         height: 400px;
@@ -108,7 +110,10 @@ body.dark-mode .app-body button {
 
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
    
@@ -191,5 +196,20 @@ setInterval(updateLocation, 300000); // actualizar cada 5 min
 
 </script>
 
+@if(session('alert_message'))
+<script>
+    
+    Swal.fire({
+        icon: 'warning',
+        title: 'Attention',
+        text: "{{ session('alert_message') }}",
+        confirmButtonText: 'OK'
+    });
+</script>
+
+<script src="{{ asset('js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('js/leaflet.js') }}"></script>
+<script src="{{ asset('js/chart.js') }}"></script>
+@endif
 
 @endsection

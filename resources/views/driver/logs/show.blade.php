@@ -2,8 +2,8 @@
 
 @section('content')
 <a href="{{ url()->previous() }}" class="btn btn-secondary">
-       <i class="fas fa-arrow-left me-1"></i> Back
-    </a>
+    <i class="fas fa-arrow-left me-1"></i> Back
+</a>
 <div class="container mt-4">
 
     <!-- Hoy -->
@@ -13,10 +13,11 @@
             <a href="{{ route('driver.logs.show') }}" class="btn btn-light btn-sm">➡️</a>
         </div>
         <div class="card-body text-center">
-            <h5>{{ \Carbon\Carbon::today()->format('l, M d, Y') }}</h5>
+            <h5>{{ \Carbon\Carbon::now('America/Mexico_City')->format('l, M d, Y') }}</h5>
+
             <p>{{ $totalOnDutyHours }} hr {{ $totalOnDutyMins }} min</p>
             <div class="chart-container" style="height:200px;">
-                <canvas id="todayChart"></canvas>
+                <canvas id="logbookChart"></canvas>
             </div>
         </div>
     </div>
@@ -39,7 +40,6 @@
                             }
                         }
                     }
-
                     $hours = intdiv($totalMinutes, 60);
                     $minutes = $totalMinutes % 60;
                 @endphp
@@ -58,171 +58,97 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // 📌 Recibimos directamente desde PHP
+    const labels = @json($labels);
+    const duty_status = @json($dutyStatuses);
+    const rawLogs = @json($rawLogs);
+    
+    // Debug temporal
     alert(
-        "Labels: " + {!! json_encode($labels) !!} + "\n" +
-        "Duty Statuses: " + {!! json_encode($dutyStatuses) !!}
+        "📌 Registros originales de la BD:\n" +
+        JSON.stringify(rawLogs, null, 2) +
+        "\n\n📌 Labels (96 bloques):\n" +
+        JSON.stringify(labels) +
+        "\n\n📌 Duty Statuses (96 valores):\n" +
+        JSON.stringify(duty_status)
     );
-const ctx = document.getElementById('todayChart').getContext('2d');
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {!! json_encode($labels) !!},
-        datasets: [{
-            label: 'Duty Status',
-            data: {!! json_encode($dutyStatuses) !!},
-            borderColor: 'blue',
-            borderWidth: 2,
-            stepped: true,
-            pointRadius: 0,
-            fill: false
-        }]
+
+    // Opcional: debug
+    console.log("Registros originales:", rawLogs);
+    console.log("96 bloques:", labels);
+    console.log("Estados de cada bloque:", duty_status);
+
+    // Categorías del eje Y
+    const yCategories = ['OFF', 'SB', 'D', 'ON', 'WT'];
+
+    
+
+    const ctx = document.getElementById('logbookChart').getContext('2d');
+    new Chart(ctx, {
+          type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Driver Status',
+                    data: duty_status,       // 96 valores
+                    borderColor: 'blue',
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    tension: 0,
+                    stepped: true,    // línea escalonada
+                    fill: false,
+                    
+                }]
+              
     },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                type: 'category',
-                labels: ['OFF','SB','D','ON','WT','PC','YM'],
-                reverse: true
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            aspectRatio: 2.5,
+            scales: {
+                y: {
+                    type: 'linear',
+                    min: 0,
+                    max: 4,
+                    reverse: true,
+                    ticks: {
+                        stepSize: 1,
+                        callback: function(value) {
+                            return yCategories[value] ?? value;
+                        }
+                    },
+                    grid: { drawTicks: true, color: '#ccc' }
+                    },
+                x: {
+                    grid: {
+                        drawTicks: true,
+                        tickLength: 5,
+                        color: ctx => ctx.index % 4 === 0 ? '#666' : '#ddd',
+                        borderColor: '#333'
+                    },
+                    ticks: {
+                        autoSkip: false,
+                        callback: function(value, index) {
+                            // Mostrar solo las etiquetas de cada hora (cada 4 bloques de 15 min)
+                            return index % 4 === 0 ? labels[index] : '';
+                        },
+                        font: { size: 10 },
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Status: ${yCategories[context.raw]}`;
+                        }
+                    }
+                }
             }
-        },
-        plugins: { legend: { display: false } }
-    }
-});
-</script>
-@endsection
-
-
-
-<!--
-
-@extends('layouts.app')
-
-@section('content')
-
-    <a href="{{ url()->previous() }}" class="btn btn-secondary">
-       <i class="fas fa-arrow-left me-1"></i> Back
-    </a>
-<div class="container mt-4">
-
-    <!-- Gráfica del día -->
-    <!--<div class="logbook-entry text-center mb-4 card p-3 shadow-lg rounded-4">
-        <h4>{{ \Carbon\Carbon::today()->format('l, M d, Y') }}</h4>
-        <p>Total ON DUTY Hours: <strong>{{ $totalOnDutyHours }}</strong></p>
-
-        <div class="chart-container">
-            <canvas id="logbookChart"></canvas>
-        </div>
-    </div>
-
-    <!-- Logs últimos 14 días -->
-    <!--<div class="card shadow-lg rounded-4">
-        <div class="card-header bg-dark text-white text-center rounded-top-4">
-            <h5 class="mb-0">📝 Last 14 Days Logs</h5>
-        </div>
-        <div class="card-body">
-            @if($logs->isEmpty())
-                <div class="alert alert-warning text-center">No logs found.</div>
-            @else
-                <table class="table table-hover align-middle text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Date</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Location</th>
-                            <th>Notes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($logs as $index => $log)
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ \Carbon\Carbon::parse($log->changed_at)->format('Y-m-d') }}</td>
-                                <td>{{ \Carbon\Carbon::parse($log->changed_at)->format('H:i:s') }}</td>
-                                <td>
-                                    @php
-                                        $colors = ['ON'=>'success','OFF'=>'secondary','SB'=>'info','D'=>'primary','WT'=>'warning','PC'=>'dark','YM'=>'danger'];
-                                    @endphp
-                                    <span class="badge bg-{{ $colors[$log->status] ?? 'secondary' }}">
-                                        {{ $log->status }}
-                                    </span>
-                                </td>
-                                <td>{{ $log->location }}</td>
-                                <td>{{ $log->notes ?? '—' }}</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @endif
-        </div>
-    </div>
-    <div class="card shadow-lg rounded-4">
-    <div class="card-header bg-dark text-white text-center rounded-top-4">
-        <h5 class="mb-0">📝 Last 14 Days Summary</h5>
-    </div>
-    <div class="card-body">
-        @if(empty($summary) || count($summary) === 0)
-            <div class="alert alert-warning text-center">No logs found.</div>
-        @else
-            <table class="table table-hover align-middle text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>Total ON Duty Hours</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($summary as $day)
-                        <tr>
-                            <td>
-                                {{ \Carbon\Carbon::parse($day['date'])->format('l, M d') }}
-                            </td>
-                            <td>
-                                <strong>{{ $day['onDutyHours'] }}</strong> hrs
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
-    </div>
-</div>
-
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const ctx = document.getElementById('logbookChart').getContext('2d');
-
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {!! json_encode($labels) !!},
-        datasets: [{
-            label: 'Duty Status',
-            data: {!! json_encode($dutyStatuses) !!},
-            borderColor: 'blue',
-            borderWidth: 2,
-            pointRadius: 0,
-            stepped: true
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                type: 'category',
-                labels: ['OFF','SB','D','ON','WT','PC','YM'],
-                reverse: true
-            }
-        },
-        plugins: { legend: { display: false } }
-    }
-});
+        }
+    });
 </script>
 @endsection

@@ -62,7 +62,7 @@ class InspectionController extends Controller
             $inspection->checklist = json_encode($request->checklist);
 
             $inspection->save();
-
+            
             return response()->json([
                 'success' => true,
                 'inspection_id' => $inspection->id

@@ -20,20 +20,25 @@ class LogController extends Controller
             'email' => 'required|email',
             'password' => 'required',
         ]);
+
         $credentials = $request->only('email', 'password');
-            // Validación de los datos antes de intentar login
-            // Intentar login en guard 'admin' primero
+
+        // 🔹 Intentar login como Admin
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended('/admin/dashboard');
         }
 
-        // Si no es admin, intentar con guard 'driver'
+        // 🔹 Intentar login como Driver
         if (Auth::guard('driver')->attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended('/driver/dashboard');
         }
-        return back()->with('error', 'Credenciales inválidas');
+
+        // Si llega aquí → credenciales inválidas
+        return back()->withErrors([
+            'email' => 'Las credenciales no son correctas.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)
