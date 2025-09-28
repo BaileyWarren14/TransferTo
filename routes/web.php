@@ -12,6 +12,7 @@ use App\Http\Controllers\TruckController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\TimezoneController;
 use App\Http\Controllers\DriverController;
+use App\Http\Controllers\TrailerController;
 
 
 Route::get('/', function () {
@@ -132,6 +133,10 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('today', [LogbookController::class, 'today'])->name('driver.logs.today');
     //ruta para ver el libro electronico
     Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
+    //para que obtenga los datos y se actualice el logbook automatico
+    //Route::get('/driver/logs/today-data', [LogbookController::class, 'todayData'])->name('driver.logs.today-data');
+
+    
 
     //Ruta para entrar a ver la informacion del truck actual
     Route::get('/driver/about', [TruckController::class, 'about'])->name('driver.about_truck.about_truck');
@@ -167,23 +172,70 @@ Route::middleware(['auth:admin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 
-    // Trucks
-    Route::get('/admin/trucks', [TruckController::class, 'index'])->name('admin.trucks');
-
-    // Trailers
-    Route::get('/admin/trailers', [TrailerController::class, 'index'])->name('admin.trailers');
-
     // Drivers
     Route::get('/admin/drivers', [DriverController::class, 'index'])->name('admin.drivers');
 
-    // Crear admin
-    Route::get('/admin/drivers/create', [AdminController::class, 'create'])->name('admin.create');
-    Route::post('/admin/drivers/store', [AdminController::class, 'store'])->name('admin.store');
+  
+    // CRUD de drivers (admin maneja a los drivers)    
+    // List all drivers
+    Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
 
-    // CRUD de drivers (admin maneja a los drivers)
-    Route::get('/admin/drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
-    Route::put('/admin/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
-    Route::delete('/admin/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
+    // Create a new driver
+    Route::get('/drivers/create', [DriverController::class, 'create'])->name('drivers.create');
+    Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
+
+    // Edit an existing driver
+    Route::get('/drivers/{id}/edit', [DriverController::class, 'edit'])->name('drivers.edit');
+    Route::put('/drivers/{id}', [DriverController::class, 'update'])->name('drivers.update');
+    Route::resource('drivers', DriverController::class);
+
+    // Delete a driver
+    Route::delete('/drivers/{id}', [DriverController::class, 'destroy'])->name('drivers.destroy');
+
+     // Dashboard Trucks
+    Route::get('/admin/trucks', [TruckController::class, 'index'])->name('trucks.list_trucks');
+
+    // Crear Truck
+    Route::get('/admin/trucks/create', [TruckController::class, 'create'])->name('trucks.create');
+    Route::post('/admin/trucks', [TruckController::class, 'store'])->name('trucks.store');
+
+    // Editar Truck
+    Route::get('/admin/trucks/{truck}/edit', [TruckController::class, 'edit'])->name('trucks.edit');
+    Route::put('/admin/trucks/{truck}', [TruckController::class, 'update'])->name('trucks.update');
+
+    // Eliminar Truck
+    Route::delete('/admin/trucks/{truck}', [TruckController::class, 'destroy'])->name('trucks.destroy');
+
+
+  
+    // Listado de trailers
+    Route::get('/admin/trailers', [TrailerController::class, 'index'])->name('trailers.index');
+
+    // Crear nuevo trailer
+    Route::get('/admin/trailers/create', [TrailerController::class, 'create'])->name('trailers.create');
+    Route::post('/admin/trailers', [TrailerController::class, 'store'])->name('trailers.store');
+
+    // Editar trailer
+    Route::get('/admin/trailers/{trailer}/edit', [TrailerController::class, 'edit'])->name('trailers.edit');
+    Route::put('/admin/trailers/{trailer}', [TrailerController::class, 'update'])->name('trailers.update');
+
+    // Eliminar trailer
+    Route::delete('/admin/trailers/{trailer}', [TrailerController::class, 'destroy'])->name('trailers.destroy');
+
+    // Listado de admins
+    Route::get('/admin/admin', [AdminController::class, 'index'])->name('admin.index');
+
+    // Crear nuevo admin
+    Route::get('/admin/admin/create', [AdminController::class, 'create'])->name('admin.create');
+    Route::post('/admin/admin', [AdminController::class, 'store'])->name('admin.store');
+
+    // Editar admin
+    Route::get('/admin/admin/{admin}/edit', [AdminController::class, 'edit'])->name('admin.edit');
+    Route::put('/admin/admin/{admin}', [AdminController::class, 'update'])->name('admin.update');
+
+    // Eliminar admin
+    Route::delete('/admin/admin/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy');
+
 });
 
 

@@ -1,17 +1,16 @@
 @extends('layouts.app_admin')
 
 @section('content')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container my-5">
-    <h2 class="text-center mb-4"><i class="fas fa-user-plus me-2"></i>Add New Driver</h2>
+    <h2 class="text-center mb-4"><i class="fas fa-user-shield me-2"></i>Add New Admin</h2>
 
     <!-- Botón regresar -->
-    <a href="{{ route('drivers.index') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back to Drivers
+    <a href="{{ route('admin.index') }}" class="btn btn-secondary mb-3">
+        <i class="fas fa-arrow-left me-1"></i> Back to Admins
     </a>
 
     <!-- Formulario -->
-    <form id="driverForm" action="{{ route('drivers.store') }}" method="POST" autocomplete="off">
+    <form id="addAdminForm" action="{{ route('admin.store') }}" method="POST">
         @csrf
         <div class="row g-3">
 
@@ -32,31 +31,31 @@
 
             <div class="col-md-6">
                 <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" placeholder="Enter email address" autocomplete="new-email">
+                <input type="email" name="email" id="email" class="form-control" placeholder="Enter email address" required autocomplete="new-email">
             </div>
 
             <div class="col-md-6">
-                <label for="social_security_number" class="form-label">Social Security Number</label>
-                <input type="text" name="social_security_number" id="social_security_number" class="form-control" placeholder="Enter Social Security Number">
+                <label for="department" class="form-label">Department</label>
+                <input type="text" name="department" id="department" class="form-control" placeholder="Enter department">
             </div>
 
             <div class="col-md-6">
-                <label for="license_number" class="form-label">Driver License Number</label>
-                <input type="text" name="license_number" id="license_number" class="form-control" placeholder="Enter Driver License Number">
+                <label for="position" class="form-label">Position</label>
+                <input type="text" name="position" id="position" class="form-control" placeholder="Enter position" required>
             </div>
 
             <div class="col-md-6">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" autocomplete="new-password">
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required autocomplete="new-password">
             </div>
 
         </div>
 
         <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-success btn-lg flex-grow-1">
-                <i class="fas fa-save me-1"></i> Save Driver
+                <i class="fas fa-save me-1"></i> Save Admin
             </button>
-            <a href="{{ route('drivers.index') }}" class="btn btn-secondary btn-lg flex-grow-1">
+            <a href="{{ route('admin.index') }}" class="btn btn-secondary btn-lg flex-grow-1">
                 <i class="fas fa-times me-1"></i> Cancel
             </a>
         </div>
@@ -66,14 +65,14 @@
 <!-- SweetAlert2 y Ajax -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.getElementById('driverForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // detenemos el envío
+document.getElementById('addAdminForm').addEventListener('submit', function(e){
+    e.preventDefault();
 
     let name = document.getElementById('name').value.trim();
     let lastname = document.getElementById('lastname').value.trim();
     let email = document.getElementById('email').value.trim();
     let password = document.getElementById('password').value.trim();
-
+     
     // Validación rápida frontend
     if (!name || !lastname || !password) {
         Swal.fire({
@@ -84,10 +83,10 @@ document.getElementById('driverForm').addEventListener('submit', function(e) {
         return;
     }
 
-    // Confirmación antes de guardar
+     // Confirmación antes de guardar
     Swal.fire({
         title: 'Are you sure?',
-        text: "This driver will be added to the system.",
+        text: "This admin will be added to the system.",
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Yes, save',
@@ -100,71 +99,18 @@ document.getElementById('driverForm').addEventListener('submit', function(e) {
 });
 </script>
 
-
-
 <style>
-/* Diseño profesional */
-/* Inputs flotantes estilo moderno */
-.form-floating > label {
-    color: #6c757d;
-    transition: all 0.2s;
-}
-.form-floating > .form-control:focus ~ label,
-.form-floating > .form-control:not(:placeholder-shown) ~ label {
-    color: #0d6efd;
-    transform: scale(0.85) translateY(-0.5rem);
-}
-
-/* Botones responsive */
-@media (max-width: 576px) {
-    .w-md-auto { width: 100% !important; }
-}
-
+/* Diseño profesional similar al de drivers */
 .btn-success {
     background-color: #28a745;
     border: none;
 }
-
-.btn-success:hover {
-    background-color: #218838;
-}
+.btn-success:hover { background-color: #218838; }
 
 .btn-secondary {
     background-color: #6c757d;
     border: none;
 }
-
-.btn-secondary:hover {
-    background-color: #5a6268;
-}
+.btn-secondary:hover { background-color: #5a6268; }
 </style>
-
-@if ($errors->any())
-<script>
-    Swal.fire({
-        icon: 'error',
-        title: 'Errores en el formulario',
-        html: `
-            <ul style="text-align:left;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        `
-    });
-</script>
-@endif
-
-@if(session('success'))
-<script>
-    Swal.fire({
-        icon: 'success',
-        title: '¡Éxito!',
-        text: '{{ session('success') }}',
-        timer: 2500,
-        showConfirmButton: false
-    });
-</script>
-@endif
-
 @endsection

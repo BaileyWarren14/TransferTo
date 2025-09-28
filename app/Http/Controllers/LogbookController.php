@@ -44,7 +44,7 @@ class LogbookController extends Controller
         $yStatusMap = ['OFF'=>0, 'SB'=>1, 'D'=>2, 'ON'=>3, 'WT'=>4];
 
         // 🔹 Preparar etiquetas (96 bloques de 15 min)
-        $labels = [];
+        /*$labels = [];
         for ($h = 0; $h < 24; $h++) {
             $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
             for ($i = 0; $i < 4; $i++) {
@@ -82,7 +82,45 @@ class LogbookController extends Controller
         while (count($dutyStatuses) < $blocks) {
             $dutyStatuses[] = $yStatusMap[$lastStatus]; // repetir último estado
         }
+        */
+        // 🔹 Preparar etiquetas (1440 bloques de 1 min)
+        $labels = [];
+        for ($h = 0; $h < 24; $h++) {
+            $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
+            for ($m = 0; $m < 60; $m++) {
+                 
+           
+                $labels[] = $m == 0 ? $hour : '';
+           
+            }
+        }
 
+        // 🔹 Generar estados de los bloques de 1 min
+        $dutyStatuses = [];
+        $start = $today->copy();
+        $now = Carbon::now($tz);
+        $blocks = 1440; // 24 * 60
+        $logIndex = 0;
+        $lastStatus = 'OFF';
+
+        for ($i = 0; $i < $blocks; $i++) {
+            $time = $start->copy()->addMinutes($i);
+
+             if ($time->gt($now)) break;
+
+            // ✅ Verificar si algún log cambió antes o en este minuto
+            while (isset($todayLogs[$logIndex]) && Carbon::parse($todayLogs[$logIndex]->changed_at)->lte($time)) {
+                $lastStatus = $todayLogs[$logIndex]->status;
+                $logIndex++;
+            }
+
+            $dutyStatuses[] = $yStatusMap[$lastStatus];
+        }
+
+        // 🔹 Si quieres forzar 1440 valores
+        while (count($dutyStatuses) < $blocks) {
+            $dutyStatuses[] = null;
+        }
 
 
         // 🔹 Calcular total de horas ON duty
@@ -100,7 +138,7 @@ class LogbookController extends Controller
         }
         $totalOnDutyHours = intdiv($totalOnDutyMinutes, 60);
         $totalOnDutyMins = $totalOnDutyMinutes % 60;
-
+        
         // 🔹 Últimos 14 días (también ajustados a MX)
         $last14Days = dutystatuslog::where('driver_id', $driver->id)
             ->orderBy('changed_at', 'desc')
@@ -251,4 +289,60 @@ class LogbookController extends Controller
         }
 
     }
+    // Mostrar vista de detalles del logbook
+    public function showDetail()
+    {
+        $driver = auth()->user();
+        $tz = 'America/Mexico_City';
+
+        $logs = dutystatuslog::where('driver_id', $driver->id)
+            ->orderBy('changed_at', 'asc')
+            ->get();
+
+        $labels = [];
+        $dutyStatuses = [];
+        $yCategories = ['OFF','SB','D','ON','WT'];
+
+        // Gráfica de 24h (minutos)
+        for($i=0; $i<1440; $i++){
+            $labels[] = Carbon::today($tz)->addMinutes($i)->format('H:i');
+            $status = null;
+            foreach($logs as $log){
+                if(Carbon::parse($log->changed_at)->setTimezone($tz)->format('H:i') <= $labels[$i]){
+                    $status = $yCategories[array_search($log->status, $yCategories)];
+                }
+            }
+            $dutyStatuses[] = $status !== null ? $status : null;
+        }
+
+        return view('driver.logs.details_logbook', compact('logs','labels','dutyStatuses'));
+    }
+
+    // Editar un log específico
+    public function update(Request $request, dutystatuslog $log)
+    {
+        $request->validate([
+            'status' => 'required|in:ON,OFF,SB,D,WT,PC,YM',
+            'notes' => 'nullable|string',
+            'location' => 'nullable|string'
+        ]);
+
+        $log->update([
+            'status' => $request->status,
+            'notes' => $request->notes,
+            'location' => $request->location
+        ]);
+
+        return redirect()->route('driver.logs.details')
+                         ->with('success', 'Log actualizado correctamente.');
+    }
+
+    // Eliminar un log
+    public function destroy(dutystatuslog $log)
+    {
+        $log->delete();
+        return redirect()->route('driver.logs.details')
+                         ->with('success', 'Log eliminado correctamente.');
+    }
+
 }

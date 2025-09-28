@@ -349,6 +349,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }).then((result) => {
                 if(result.isConfirmed){
                     window.location.href = "{{ url('driver/inspections/pdf') }}/" + data.inspection_id;
+                }else{
+                  window.location.href = "{{ url('driver/list') }}/";
                 }
             });
         } else {

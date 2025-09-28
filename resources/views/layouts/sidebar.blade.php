@@ -254,12 +254,33 @@ body.dark-mode ::placeholder {
         color: #f8fafc;
         border-color: #991b1b;
     }
+    #sidebar-weather {
+    background-color: #2a5298;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    }
+    #sidebar-weather div {
+        margin: 5px 0;
+        font-size: 14px;
+    }
 </style>
 
 <div id="mySidebar" class="sidebar">
     <div id="sidebarToggle">
         <i class="fas fa-angle-left"></i>
     </div>
+
+    <!--
+    <div id="sidebar-weather" class="p-3">
+        <h5>Driver Info</h5>
+        <div id="location">📍 Location: Loading...</div>
+        <div id="time">🕒 Local Time: --:--:--</div>
+        <div id="timezone">⏰ Timezone: --</div>
+        <!-- <div id="temperature">🌡 Temperature: --°F | --°C</div> -->
+        <!-- <div id="condition">☁ Condition: --</div> -->
+    <!--</div>
+-->
+
     <a href="{{ url('/driver/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
     <a href="{{ url('/driver/log_book') }}"><i class="fas fa-chart-line"></i> <span>Logs</span></a>
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span>Duty Status</span></a>
@@ -293,6 +314,57 @@ body.dark-mode ::placeholder {
 
 
 <script>
+// Actualiza la hora cada segundo
+function updateTime() {
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2,'0');
+    const minutes = now.getMinutes().toString().padStart(2,'0');
+    const seconds = now.getSeconds().toString().padStart(2,'0');
+    document.getElementById('time').textContent = `🕒 Local Time: ${hours}:${minutes}:${seconds}`;
+
+    // Obtiene la zona horaria
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    document.getElementById('timezone').textContent = `⏰ Timezone: ${timezone}`;
+}
+
+// Función para obtener la ubicación del usuario
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(async function(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+
+            // Mostrar lat/lon como fallback
+            let locationText = `Lat: ${lat.toFixed(2)}, Lon: ${lon.toFixed(2)}`;
+
+            // Intentar obtener ciudad y país usando API de geocoding gratuita
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+                const data = await res.json();
+                const city = data.address.city || data.address.town || data.address.village || data.address.county;
+                const state = data.address.state || '';
+                locationText = `${city}, ${state}`;
+            } catch(err) {
+                console.log('No se pudo obtener ciudad: ', err);
+            }
+
+            document.getElementById('location').textContent = `📍 Location: ${locationText}`;
+
+            // Ejemplo de clima ficticio (reemplazar con OpenWeatherMap si quieres)
+           
+        });
+    } else {
+        document.getElementById('location').textContent = '📍 Location: Not available';
+    }
+}
+
+// Inicializa
+updateTime();
+getLocation();
+setInterval(updateTime, 1000); // actualiza la hora cada segundo
+
+
+
 const sidebar = document.getElementById("mySidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
 const darkModeToggle = document.getElementById("darkModeToggle");

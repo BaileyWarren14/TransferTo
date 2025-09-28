@@ -291,8 +291,12 @@ body.dark-mode ::placeholder {
 </div>
 
 </div>
+  <div class="main-content">
+        
+    </div>
 
 
+    
 <script>
 const sidebar = document.getElementById("mySidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
