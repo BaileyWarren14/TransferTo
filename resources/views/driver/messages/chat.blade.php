@@ -148,9 +148,6 @@
             success: function(){
                 $('#messageInput').val('');
                 refreshMessages();
-            },
-            error: function(xhr){
-                alert('Error al enviar mensaje');
             }
         });
     });

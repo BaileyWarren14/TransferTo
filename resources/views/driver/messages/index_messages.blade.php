@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h2 class="mb-4 text-center">Selecciona un usuario para chatear</h2>
+    <h2 class="mb-4 text-center">Select a user to chat</h2>
 
     <div class="row">
         <!-- Drivers -->
@@ -20,7 +20,7 @@
                             </a>
                         </li>
                     @empty
-                        <li class="list-group-item text-muted">No hay drivers disponibles</li>
+                        <li class="list-group-item text-muted">No drivers available</li>
                     @endforelse
                 </ul>
             </div>
@@ -41,7 +41,7 @@
                             </a>
                         </li>
                     @empty
-                        <li class="list-group-item text-muted">No hay admins disponibles</li>
+                        <li class="list-group-item text-muted">No administrators available </li>
                     @endforelse
                 </ul>
             </div>

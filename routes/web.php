@@ -15,6 +15,8 @@ use App\Http\Controllers\DriverController;
 use App\Http\Controllers\TrailerController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\NotificationController;
+
 
 
 Route::get('/', function () {
@@ -185,8 +187,18 @@ Route::middleware(['auth:driver'])->group(function () {
     //Ruta para ver la vista de safety
     Route::get('/driver/safety', [DriverController::class, 'safety'])->name('driver.safety');
 
-    //Ruta para ver la vista de notifications
-    Route::get('/driver/notifications', [DriverController::class, 'notifications'])->name('driver.notifications');
+    // Mostrar vista de notifications
+    Route::get('driver/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    // Marcar notificación como leída
+    Route::post('driver/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+
+    // Traer notificaciones en JSON (para actualización automática o AJAX)
+    Route::get('driver/notifications/json', [NotificationController::class, 'json'])->name('notifications.json');
+
+    //Para eliminar una notificacion de la vista
+    Route::post('driver/notifications/{id}/markRead', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+
 
     //Ruta para ver la vista de documents
     Route::get('/driver/documents', [DriverController::class, 'documents'])->name('driver.documents');
@@ -291,6 +303,33 @@ Route::middleware(['auth:admin'])->group(function () {
     // Eliminar admin
     Route::delete('/admin/admin/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy');
 
+    // Mostrar todos los drivers y admins
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+
+    // Mostrar chat con usuario seleccionado
+    Route::get('/messages/{type}/{id}', [MessageController::class, 'chat'])->name('messages.chat');
+
+    // Enviar mensaje
+    Route::post('/messages/{type}/{id}', [MessageController::class, 'send'])->name('messages.send');
+
+    // Mensajes en JSON (para refresco automático)
+    Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json');
+
+
+    // Mostrar vista de notifications
+    Route::get('admin/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    // Marcar notificación como leída
+    Route::post('admin/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+
+    // Traer notificaciones en JSON (para actualización automática o AJAX)
+    Route::get('admin/notifications/json', [NotificationController::class, 'json'])->name('notifications.json');
+
+    //Para eliminar una notificacion de la vista
+    Route::post('admin/notifications/{id}/markRead', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+
+    //Ruta para ver la vista de documents
+    Route::get('/admin/documents', [DriverController::class, 'documents'])->name('driver.documents');
 });
 
 

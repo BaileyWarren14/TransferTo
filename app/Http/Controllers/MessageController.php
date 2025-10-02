@@ -8,6 +8,9 @@ use App\Models\Driver;
 use App\Models\Admin;
 use App\Models\Message;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notification as UserNotification;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewMessageMail;
 
 class MessageController extends Controller
 {
@@ -23,7 +26,7 @@ class MessageController extends Controller
         $admins = Admin::select('id', 'name', 'lastname', 'email')
             ->where('id', '!=', Auth::id()) // igual acá
             ->get();
-
+        
         return view('driver.messages.index_messages', compact('drivers', 'admins'));
     }
 
@@ -58,7 +61,7 @@ class MessageController extends Controller
         return view('driver.messages.chat', compact('user', 'messages', 'type'));
     }
 
-   public function send(Request $request, $type, $id)
+    public function send(Request $request, $type, $id)
     {
         $request->validate([
             'message' => 'required|string|max:1000',
@@ -67,6 +70,7 @@ class MessageController extends Controller
 
         $senderType = Auth::user() instanceof \App\Models\Driver ? 'driver' : 'admin';
 
+        // Guardar el mensaje
         Message::create([
             'sender_id'     => Auth::id(),
             'sender_type'   => $senderType,
@@ -76,6 +80,17 @@ class MessageController extends Controller
             'created_at'    => $request->client_time,
             'updated_at'    => $request->client_time,
         ]);
+
+        // Crear la notificación para el receptor
+        \App\Models\Notification::create([
+            'user_id' => $id, // aquí va el ID del usuario que recibe el mensaje
+            'type'    => 'message',
+            'title'   => 'Nuevo mensaje',
+            'message' => 'Has recibido un nuevo mensaje de ' . Auth::user()->name,
+            'read_at' => null,
+        ]);
+            $receiver = $type === 'driver' ? \App\Models\Driver::find($id) : \App\Models\Admin::find($id);
+            Mail::to($receiver->email)->send(new NewMessageMail(Auth::user(), $receiver, $request->message));
 
         return response()->json(['success' => true]); // importante para AJAX
     }
@@ -93,5 +108,49 @@ class MessageController extends Controller
 
         return response()->json($messages);
     }
+      // Lista de usuarios para iniciar chat
+    public function index_ad()
+    {
+         // Traer todos los drivers y admins MENOS el usuario autenticado
+        $drivers = Driver::select('id', 'name', 'lastname', 'email')
+            ->where('id', '!=', Auth::id()) // evitar que aparezca él mismo
+            ->get();
 
+        $admins = Admin::select('id', 'name', 'lastname', 'email')
+            ->where('id', '!=', Auth::id()) // igual acá
+            ->get();
+        
+        return view('admin.messages.index_messages', compact('drivers', 'admins'));
+    }
+
+    public function chat_ad($type, $id)
+    {
+        // Buscar usuario según el tipo
+        $user = $type === 'driver'
+            ? Driver::find($id)
+            : Admin::find($id);
+
+        if (!$user) {
+            abort(404, "Usuario no encontrado");
+        }
+
+        $authType = Auth::user() instanceof \App\Models\Driver ? 'driver' : 'admin';
+
+        // Traer mensajes entre el usuario autenticado y el seleccionado
+        $messages = Message::where(function ($q) use ($id, $type, $authType) {
+                $q->where('sender_id', Auth::id())
+                ->where('sender_type', $authType)
+                ->where('receiver_id', $id)
+                ->where('receiver_type', $type);
+            })->orWhere(function ($q) use ($id, $type, $authType) {
+                $q->where('sender_id', $id)
+                ->where('sender_type', $type)
+                ->where('receiver_id', Auth::id())
+                ->where('receiver_type', $authType);
+            })
+            ->orderBy('created_at')
+            ->get();
+
+        return view('admin.messages.chat', compact('user', 'messages', 'type'));
+    }
 }
