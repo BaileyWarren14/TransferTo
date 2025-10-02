@@ -50,7 +50,7 @@
         <a href="{{ url('/driver/log_book') }}"><i class="fas fa-chart-line"></i> <span>Logs</span></a>
         <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span>Duty Status</span></a>
         <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span>DOT Inspection Mode</span></a>
-        <a href="{{ url('/driver/details') }}"><i class="fas fa-info-circle"></i> <span>Details</span></a>
+        <a href="{{ url('/driver/details') }}"><i class="fas fa-info-circle"></i> <span>Work Order</span></a>
         <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span>Truck information</span></a>
         <form method="POST" action="{{ route('logout') }}">
             @csrf

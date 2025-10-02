@@ -79,16 +79,12 @@
 <script>
     Swal.fire({
         icon: 'success',
-        title: '¡Éxito!',
+        title: 'Success!',
         text: '{{ session("success") }}',
         confirmButtonText: 'OK'
     }).then(() => {
-        // Redirigir al login, aunque ya estás en la página log
-        window.location.href = "{{ route('log') }}";
+        window.location.href = "{{ route('dashboard') }}"; // 🔹 cambia según tu ruta
     });
-     
-    //
-   
 </script>
 @endif
 

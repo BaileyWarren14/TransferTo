@@ -30,7 +30,8 @@
                             @foreach($todayLogs as $index => $log)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($log->changed_at)->format('H:i:s') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($log->changed_at)->timezone('America/Mexico_City')->format('H:i:s') }}</td>
+
                                     <td>
                                         @php
                                             $colors = ['ON'=>'success','OFF'=>'secondary','SB'=>'info','D'=>'primary','WT'=>'warning','PC'=>'dark','YM'=>'danger'];

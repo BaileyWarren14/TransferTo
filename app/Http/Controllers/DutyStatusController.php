@@ -51,4 +51,36 @@ class DutyStatusController extends Controller
         return redirect()->route('driver.logs.today')
                          ->with('success', 'Duty status updated successfully and added to today\'s log.');
     }
+    // Mostrar formulario de edición de un log
+    public function edit($id)
+    {
+        $log = dutystatuslog::findOrFail($id);
+
+        // Convertir hora a formato compatible con input datetime-local
+        $log->changed_at = Carbon::parse($log->changed_at)->format('Y-m-d\TH:i');
+
+        return view('driver.duty_status.edit', compact('log'));
+    }
+
+    // Actualizar log
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:ON,OFF,SB,D,WT,PC,YM',
+            'changed_at' => 'required|date',
+            'location' => 'nullable|string|max:255',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        $log = dutystatuslog::findOrFail($id);
+
+        $log->status = $request->status;
+        $log->changed_at = Carbon::parse($request->changed_at);
+        $log->location = $request->location;
+        $log->notes = $request->notes;
+        $log->save();
+
+        return redirect()->route('driver.logs.today')
+                        ->with('success', 'Log updated successfully.');
+    }
 }

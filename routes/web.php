@@ -13,6 +13,8 @@ use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\TimezoneController;
 use App\Http\Controllers\DriverController;
 use App\Http\Controllers\TrailerController;
+use App\Http\Controllers\WorkOrderController;
+use App\Http\Controllers\MessageController;
 
 
 Route::get('/', function () {
@@ -43,7 +45,12 @@ Route::get('/login', function () {
 // Para las peticiones de la inspeccion
 //Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
 Route::middleware(['auth:driver'])->group(function () {
+    
+    //para consultar el estado mas reciente en los cambios de estado y poder detener iniciar los cronometros
+    Route::get('/driver/logs/latest', [LogbookController::class, 'latest'])->name('driver.logs.latest');
+
     Route::get('/inspections/create', [InspectionController::class, 'create'])->name('inspections.create');
+
     Route::post('/inspections/store', [InspectionController::class, 'store'])->name('inspections.store');
     //para listar las inspecciones
     Route::get('/driver/list', [InspectionController::class, 'index'])->name('driver.inspections');
@@ -87,9 +94,9 @@ Route::middleware(['auth:driver'])->group(function () {
         return view('driver.inspections.new'); // new.blade.php
     })->name('new');
 
-    Route::get('/driver/details', function () {
-        return view('driver.details.details'); // details.blade.php
-    })->name('details');
+    //Route::get('/driver/details', function () {
+      //  return view('driver.details.details'); // details.blade.php
+    //})->name('details');
 
     //para mostrar la lista de logs
 
@@ -136,12 +143,60 @@ Route::middleware(['auth:driver'])->group(function () {
     //para que obtenga los datos y se actualice el logbook automatico
     //Route::get('/driver/logs/today-data', [LogbookController::class, 'todayData'])->name('driver.logs.today-data');
 
-    
+    //Ruta para ver los logs del dia actual completos
+    Route::get('/driver/activities/{date}', [LogbookController::class, 'showActivities'])
+     ->name('driver.logs.activities');
+
+    //Ruta para editar un cambio de estado desde el resumen de logs del dia
+    Route::get('driver/duty_status/{log}/edit', [DutyStatusController::class, 'edit'])->name('driver.duty_status.edit');
+
+     
+    // Actualizar Duty Status
+    Route::put('/duty_status/{log}', [DutyStatusController::class, 'update'])
+        ->name('driver.duty_status.update');
+
+    //Ruta para mostrar el menu de las workorder
+    Route::get('/driver/menu', [WorkOrderController::class, 'index'])->name('workorder.index');
+
+    Route::get('/driver/cisterns', [WorkOrderController::class, 'cisterns'])->name('workorder.cisterns');
+    Route::get('/driver/dry-box', [WorkOrderController::class, 'dryBox'])->name('workorder.drybox');
+    Route::get('/driver/platform', [WorkOrderController::class, 'platform'])->name('workorder.platform');
+    Route::get('/driver/pneumatic', [WorkOrderController::class, 'pneumatic'])->name('workorder.pneumatic');
 
     //Ruta para entrar a ver la informacion del truck actual
     Route::get('/driver/about', [TruckController::class, 'about'])->name('driver.about_truck.about_truck');
 
+    // Lista de usuarios disponibles para chat
+    //Route::get('/driver/messages', [DriverController::class, 'messages'])->name('driver.messages');
 
+   // Mostrar todos los drivers y admins
+    Route::get('driver/messages', [MessageController::class, 'index'])->name('messages.index');
+
+    // Mostrar chat con usuario seleccionado
+    Route::get('/messages/{type}/{id}', [MessageController::class, 'chat'])->name('messages.chat');
+
+    // Enviar mensaje
+    Route::post('/messages/{type}/{id}', [MessageController::class, 'send'])->name('messages.send');
+
+    // Mensajes en JSON (para refresco automático)
+    Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json');
+
+
+    //Ruta para ver la vista de safety
+    Route::get('/driver/safety', [DriverController::class, 'safety'])->name('driver.safety');
+
+    //Ruta para ver la vista de notifications
+    Route::get('/driver/notifications', [DriverController::class, 'notifications'])->name('driver.notifications');
+
+    //Ruta para ver la vista de documents
+    Route::get('/driver/documents', [DriverController::class, 'documents'])->name('driver.documents');
+    
+    //Ruta Para recibir y guardar la zona horaria y utilizarla en toda la aplicacion
+    Route::post('/set-timezone', function (Request $request) {
+    $tz = $request->timezone ?? 'UTC';
+    session(['user_timezone' => $tz]);
+    return response()->json(['status' => 'ok', 'timezone' => $tz]);
+})->name('set.timezone');
 });
 
 

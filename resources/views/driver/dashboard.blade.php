@@ -116,83 +116,149 @@ body.dark-mode .app-body button {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-   
+// ---------------- CONFIG ---------------- //
+let currentStatus = "OFF";
+let offStartTime = null;
+let offElapsed = 0;
 
 function createCountdownChart(canvasId, labelId, totalHours, color) {
     const ctx = document.getElementById(canvasId).getContext('2d');
     const totalSeconds = totalHours * 3600;
 
+    // Obtener tiempo guardado en localStorage
+    let savedRemaining = localStorage.getItem(canvasId);
+    savedRemaining = savedRemaining !== null ? parseInt(savedRemaining, 10) : totalSeconds;
+
     const chart = new Chart(ctx, {
         type: 'doughnut',
-        data: {
-            labels: ['Remaining', 'Elapsed'],
-            datasets: [{
-                data: [totalSeconds, 0],
-                backgroundColor: [color, '#e9ecef'],
-                borderWidth: 0
-            }]
+        data: { 
+            labels: ['Remaining','Elapsed'], 
+            datasets:[{data:[savedRemaining,totalSeconds-savedRemaining], backgroundColor:[color,'#e9ecef'], borderWidth:0}] 
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            rotation: 0,
-            circumference: 360,
-            plugins: { legend: { display: false } }
+        options: { plugins:{ legend:{ display:false } }, responsive:true, maintainAspectRatio:false }
+    });
+
+    const timer = { id: canvasId, label: labelId, total: totalSeconds, remaining: savedRemaining, running: false, chart };
+
+    // Mostrar el tiempo inicial inmediatamente
+    updateLabel(timer);
+
+    return timer;
+}
+
+// Crear cronómetros
+const timers = {
+    drive: createCountdownChart('driveChart', 'driveLabel', 11, '#007bff'),
+    shift: createCountdownChart('shiftChart', 'shiftLabel', 14, '#28a745'),
+    cycle: createCountdownChart('cycleChart', 'cycleLabel', 70, '#6c757d'),
+};
+
+function updateLabel(timer){
+    const h = Math.floor(timer.remaining / 3600).toString().padStart(2,'0');
+    const m = Math.floor((timer.remaining % 3600)/60).toString().padStart(2,'0');
+    const s = Math.floor(timer.remaining % 60).toString().padStart(2,'0');
+    document.getElementById(timer.label).innerText = `${h}:${m}:${s}`;
+}
+
+// ---------------- TICK ---------------- //
+function tickTimers() {
+    Object.values(timers).forEach(timer => {
+        if (timer.running && timer.remaining > 0) {
+            timer.remaining -= 1;
+            timer.chart.data.datasets[0].data = [timer.remaining, timer.total - timer.remaining];
+            timer.chart.update();
+            updateLabel(timer);
+
+            // Guardar valor en localStorage
+            localStorage.setItem(timer.id, timer.remaining);
         }
     });
 
-    function formatTime(seconds) {
-        const h = Math.floor(seconds / 3600).toString().padStart(2,'0');
-        const m = Math.floor((seconds % 3600) / 60).toString().padStart(2,'0');
-        const s = Math.floor(seconds % 60).toString().padStart(2,'0');
-        return `${h}:${m}:${s}`;
-    }
+    // lógica OFF continua...
+    if(currentStatus === "OFF") {
+        if(!offStartTime) offStartTime = Date.now();
+        offElapsed = (Date.now() - offStartTime)/1000;
+        if(offElapsed >= 10*3600){
+            timers.drive.remaining = timers.drive.total;
+            timers.shift.remaining = timers.shift.total;
+            timers.drive.chart.data.datasets[0].data = [timers.drive.remaining,0];
+            timers.shift.chart.data.datasets[0].data = [timers.shift.remaining,0];
+            timers.drive.chart.update();
+            timers.shift.chart.update();
+            updateLabel(timers.drive);
+            updateLabel(timers.shift);
+            offStartTime = null;
+            offElapsed = 0;
 
-    function update() {
-        if(chart.data.datasets[0].data[0] > 0){
-            chart.data.datasets[0].data[0] -= 1;
-            chart.data.datasets[0].data[1] += 1;
-            chart.update();
-            document.getElementById(labelId).innerText = formatTime(chart.data.datasets[0].data[0]);
+            // Guardar valores reiniciados
+            localStorage.setItem(timers.drive.id, timers.drive.remaining);
+            localStorage.setItem(timers.shift.id, timers.shift.remaining);
         }
     }
-
-    document.getElementById(labelId).innerText = formatTime(totalSeconds);
-    setInterval(update, 1000);
-    return chart;
 }
 
-// Crear los tres cronómetros con colores diferentes
-createCountdownChart('driveChart', 'driveLabel', 11, '#007bff');
-createCountdownChart('shiftChart', 'shiftLabel', 14, '#28a745');
-createCountdownChart('cycleChart', 'cycleLabel', 70, '#6c757d');
+setInterval(tickTimers, 1000);
 
-// Leaflet Map: Real-time GPS
-const map = L.map('map').setView([0,0], 13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: 'Map data © OpenStreetMap contributors'
-}).addTo(map);
+// ---------------- CAMBIO DE ESTADO ---------------- //
+function changeStatus(newStatus) {
+    if (currentStatus === "OFF" && newStatus !== "OFF") {
+        offStartTime = null;
+        offElapsed = 0;
+    }
 
-const marker = L.marker([0,0]).addTo(map);
+    currentStatus = newStatus;
 
-function updateLocation() {
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(position => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            marker.setLatLng([lat, lng]);
-            map.setView([lat, lng], 13);
-        }, err => { 
-            console.error("Error obtaining GPS location: " + err.message); 
+    timers.drive.running = (newStatus === "D");
+    timers.shift.running = (newStatus !== "OFF");
+    timers.cycle.running = (newStatus !== "OFF");
+
+    if(newStatus === "OFF") offStartTime = Date.now();
+
+    // Guardar estado y tiempos en localStorage
+    localStorage.setItem("currentStatus", currentStatus);
+    Object.values(timers).forEach(timer => {
+        localStorage.setItem(timer.id, timer.remaining);
+    });
+
+    // Refrescar etiquetas
+    Object.values(timers).forEach(timer => updateLabel(timer));
+}
+
+
+// ---------------- CARGAR ESTADO INICIAL ---------------- //
+let initialLog = @json($lastLog ?? null);
+let savedStatus = localStorage.getItem("currentStatus");
+
+// Punto 2: aquí decides cuál usar (localStorage o servidor)
+currentStatus = savedStatus || (initialLog ? initialLog.status : "OFF");
+changeStatus(currentStatus);
+
+// ---------------- ACTUALIZAR AUTOMÁTICAMENTE ---------------- //
+setInterval(() => {
+    fetch("{{ route('driver.logs.latest') }}")
+        .then(res => res.json())
+        .then(data => {
+            let lastStatus = data ? data.status : "OFF";
+            if(lastStatus !== currentStatus){
+                changeStatus(lastStatus);
+            }
         });
-    } else { 
-        console.error("Geolocation not supported."); 
+}, 10000);
+
+// ---------------- MAPA ---------------- //
+const map = L.map('map').setView([0,0],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'Map data © OpenStreetMap contributors' }).addTo(map);
+const marker = L.marker([0,0]).addTo(map);
+function updateLocation(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+            marker.setLatLng([pos.coords.latitude,pos.coords.longitude]);
+            map.setView([pos.coords.latitude,pos.coords.longitude],13);
+        });
     }
 }
-
 updateLocation();
-setInterval(updateLocation, 300000); // actualizar cada 5 min
-
+setInterval(updateLocation,3000);
 
 </script>
 

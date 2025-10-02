@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-<a href="{{ url()->previous() }}" class="btn btn-secondary">
-    <i class="fas fa-arrow-left me-1"></i> Back
-</a>
+ <a href="{{ route('driver.logs.log_book') }}" class="btn btn-secondary mb-3">
+        <i class="fas fa-arrow-left me-1"></i> Back to logbook
+    </a>
 <div class="container mt-4">
 
     <!-- Hoy -->
     <div class="card shadow mb-4">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
             <span>Today</span>
-            <a href="{{ route('driver.logs.show') }}" class="btn btn-light btn-sm">➡️</a>
+            <a href="{{ route('driver.logs.activities', ['date' => \Carbon\Carbon::now('America/Mexico_City')->toDateString()]) }}" class="btn btn-light btn-sm">➡️</a>
         </div>
         <div class="card-body text-center">
             <h5>{{ \Carbon\Carbon::now('America/Mexico_City')->format('l, M d, Y') }}</h5>
@@ -44,6 +44,7 @@
                             $firstOff = \Carbon\Carbon::parse($log->changed_at);
                         } else {
                             if($firstOff){
+                                
                                 $totalMinutes += \Carbon\Carbon::parse($log->changed_at)->diffInMinutes($firstOff);
                                 $firstOff = null;
                             }
@@ -57,7 +58,7 @@
                         <strong>{{ \Carbon\Carbon::parse($date)->format('l, M d, Y') }}</strong><br>
                         {{ $hours }} hr {{ $minutes }} min
                     </div>
-                    <a href="{{ route('driver.logs.show') }}" class="btn btn-primary btn-sm">➡️</a>
+                    <a href="{{ route('driver.logs.activities', ['date' => $date]) }}" class="btn btn-primary btn-sm">➡️</a>
                 </div>
             @endforeach
         </div>
@@ -68,20 +69,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     
-    // 📌 Recibimos directamente desde PHP
+    // 📌 Recibimos directamente desde PHP 
     const labels = @json($labels);
     const duty_status = @json($dutyStatuses);
     const rawLogs = @json($rawLogs);
     
     // Debug temporal
-    alert(
+    /*alert(
         "📌 Registros originales de la BD:\n" +
         JSON.stringify(rawLogs, null, 2) +
         "\n\n📌 Labels (96 bloques):\n" +
         JSON.stringify(labels) +
         "\n\n📌 Duty Statuses (96 valores):\n" +
         JSON.stringify(duty_status)
-    );
+    );*/
 
     // Opcional: debug
     console.log("Registros originales:", rawLogs);

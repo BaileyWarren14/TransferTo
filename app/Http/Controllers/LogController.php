@@ -26,19 +26,21 @@ class LogController extends Controller
         // 🔹 Intentar login como Admin
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/admin/dashboard');
+            return redirect()->intended('/admin/dashboard')
+                            ->with('success', 'Login successful');
         }
 
         // 🔹 Intentar login como Driver
         if (Auth::guard('driver')->attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended('/driver/dashboard');
+            return redirect()->intended('/driver/dashboard')
+                            ->with('success', 'Login successful');
         }
 
         // Si llega aquí → credenciales inválidas
-        return back()->withErrors([
-            'email' => 'Las credenciales no son correctas.',
-        ])->onlyInput('email');
+        return redirect()->route('log')->with('error', 'Invalid username or password');
+
+        
     }
 
     public function logout(Request $request)

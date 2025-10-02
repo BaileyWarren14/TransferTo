@@ -345,4 +345,76 @@ class LogbookController extends Controller
                          ->with('success', 'Log eliminado correctamente.');
     }
 
+
+    //para mostrar los logs del dia actual dentro del logbook
+    public function showActivities($date)
+    {
+        $driver = Auth::guard('driver')->user();
+        $tz = 'America/Mexico_City';
+
+        // Convertir $date en un objeto Carbon en la zona horaria correcta
+        $day = Carbon::parse($date, $tz)->startOfDay();
+
+        // Obtener logs del día seleccionado
+        $logs = DutyStatusLog::where('driver_id', $driver->id)
+            ->whereBetween('changed_at', [
+                $day->copy()->setTimezone('UTC'),
+                $day->copy()->endOfDay()->setTimezone('UTC')
+            ])
+            ->orderBy('changed_at', 'asc')
+            ->get();
+
+        // Transformar logs en actividades con duración
+        $activities = [];
+        foreach ($logs as $index => $log) {
+            $start = Carbon::parse($log->changed_at)->setTimezone($tz);
+            $end = isset($logs[$index + 1])
+                ? Carbon::parse($logs[$index + 1]->changed_at)->setTimezone($tz)
+                : $day->copy()->endOfDay();
+
+            $activities[] = [
+                'id' => $log->id,
+                'status' => $log->status,
+                'time' => $start->format('h:i:s A'),
+                'duration' => $start->diff($end)->format('%Hh %Im'),
+                'location' => $log->location ?? 'Unknown',
+            ];
+        }
+
+        // Preparar datos para la gráfica
+        $yCategories = ['OFF','SB','D','ON','WT'];
+        $labels = [];
+        $dutyStatuses = [];
+        $logIndex = 0;
+        $lastStatus = 'OFF';
+
+        for ($i = 0; $i < 1440; $i++) {
+            $minute = $day->copy()->addMinutes($i);
+
+            // Etiquetas cada hora
+            $labels[] = $i % 60 === 0 ? $minute->format('H:i') : '';
+
+            // Actualizar estado si hay un log en este minuto
+            while (isset($logs[$logIndex]) && Carbon::parse($logs[$logIndex]->changed_at)->setTimezone($tz)->lte($minute)) {
+                $lastStatus = $logs[$logIndex]->status;
+                $logIndex++;
+            }
+
+            $dutyStatuses[] = array_search($lastStatus, $yCategories);
+        }
+
+        return view('driver.logs.activities', compact('activities', 'labels', 'dutyStatuses', 'date',));
+    }
+
+    public function latest()
+    {
+         $driver = Auth::guard('driver')->user();
+
+        $lastLog = dutystatuslog::where('driver_id', $driver->id)
+            ->orderBy('changed_at', 'desc')
+            ->first();
+
+        return response()->json($lastLog);
+    }
+
 }

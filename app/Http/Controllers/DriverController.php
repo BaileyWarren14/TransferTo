@@ -95,4 +95,23 @@ class DriverController extends Controller
 
         return redirect()->route('drivers.index')->with('success', 'Driver deleted successfully.');
     }
+    public function messages()
+    {
+        return view('driver.messages.index_messages');
+    }
+
+    public function safety()
+    {
+        return view('driver.safety.index_safety');
+    }
+
+    public function notifications()
+    {
+        return view('driver.notifications.index_notifications');
+    }
+
+    public function documents()
+    {
+        return view('driver.documents.index_documents');
+    }
 }
