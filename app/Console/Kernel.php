@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('check:driver-inspections')->everyMinute();
         // Aquí agregas tus tareas, ejemplo:
         // $schedule->command('inspire')->hourly();
         $schedule->call(function () {

@@ -120,7 +120,47 @@ class TruckController extends Controller
         return response()->json(['success' => true]);
     }
 
-    // Buscar por placa (opcional, como en tu controlador anterior)
+    // Obtener horas de motor del truck asignado al driver
+    public function motorHoursJson()
+    {
+        $driver = Auth::guard('driver')->user();
+        $truck = Truck::where('driver_id', $driver->id)->first();
+
+        if (!$truck) {
+            return response()->json(['success' => false]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'current_motor_hours' => $truck->current_motor_hours,
+            'status' => $truck->status
+        ]);
+    }
     
+    // Listado de todos los trucks con info relevante
+    public function adminDashboard()
+    {
+        $trucks = Truck::with('driver')->get(); // traer el driver asignado también
+
+        return view('admin.trucks.dashboard_trucks', compact('trucks'));
+    }
+
+    // Opcional: JSON para refresco AJAX de horas motor
+    public function adminMotorHoursJson()
+    {
+        $trucks = Truck::with('driver')->get();
+
+        $data = $trucks->map(function($truck){
+            return [
+                'id' => $truck->id,
+                'license_plate' => $truck->license_plate,
+                'driver_name' => $truck->driver ? $truck->driver->name : 'Unassigned',
+                'current_motor_hours' => $truck->current_motor_hours,
+                'status' => $truck->status
+            ];
+        });
+
+        return response()->json($data);
+    }
 
 }

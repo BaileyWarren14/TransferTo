@@ -34,6 +34,8 @@
                                 <th>Year</th>
                                 <th>Color</th>
                                 <th>Status</th>
+                                <th>Driver</th>
+                                <th>Motor Hours</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -46,6 +48,8 @@
                                     <td>{{ $truck->model }}</td>
                                     <td>{{ $truck->year }}</td>
                                     <td>{{ $truck->color }}</td>
+                                    <td>{{ $truck->driver ? $truck->driver->name : 'Unassigned' }}</td>
+                                    <td>{{ $truck->current_motor_hours }}</td>
                                     <td>
                                         @if($truck->status === 'active')
                                             <span class="badge bg-success px-3 py-2 rounded-pill">Active</span>

@@ -29,6 +29,7 @@
                 <li class="list-group-item dark-item"><strong>Color:</strong> {{ $truck->color ?? 'N/A' }}</li>
                 <li class="list-group-item dark-item"><strong>Cab Type:</strong> {{ $truck->cab_type ?? 'N/A' }}</li>
                 <li class="list-group-item dark-item"><strong>Transmission:</strong> {{ $truck->transmission_type ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong>Motor Hours:</strong> <span id="motor-hours">{{ $truck->current_motor_hours ?? 'N/A' }}</span> h</li>
                 <li class="list-group-item dark-item">
                     <strong>Status:</strong> 
                     @if($truck->status === 'active')
@@ -53,6 +54,27 @@
         </a>
     </div>
 </div>
+
+<script>
+    function refreshMotorHours() {
+    fetch("{{ url('/driver/truck-motor-hours-json') }}")
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                document.getElementById('motor-hours').innerText = data.current_motor_hours;
+                
+                if(data.current_motor_hours >= 500){ // ejemplo alerta
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Maintenance Alert',
+                        text: 'This truck has ' + data.current_motor_hours + ' hours. Consider preventive maintenance.'
+                    });
+                }
+            }
+        });
+    }
+    setInterval(refreshMotorHours, 60000); // cada minuto
+</script>
 
 {{-- Estilos para modo oscuro --}}
 @push('styles')

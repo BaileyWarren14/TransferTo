@@ -267,6 +267,7 @@ body.dark-mode ::placeholder {
     <a href="{{ url('/admin/drivers') }}"><i class="fas fa-plus-circle"></i> <span>Drivers</span></a>
     <a href="{{ url('/admin/admin') }}"><i class="fas fa-info-circle"></i> <span>Admins</span></a>
     <a href="{{ url('/messages') }}"><i class="fas fa-envelope"></i> <span>Messages</span></a>
+    <a href="{{ url('/reports') }}"><i class="fas fa-exclamation-triangle"></i> <span>Driver Reports</span></a>
     <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span>Notifications</span></a>
     <a href="{{ url('/admin/documents') }}"><i class="fas fa-file-alt"></i> <span>Documents</span></a>
     <!--<a href="{{ url('/admin/') }}"><i class="fas fa-info-circle"></i> <span>Status</span></a>-->

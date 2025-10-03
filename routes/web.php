@@ -315,6 +315,9 @@ Route::middleware(['auth:admin'])->group(function () {
     // Mensajes en JSON (para refresco automático)
     Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json');
 
+    //Para ver los reportes
+    Route::get('/reports', [AdminController::class, 'driversReports']);
+
 
     // Mostrar vista de notifications
     Route::get('admin/notifications', [NotificationController::class, 'index'])->name('notifications.index');
