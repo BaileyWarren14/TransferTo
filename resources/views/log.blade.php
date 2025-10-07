@@ -43,9 +43,9 @@
             <button type="submit" class="btn btn-login w-100">Log In</button>
             
         </form>
-            <a href="{{ route('register') }}" class="btn btn-register w-100">Register</a>
+            <!--<a href="{{ route('register') }}" class="btn btn-register w-100">Register</a>-->
             <div style="text-align: center;">
-                <a href="" class="">Forgot password?</a>
+                <a href="{{ route('password.request') }}" class="">Forgot password?</a>
             </div>
 
     </div>
@@ -74,19 +74,20 @@
         {{ session('error') }}
     </div>
 @endif
-@if(session('success'))
+
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('password_reset_success'))
 <script>
     Swal.fire({
         icon: 'success',
-        title: 'Success!',
-        text: '{{ session("success") }}',
-        confirmButtonText: 'OK'
-    }).then(() => {
-        window.location.href = "{{ route('dashboard') }}"; // 🔹 cambia según tu ruta
+        title: 'Password Reset Successful',
+        text: 'Your password has been successfully reset. Please log in.',
+        confirmButtonText: 'Log In'
     });
 </script>
 @endif
+
 
 <script>
     // Validación y feedback de formulario

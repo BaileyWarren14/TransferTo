@@ -16,12 +16,52 @@ use App\Http\Controllers\TrailerController;
 use App\Http\Controllers\WorkOrderController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+
 
 
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+
+// Mostrar formulario para solicitar enlace de restablecimiento
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('password.request');
+
+// Enviar correo con enlace de restablecimiento
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('password.email');
+
+// Mostrar formulario de restablecimiento (cuando el usuario hace clic en el correo)
+Route::get('/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+
+// Procesar el cambio de contraseña
+Route::post('/reset-password', [ResetPasswordController::class, 'reset'])->name('password.update');
+
+
+/*
+|--------------------------------------------------------------------------
+| Password Reset Routes for Admins
+|--------------------------------------------------------------------------
+*/
+
+// Mostrar formulario para solicitar enlace de restablecimiento (Admin)
+Route::get('/admin/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+    ->name('admin.password.request');
+
+// Enviar correo de restablecimiento (Admin)
+Route::post('/admin/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+    ->name('admin.password.email');
+
+// Mostrar formulario de restablecimiento (Admin)
+Route::get('/admin/reset-password/{token}', [ResetPasswordController::class, 'showResetForm'])->name('admin.password.reset');
+
+// Procesar cambio de contraseña (Admin)
+Route::post('/admin/reset-password', [ResetPasswordController::class, 'reset'])->name('admin.password.update');
 
 
 // Login de drivers
