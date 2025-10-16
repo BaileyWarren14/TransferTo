@@ -236,20 +236,7 @@ if (mobileDarkModeToggle) {
 </script>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Obtener la zona horaria del navegador
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-        // Enviar la zona horaria al backend para guardarla en sesión
-        fetch("/set-timezone", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRF-TOKEN": "{{ csrf_token() }}"
-            },
-            body: JSON.stringify({ timezone: timezone })
-        });
-    });
+   
 </script>
 
 </body>

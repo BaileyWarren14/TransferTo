@@ -441,5 +441,96 @@ languageToggle.addEventListener("change", function() {
     window.dispatchEvent(event);
 });
 
-</script>
+if (!window.timersInitialized) {
+    window.timersInitialized = true;
 
+    // ---------------- CONFIGURACIÓN ----------------
+    const timers = {
+        drive: { remaining: 11*3600, running: false },
+        shift: { remaining: 14*3600, running: false },
+        cycle: { remaining: 70*3600, running: false }
+    };
+
+    // Recuperar tiempos de localStorage
+    Object.keys(timers).forEach(k => {
+        const saved = localStorage.getItem(k);
+        if (saved) timers[k].remaining = parseInt(saved,10);
+    });
+
+    // Estado actual
+    let currentStatus = localStorage.getItem("currentStatus") || "OFF";
+    let offStart = null;
+
+    // ---------------- UTILIDADES ----------------
+    function fmt(s){
+        const h=Math.floor(s/3600).toString().padStart(2,'0');
+        const m=Math.floor((s%3600)/60).toString().padStart(2,'0');
+        const sec=(s%60).toString().padStart(2,'0');
+        return `${h}:${m}:${sec}`;
+    }
+
+    function updateSidebarLabels(){
+        document.getElementById('driveLabelSidebar').textContent = fmt(timers.drive.remaining);
+        document.getElementById('shiftLabelSidebar').textContent = fmt(timers.shift.remaining);
+        document.getElementById('cycleLabelSidebar').textContent = fmt(timers.cycle.remaining);
+    }
+
+    function saveTimers(){
+        Object.keys(timers).forEach(k => localStorage.setItem(k, timers[k].remaining));
+    }
+
+    // ---------------- CRONÓMETRO ----------------
+    setInterval(()=>{
+        const now = Date.now();
+
+        if(currentStatus==="OFF"){
+            if(!offStart) offStart = now;
+            const offElapsed = (now - offStart)/1000;
+            if(offElapsed >= 10*3600){ // reinicio Drive/Shift
+                timers.drive.remaining = 11*3600;
+                timers.shift.remaining = 14*3600;
+                offStart=null;
+                Swal.fire({icon:'info', title:'Reset', text:'Drive and Shift timers reset after 10 hours OFF'});
+            }
+        }
+
+        Object.keys(timers).forEach(k=>{
+            const t = timers[k];
+            if(t.running && t.remaining>0){
+                t.remaining--;
+                if(t.remaining===0){
+                    t.running=false;
+                    Swal.fire({icon:'warning', title:'Rest Required', text:`${k} timer ended.`});
+                }
+            }
+        });
+
+        updateSidebarLabels();
+        saveTimers();
+
+        // Emitir evento para dashboard
+        window.dispatchEvent(new CustomEvent('updateTimers',{
+            detail:{
+                drive: timers.drive.remaining,
+                shift: timers.shift.remaining,
+                cycle: timers.cycle.remaining
+            }
+        }));
+    },1000);
+
+    // ---------------- CAMBIO DE ESTADO ----------------
+    window.changeStatus = function(newStatus){
+        currentStatus = newStatus;
+        localStorage.setItem("currentStatus", newStatus);
+        timers.drive.running = (newStatus==="D");
+        timers.shift.running = (newStatus!=="OFF");
+        timers.cycle.running = (newStatus!=="OFF");
+        if(newStatus==="OFF") offStart=Date.now();
+    };
+
+    updateSidebarLabels();
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script> 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

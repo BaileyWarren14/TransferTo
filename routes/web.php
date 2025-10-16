@@ -18,6 +18,7 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\DashboardController;
 
 
 
@@ -158,7 +159,10 @@ Route::middleware(['auth:driver'])->group(function () {
         ->name('driver.duty_status.changeDutyStatus.store');
 
 
-    Route::get('/dashboard', [DeviceController::class, 'index'])->name('dashboard');
+     Route::get('/driver/dashboard', [DashboardController::class, 'newindex'])->name('driver.dashboard');
+
+    // Esta es la ruta que tu JS necesita
+    Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.timers');
 
     // Mostrar formulario de registro
     Route::get('/register', [RegisterController::class, 'showRegisterForm'])->name('register');
@@ -262,14 +266,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 
 
 
-// Dashboard para drivers
-// Dashboard para drivers (protegido por guard 'driver')
-Route::middleware(['auth:driver'])->group(function () {
-    Route::get('/driver/dashboard', function () {
-        return view('/driver/dashboard');
-    })->name('driver.dashboard');
-    
-});
+
 
 
 // Dashboard para admins (protegido por guard 'admin')
