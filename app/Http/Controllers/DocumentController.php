@@ -1,0 +1,61 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Document;
+use Illuminate\Support\Facades\Storage;
+
+
+class DocumentController extends Controller
+{
+    
+     public function index()
+    {
+        $documents = Document::all();
+        return view('driver.documents.index_documents', compact('documents'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|string',
+            'file' => 'required|file|max:5120'
+        ]);
+
+        $file = $request->file('file');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('documents', $fileName, 'public');
+
+        Document::create([
+            'type' => $request->type,
+            'file_name' => $fileName,
+            'file_path' => $path
+        ]);
+
+        return back()->with('success', 'Document uploaded successfully.');
+    }
+
+    public function download($id)
+    {
+        $doc = Document::findOrFail($id);
+        return Storage::disk('public')->download($doc->file_path);
+    }
+
+    public function show($id)
+    {
+        $doc = Document::findOrFail($id);
+        return response()->file(storage_path('app/public/' . $doc->file_path));
+    }
+
+    public function destroy($id)
+    {
+        $doc = Document::findOrFail($id);
+        Storage::disk('public')->delete($doc->file_path);
+        $doc->delete();
+
+        return back()->with('success', 'Document deleted successfully.');
+    }
+
+
+}

@@ -58,6 +58,6 @@ class LogController extends Controller
         return redirect()->route('log');
             
         }
-    
+    //mandar a llamar el logut en el login
 }
 

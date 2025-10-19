@@ -19,6 +19,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentController;
+
 
 
 
@@ -245,7 +247,14 @@ Route::middleware(['auth:driver'])->group(function () {
 
 
     //Ruta para ver la vista de documents
-    Route::get('/driver/documents', [DriverController::class, 'documents'])->name('driver.documents');
+    //Route::get('/driver/documents', [DriverController::class, 'documents'])->name('driver.documents');
+    Route::get('/driver/documents', [DocumentController::class, 'index'])->name('documents.index');
+    Route::post('/driver/documents/store', [DocumentController::class, 'store'])->name('documents.store');
+    Route::get('/driver/documents/download/{id}', [DocumentController::class, 'download'])->name('documents.download');
+    Route::get('/driver/documents/view/{id}', [DocumentController::class, 'show'])->name('documents.view');
+    Route::delete('/driver/documents/delete/{id}', [DocumentController::class, 'destroy'])->name('documents.delete');
+
+
     
     //Ruta Para recibir y guardar la zona horaria y utilizarla en toda la aplicacion
     Route::post('/set-timezone', function (Request $request) {

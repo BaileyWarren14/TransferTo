@@ -15,3 +15,4 @@ return [
     'active' => 'Activo',
     'inactive' => 'Inactivo',
 ];
+Como instalar bootstrap con artisan

@@ -17,6 +17,12 @@
     padding: 20px;
     background-color: #f5f5f5;
     box-sizing: border-box;
+    position: relative; /* necesario para que el sidebar se posicione relativo a esto */
+    max-width: 1200px;  /* igual que tu contenedor principal */
+    margin: 0 auto;     /* centra en desktop */
+    min-height: 100vh;
+    padding-bottom: 70px; /* espacio para el sidebar colapsado */
+    box-sizing: border-box;
 }
 body.dark-mode .app-body {
     background-color: #121212;
@@ -28,6 +34,9 @@ body.dark-mode .app-body {
     display: flex;
     justify-content: space-around;
     margin-bottom: 30px;
+    overflow-x: auto;     /* 🎯 Scroll horizontal solo aquí */
+    padding-bottom: 10px; /* Espacio para que no se corte */
+    -webkit-overflow-scrolling: touch; /* Suavidad en iOS */
 }
 .card-item {
     flex: 1;
@@ -41,6 +50,8 @@ body.dark-mode .app-body {
     justify-content: center;   /* Asegura centrado */
     gap: 8px;                  /* Espacio entre icono y texto */
     font-size: 1.2rem;
+    min-width: 200px;     /* Para que se vean tipo “cards” scrollables */
+    flex: 0 0 auto;     
 }
 .card-item i { 
     font-size: 2rem; 
@@ -48,6 +59,11 @@ body.dark-mode .app-body {
 .card-logs   { background-color: #007bff; }
 .card-support{ background-color: #28a745; }
 .card-docs   { background-color: #001f3f; }
+
+/* Dark mode para cards */
+body.dark-mode .card-logs    { background-color: #0056b3; }
+body.dark-mode .card-support { background-color: #1f7a33; }
+body.dark-mode .card-docs    { background-color: #00172d; }
 
 /* =================== Compliance y Maintenance =================== */
 .section-container {
@@ -70,20 +86,42 @@ body.dark-mode .app-body {
     cursor: pointer;
 }
 
+/* Dark mode sections */
+body.dark-mode .section-container {
+    background-color: #1e1e1e;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    color: #f0f0f0;
+}
+body.dark-mode .section-item span { color: #f0f0f0; }
+
+
+
 /* =================== Sidebar Inferior =================== */
 .bottom-sidebar {
-    position: fixed;
+    
+     position: absolute;  /* relativo a .app-body */
+   padding: 20px;
+    background-color: #fff;
+    box-sizing: border-box;
+
+
     bottom: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     width: 100%;
-    background: #fff;
+    max-width: 1200px;  /* igual que tu main content */
     border-top: 2px solid #ddd;
     box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
     transition: height 0.3s ease-in-out;
     overflow: hidden;
     z-index: 999;
 }
-
+@media (max-width: 768px) {
+    .top-cards {
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+}
 /* Altura contraída */
 .bottom-sidebar.collapsed {
     height: 70px;
@@ -91,7 +129,9 @@ body.dark-mode .app-body {
 
 /* Altura expandida */
 .bottom-sidebar.expanded {
-    height: 60vh;
+    height: 60%;
+    width: 100%;
+    
 }
 
 /* Botón para expandir */
@@ -104,6 +144,15 @@ body.dark-mode .app-body {
     background: #f0f0f0;
     border-bottom: 1px solid #ddd;
 }
+
+/* Dark mode sidebar */
+body.dark-mode .bottom-sidebar {
+    background-color: #1a1a1a;
+    border-top: 2px solid #333;
+    box-shadow: 0 -3px 10px rgba(0,0,0,0.7);
+}
+body.dark-mode .toggle-btn { background: #2a2a2a; color: #f0f0f0; border-bottom: 1px solid #444; }
+body.dark-mode .header-right .subtext { color: #aaa; }
 
 /* Header superior */
 .sidebar-header {
@@ -130,10 +179,12 @@ body.dark-mode .app-body {
 
 /* Contenido scroll */
 .sidebar-scroll {
+    
     padding: 10px 15px;
     overflow-y: auto;
     height: calc(100% - 60px); /* Resta toggle + header */
 }
+body.dark-mode .sidebar-scroll { color: #f0f0f0; }
 
 .plan-title {
     font-weight: bold;
@@ -172,6 +223,7 @@ body.dark-mode .app-body {
     text-align: center;
     min-height: 200px;
 }
+body.dark-mode .timer-item { background: #2a2a2a; }
 
 .chart-container canvas {
     width: 100% !important;
@@ -185,6 +237,9 @@ body.dark-mode .app-body {
     font-weight: bold;
 }
 
+/* Dark mode charts */
+body.dark-mode .chart-container { background: #2a2a2a; color: #f0f0f0; }
+
 /* =================== Mapa =================== */
 #map {
     width: 100%;
@@ -192,6 +247,7 @@ body.dark-mode .app-body {
     background: #ddd;
     border-radius: 8px;
 }
+body.dark-mode #map { background: #333; }
 .chart-container {
     position: relative;
     width: 200px;
@@ -215,12 +271,32 @@ body.dark-mode .app-body {
     font-weight: bold;
     pointer-events: none;
 }
+/* =================== Ajustes para móvil =================== */
+@media (max-width: 768px) {
+    .app-body {
+        min-height: 90vh; /* antes era 100vh, ahora más pequeño en móvil */
+        padding: 15px 10px; /* opcional: menos padding en móvil */
+    }
+
+    .top-cards {
+        overflow-x: auto;
+        justify-content: flex-start;
+    }
+
+    .section-container {
+        padding: 10px 15px;
+    }
+
+    .bottom-sidebar.expanded {
+        height: 65%; /* opcional: menos alto en móvil */
+    }
+}
 </style>
 
 <!-- ======================= Contenido ======================= -->
 <div class="app-body">
-    <h1>Welcome to Truck Dashboard</h1>
-    <p>Welcome, {{ auth()->guard('driver')->user()->name }}</p>
+    <h1 id="greeting" style="margin-bottom: 40px;"></h1>
+    
 
     <!-- =================== Contenedores principales =================== -->
     <div class="top-cards">
@@ -275,21 +351,21 @@ body.dark-mode .app-body {
         </div>
     </div>
 
-   
-</div>
 
-@php
-$serverTimers = $initialTimers ?? [
-    'drive_remaining' => 11*3600,
-    'shift_remaining' => 14*3600,
-    'cycle_remaining' => 70*3600,
-    'current_status' => 'OFF'
-];
-@endphp
 
-<!-- =================== Sidebar Inferior =================== -->
-<div id="bottomSidebar" class="bottom-sidebar collapsed">
 
+
+
+    <!-- =================== Sidebar Inferior =================== -->
+    <div id="bottomSidebar" class="bottom-sidebar collapsed">
+    @php
+    $serverTimers = $initialTimers ?? [
+        'drive_remaining' => 11*3600,
+        'shift_remaining' => 14*3600,
+        'cycle_remaining' => 70*3600,
+        'current_status' => 'OFF'
+    ];
+    @endphp
     <!-- Botón toggle -->
     <div class="toggle-btn" onclick="toggleSidebar()">─</div>
 
@@ -337,7 +413,7 @@ $serverTimers = $initialTimers ?? [
         <div id="map"></div>
     </div>
 </div>
-
+</div>
 
 <!-- =================== JS =================== -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -514,6 +590,26 @@ setInterval(updateLocation,3000);
     });
     lastTick=Date.now();
 })();
+// Para el saludo
+(function(){
+    const name = "{{ auth()->guard('driver')->user()->name }}";
+    const now = new Date();
+    const hour = now.getHours();
+    let greeting = '';
+
+    if(hour >= 5 && hour < 12){
+        greeting = 'Good morning';
+    } else if(hour >= 12 && hour < 18){
+        greeting = 'Good afternoon';
+    } else if(hour >= 18 && hour < 22){
+        greeting = 'Good evening';
+    } else {
+        greeting = 'Good night';
+    }
+
+    document.getElementById('greeting').innerText = `${greeting}, ${name}!`;
+})();
+
 </script>
 
 @if(session('alert_message'))

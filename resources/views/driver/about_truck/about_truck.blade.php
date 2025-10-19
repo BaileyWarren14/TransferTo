@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="mb-4">
-        <i class="fas fa-truck"></i> Truck Information
+        <i class="fas fa-truck"></i><h2 data-key="truck_information">Truck Information</h2> 
     </h2>
 
     @if(session('alert_message'))
@@ -18,24 +18,24 @@
         </script>
     @elseif($truck)
         <div class="card shadow p-4 dark-card">
-            <h4 class="mb-3">Unit: {{ $truck->unit_number ?? 'N/A' }}</h4>
+            <h4 class="mb-3" data-key="unit">Unit: {{ $truck->unit_number ?? 'N/A' }}</h4>
             <ul class="list-group dark-list">
-                <li class="list-group-item dark-item"><strong>Plate:</strong> {{ $truck->license_plate ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Brand:</strong> {{ $truck->brand ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Model:</strong> {{ $truck->model ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Year:</strong> {{ $truck->year ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Current Mileage:</strong> {{ $truck->current_mileage ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Fuel Capacity:</strong> {{ $truck->fuel_capacity ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Color:</strong> {{ $truck->color ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Cab Type:</strong> {{ $truck->cab_type ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Transmission:</strong> {{ $truck->transmission_type ?? 'N/A' }}</li>
-                <li class="list-group-item dark-item"><strong>Motor Hours:</strong> <span id="motor-hours">{{ $truck->current_motor_hours ?? 'N/A' }}</span> h</li>
+                <li class="list-group-item dark-item"><strong data-key="plate">Plate:</strong> {{ $truck->license_plate ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="brand">Brand:</strong> {{ $truck->brand ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="model">Model:</strong> {{ $truck->model ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="year">Year:</strong> {{ $truck->year ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="current_mileage">Current Mileage:</strong> {{ $truck->current_mileage ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="fuel_capacity">Fuel Capacity:</strong> {{ $truck->fuel_capacity ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="color">Color:</strong> {{ $truck->color ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="cab_type">Cab Type:</strong> {{ $truck->cab_type ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="transmission">Transmission:</strong> {{ $truck->transmission_type ?? 'N/A' }}</li>
+                <li class="list-group-item dark-item"><strong data-key="motor_hours">Motor Hours:</strong> <span id="motor-hours">{{ $truck->current_motor_hours ?? 'N/A' }}</span> h</li>
                 <li class="list-group-item dark-item">
-                    <strong>Status:</strong> 
+                    <strong data-key="status">Status:</strong> 
                     @if($truck->status === 'active')
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success" data-key="active">Active</span>
                     @elseif($truck->status === 'inactive')
-                        <span class="badge bg-danger">Inactive</span>
+                        <span class="badge bg-danger" data-key="inactive">Inactive</span>
                     @else
                         <span class="badge bg-secondary">{{ $truck->status ?? 'N/A' }}</span>
                     @endif
@@ -44,17 +44,17 @@
         </div>
     @else
         <div class="alert alert-danger dark-alert">
-            No truck information available.
+            <p data-key="no_truck_information_available">No truck information available.</p>
         </div>
     @endif
 
     <div class="mt-3">
         <a href="{{ url('/driver/dashboard') }}" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i> Back
+            <i class="fas fa-arrow-left"></i> <p data-key="back">Back</p>
         </a>
     </div>
 </div>
-
+<script src="{{ asset('js/translations.js') }}"></script>
 <script>
     function refreshMotorHours() {
     fetch("{{ url('/driver/truck-motor-hours-json') }}")

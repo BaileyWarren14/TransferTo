@@ -1,3 +1,11 @@
+@php
+        use Illuminate\Support\Facades\Auth;
+        use Illuminate\Support\Facades\Session;
+
+        Auth::logout();
+        Session::flush();
+    @endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,6 +19,7 @@
     </style>
 </head>
 <body>
+    
 
     <div class="login-card">
         <!-- Logo -->
