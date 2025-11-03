@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Driver;
 use App\Models\drivers;
+use App\Models\Document;
 use Illuminate\Support\Facades\Hash;
 
 class DriverController extends Controller
@@ -110,8 +111,52 @@ class DriverController extends Controller
         return view('driver.notifications.index_notifications');
     }
 
-    public function documents()
+    
+
+    
+    public function getVehicles()
     {
-        return view('driver.documents.index_documents');
+        // Puedes ajustar esto según tu modelo y relaciones
+        $vehicles = \App\Models\Vehicle::select('id', 'license_plate','brand', 'model', 'year', 'color')->get();
+
+        return response()->json($vehicles);
     }
+
+    public function setVehicle(Request $request)
+    {
+        $vehicle = \App\Models\Vehicle::find($request->vehicle_id);
+
+        if (!$vehicle) {
+            return response()->json(['success' => false, 'message' => 'Vehicle not found']);
+        }
+
+        // Ejemplo: guardar en sesión o en la BD del conductor
+        auth()->user()->update(['current_vehicle_id' => $vehicle->id]);
+
+        return response()->json([
+            'success' => true,
+            'vehicle' => $vehicle
+        ]);
+    }
+    public function documents($id)
+    {
+        $driver = Driver::findOrFail($id);
+         $documents = $driver->documents; 
+
+        return view('admin.drivers.documents', compact('driver', 'documents'));
+    }
+    public function show($id)
+    {
+        $doc = Document::findOrFail($id);
+
+        // Asegúrate de que el archivo exista
+        if (!\Storage::disk('public')->exists($doc->file_path)) {
+            abort(404);
+        }
+
+        return response()->file(storage_path('app/public/' . $doc->file_path));
+    }
+
+
+
 }

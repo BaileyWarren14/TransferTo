@@ -10,6 +10,9 @@ class LogController extends Controller
     //
     public function showLoginForm()
     {
+        Auth::logout();
+        session()->invalidate();
+        session()->regenerateToken();
         return view('log'); // tu vista log.blade.php
     }
 

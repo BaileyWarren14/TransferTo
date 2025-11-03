@@ -12,6 +12,7 @@ class DocumentController extends Controller
     
      public function index()
     {
+        $driverId = auth()->id();
         $documents = Document::all();
         return view('driver.documents.index_documents', compact('documents'));
     }
@@ -23,11 +24,14 @@ class DocumentController extends Controller
             'file' => 'required|file|max:5120'
         ]);
 
+         $driverId = auth()->id(); 
+
         $file = $request->file('file');
         $fileName = time() . '_' . $file->getClientOriginalName();
         $path = $file->storeAs('documents', $fileName, 'public');
 
         Document::create([
+            'driver_id' => $driverId,
             'type' => $request->type,
             'file_name' => $fileName,
             'file_path' => $path

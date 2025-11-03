@@ -1,4 +1,4 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 <title>Edit Trailer</title>
@@ -9,7 +9,7 @@
 
 <div class="container my-4">
     <a href="{{ route('trailers.index') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1"></i> <span data-key="back">Back</span>
     </a>
 
     @if(session('success'))
@@ -18,7 +18,7 @@
 
     <div class="card shadow-sm rounded-4">
         <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
-            <i class="fas fa-truck-pickup fa-2x me-2"></i> Edit Trailer
+            <i class="fas fa-truck-pickup fa-2x me-2"></i> <span data-key="edit_trailer">Edit Trailer</span>
         </div>
         <div class="card-body">
             <form id="trailerForm" method="POST" action="{{ route('trailers.update', $trailer->id) }}">
@@ -28,29 +28,29 @@
                 <div class="row g-3">
                     <div class="col-md-6 form-floating">
                         <input type="number" name="axles" id="axles" class="form-control" 
-                            placeholder="Number of Axles" value="{{ old('axles', $trailer->axles) }}" required>
-                        <label for="axles">Number of Axles</label>
+                            placeholder="Number of Axles"  value="{{ old('axles', $trailer->axles) }}" required>
+                        <label for="axles" data-key="number_of_axels">Number of Axles</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="trailer_type" id="trailer_type" class="form-control" 
                             placeholder="Trailer Type" value="{{ old('trailer_type', $trailer->trailer_type) }}" required>
-                        <label for="trailer_type">Trailer Type</label>
+                        <label for="trailer_type" data-key="trailer_type">Trailer Type</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="license_plate" id="license_plate" class="form-control" 
                             placeholder="License Plate" value="{{ old('license_plate', $trailer->license_plate) }}" required>
-                        <label for="license_plate">License Plate</label>
+                        <label for="license_plate" data-key="license_plate">License Plate</label>
                     </div>
                 </div>
 
                 <div class="mt-4 d-flex flex-column flex-md-row gap-2 justify-content-between">
                     <a href="{{ route('trailers.index') }}" class="btn btn-outline-secondary w-100 w-md-auto">
-                        <i class="fas fa-arrow-left me-1"></i> Back
+                        <i class="fas fa-arrow-left me-1"></i> <span data-key="back">Back</span>
                     </a>
                     <button type="submit" class="btn btn-success w-100 w-md-auto">
-                        <i class="fas fa-save me-1"></i> Save Trailer
+                        <i class="fas fa-save me-1"></i> <span data-key="save_trailer">Save Trailer</span>
                     </button>
                 </div>
             </form>

@@ -9,8 +9,8 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
-    <!-- Font Awesome already included in sidebar -->
-    
+    <!-- Font Awesome se carga dentro del sidebar -->
+
     <!-- Custom CSS -->
     <style>
         body {
@@ -40,18 +40,31 @@
     @stack('styles')
 </head>
 <body>
+    {{-- Mostrar el sidebar según el guard activo --}}
+    @if(auth()->guard('driver')->check())
+        @include('layouts.sidebar') {{-- Sidebar para Drivers --}}
+    @elseif(auth()->guard('admin')->check())
+        @include('layouts.sidebar_admin') {{-- Sidebar para Admins --}}
+    @endif
 
-    <!-- Sidebar -->
-    @include('layouts.sidebar')
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Main Content -->
     <div class="main-content">
         @yield('content')
     </div>
-
+        <script src="{{ asset('js/translations.js') }}"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+           <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const lang = localStorage.getItem("language") || "en";
+    if (typeof applyLanguage === "function") {
+        applyLanguage(lang);
+    }
+});
+</script>
     @stack('scripts')
 </body>
 </html>

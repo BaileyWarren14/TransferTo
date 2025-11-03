@@ -1,14 +1,12 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 <div class="container my-5">
-    <a href="{{ route('admin.index') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back
-    </a>
+    
 
     <div class="card shadow-sm rounded-4">
         <div class="card-header bg-primary text-white text-center py-3 rounded-top-4">
-            <i class="fas fa-user-shield fa-2x me-2"></i> Edit Admin
+            <i class="fas fa-user-shield fa-2x me-2"></i> <h5 data-key="edit_admin">Edit Admin</h5>
         </div>
         <div class="card-body">
             <form id="editAdminForm" method="POST" action="{{ route('admin.update', $admin->id) }}">
@@ -20,53 +18,53 @@
                     <div class="col-md-6 form-floating">
                         <input type="text" name="name" id="name" class="form-control" 
                             placeholder="First Name" value="{{ old('name', $admin->name) }}" required>
-                        <label for="name">First Name</label>
+                        <label for="name" data-key="first_name">First Name</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="lastname" id="lastname" class="form-control" 
                             placeholder="Last Name" value="{{ old('lastname', $admin->lastname) }}" required>
-                        <label for="lastname">Last Name</label>
+                        <label for="lastname" data-key="last_name">Last Name</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="phone_number" id="phone_number" class="form-control" 
                             placeholder="Phone Number" value="{{ old('phone_number', $admin->phone_number) }}">
-                        <label for="phone_number">Phone Number</label>
+                        <label for="phone_number" data-key="phone_number">Phone Number</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="email" name="email" id="email" class="form-control" 
                             placeholder="Email" value="{{ old('email', $admin->email) }}" required>
-                        <label for="email">Email</label>
+                        <label for="email" data-key="email">Email</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="department" id="department" class="form-control" 
                             placeholder="Department" value="{{ old('department', $admin->department) }}">
-                        <label for="department">Department</label>
+                        <label for="department" data-key="department">Department</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="position" id="position" class="form-control" 
                             placeholder="Position" value="{{ old('position', $admin->position) }}" required>
-                        <label for="position">Position</label>
+                        <label for="position" data-key="position">Position</label>
                     </div>
 
                     <div class="col-md-6 form-floating">
                         <input type="password" name="password" id="password" class="form-control" 
                             placeholder="Password">
-                        <label for="password">Password (Leave empty to keep current)</label>
+                        <label for="password" data-key="password_edit">Password (Leave empty to keep current)</label>
                     </div>
 
                 </div>
 
                 <div class="mt-4 d-flex flex-column flex-md-row gap-2 justify-content-between">
                     <a href="{{ route('admin.index') }}" class="btn btn-outline-secondary w-100 w-md-auto">
-                        <i class="fas fa-arrow-left me-1"></i> Back
+                        <i class="fas fa-arrow-left me-1"></i> <span data-key="back">Back</span>
                     </a>
                     <button type="submit" class="btn btn-success w-100 w-md-auto">
-                        <i class="fas fa-save me-1"></i> Save Admin
+                        <i class="fas fa-save me-1"></i> <span data-key="save_admin">Save Admin</span>
                     </button>
                 </div>
             </form>
@@ -82,7 +80,7 @@ document.getElementById('editAdminForm').addEventListener('submit', function(e){
     let formData = new FormData(form);
 
     fetch(form.action, {
-        method: 'POST',
+         method: 'POST',
         headers: {'X-CSRF-TOKEN': "{{ csrf_token() }}"},
         body: formData
     })

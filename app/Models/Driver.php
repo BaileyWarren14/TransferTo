@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Document;
 
 class Driver extends Authenticatable
 {
@@ -26,4 +27,8 @@ class Driver extends Authenticatable
         'password',
         'remember_token',
     ];
+     public function documents()
+    {
+        return $this->hasMany(Document::class, 'driver_id');
+    }
 }

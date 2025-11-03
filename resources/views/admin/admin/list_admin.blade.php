@@ -1,15 +1,15 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        <h2 class="fw-bold text-primary"><i class="fas fa-user-shield me-2"></i>Admin List</h2>
+        <h2 class="fw-bold text-primary" data><i class="fas fa-user-shield me-2"></i><span data-key="admin_list">Admin List</span></h2>
         <a href="{{ route('admin.create') }}" 
            class="btn btn-success btn-lg text-white shadow add-admin-btn mt-2 mt-md-0"
            style="text-decoration: none;">
-           <i class="fas fa-plus-circle me-2"></i> Add New Admin
+           <i class="fas fa-plus-circle me-2"></i> <span data-key="add_new_admin">Add New Admin</span>
         </a>
     </div>
 
@@ -28,13 +28,13 @@
                         <thead class="table-header">
                             <tr>
                                 <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Department</th>
-                                <th>Position</th>
-                                <th class="text-center">Actions</th>
+                                <th data-key="first_name">First Name</th>
+                                <th data-key="last_name">Last Name</th>
+                                <th data-key="email">Email</th>
+                                <th data-key="phone">Phone</th>
+                                <th data-key="department">Department</th>
+                                <th data-key="position">Position</th>
+                                <th class="text-center" data-key="actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -51,7 +51,7 @@
                                         <div class="d-flex justify-content-center gap-2 flex-wrap">
                                             <a href="{{ route('admin.edit', $admin->id) }}" 
                                                class="btn btn-primary btn-sm action-btn">
-                                               <i class="fas fa-edit me-1"></i> Edit
+                                               <i class="fas fa-edit me-1"></i> <span data-key="edit"> Edit</span>
                                             </a>
                                             <form action="{{ route('admin.destroy', $admin->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
@@ -60,7 +60,7 @@
                                                         class="btn btn-danger btn-sm action-btn delete-btn"
                                                         data-admin-name="{{ $admin->name }}"
                                                         @if($admin->id === auth()->guard('admin')->id()) disabled @endif>
-                                                    <i class="fas fa-trash-alt me-1"></i> Delete
+                                                    <i class="fas fa-trash-alt me-1"></i> <span data-key="delete">Delete</span>
                                                 </button>
                                             </form>
                                         </div>

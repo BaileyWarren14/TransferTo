@@ -11,160 +11,102 @@ class LogbookController extends Controller
 {
     public function index()
     {
-        $driver = Auth::guard('driver')->user();
+      
+    $driver = Auth::guard('driver')->user();
 
-        // 📌 Siempre trabajar con la zona horaria de México
-        $tz = 'America/Mexico_City';
-        $now = Carbon::now($tz);
-        $today = Carbon::today($tz);
+    $now = Carbon::now(); // hora del servidor (ya México)
+    $today = Carbon::today();
+    
+    // 🔹 Obtener logs de hoy sin convertir zona horaria
+    $todayLogs = dutystatuslog::where('driver_id', $driver->id)
+        ->whereBetween('changed_at', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])
+        ->orderBy('changed_at')
+        ->get();
 
-        // 🔹 Obtener logs de hoy en UTC pero convertirlos a hora local
-        $todayLogs = dutystatuslog::where('driver_id', $driver->id)
-            ->whereBetween('changed_at', [
-                $today->copy()->startOfDay()->setTimezone('UTC'),
-                $today->copy()->endOfDay()->setTimezone('UTC')
-            ])
-            ->orderBy('changed_at')
-            ->get();
-        // 🔹 Convertir todos los registros a hora local (UTC-6)
-        $todayLogs->transform(function($log) use ($tz) {
-            $log->changed_at = Carbon::parse($log->changed_at)->setTimezone($tz);
-            return $log;
-        });
-
-        // 🔹 Si no hay log al inicio del día, agregar uno falso
-        if ($todayLogs->isEmpty() || Carbon::parse($todayLogs->first()->changed_at)->gt($today)) {
-            $fakeLog = new \stdClass();
-            $fakeLog->status = 'OFF';
-            $fakeLog->changed_at = $today->toDateTimeString();
-            $todayLogs->prepend($fakeLog);
-        }
-
-        // 🔹 Mapear estados
-        $yStatusMap = ['OFF'=>0, 'SB'=>1, 'D'=>2, 'ON'=>3, 'WT'=>4];
-
-        // 🔹 Preparar etiquetas (96 bloques de 15 min)
-        /*$labels = [];
-        for ($h = 0; $h < 24; $h++) {
-            $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
-            for ($i = 0; $i < 4; $i++) {
-                $labels[] = $i == 0 ? $hour : '';
-            }
-        }
-
-        // 🔹 Generar estados de los bloques de 15 min
-        $dutyStatuses = [];
-        $start = $today->copy();
-        $now = Carbon::now($tz);   // hora actual en zona horaria correcta
-        $blocks = 96;
-        $logIndex = 0;
-        $lastStatus = 'OFF';
-
-        for ($i = 0; $i < $blocks; $i++) {
-            $time = $start->copy()->addMinutes(15 * $i);
-
-            // 🚫 Si el bloque está en el futuro, ya no seguimos
-            if ($time->gt($now)) {
-                break;
-            }
-
-            // ✅ Consumir todos los logs que cayeron hasta este bloque
-            while (isset($todayLogs[$logIndex]) && Carbon::parse($todayLogs[$logIndex]->changed_at)->lte($time)) {
-                $lastStatus = $todayLogs[$logIndex]->status;
-                $logIndex++;
-            }
-
-            // Guardar el estado para este bloque
-            $dutyStatuses[] = $yStatusMap[$lastStatus];
-        }
-
-        // 🔹 Si quieres forzar a que siempre sean 96 valores (obligatorio en tu caso)
-        while (count($dutyStatuses) < $blocks) {
-            $dutyStatuses[] = $yStatusMap[$lastStatus]; // repetir último estado
-        }
-        */
-        // 🔹 Preparar etiquetas (1440 bloques de 1 min)
-        $labels = [];
-        for ($h = 0; $h < 24; $h++) {
-            $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
-            for ($m = 0; $m < 60; $m++) {
-                 
-           
-                $labels[] = $m == 0 ? $hour : '';
-           
-            }
-        }
-
-        // 🔹 Generar estados de los bloques de 1 min
-        $dutyStatuses = [];
-        $start = $today->copy();
-        $now = Carbon::now($tz);
-        $blocks = 1440; // 24 * 60
-        $logIndex = 0;
-        $lastStatus = 'OFF';
-
-        for ($i = 0; $i < $blocks; $i++) {
-            $time = $start->copy()->addMinutes($i);
-
-             if ($time->gt($now)) break;
-
-            // ✅ Verificar si algún log cambió antes o en este minuto
-            while (isset($todayLogs[$logIndex]) && Carbon::parse($todayLogs[$logIndex]->changed_at)->lte($time)) {
-                $lastStatus = $todayLogs[$logIndex]->status;
-                $logIndex++;
-            }
-
-            $dutyStatuses[] = $yStatusMap[$lastStatus];
-        }
-
-        // 🔹 Si quieres forzar 1440 valores
-        while (count($dutyStatuses) < $blocks) {
-            $dutyStatuses[] = null;
-        }
-
-
-        // 🔹 Calcular total de horas ON duty
-        $totalOnDutyMinutes = 0;
-        $lastOffTime = null;
-        foreach ($todayLogs as $log) {
-            if ($log->status === 'OFF') {
-                $lastOffTime = Carbon::parse($log->changed_at);
-            } else {
-                if ($lastOffTime) {
-                    $totalOnDutyMinutes += Carbon::parse($log->changed_at)->diffInMinutes($lastOffTime);
-                    $lastOffTime = null;
-                }
-            }
-        }
-        $totalOnDutyHours = intdiv($totalOnDutyMinutes, 60);
-        $totalOnDutyMins = $totalOnDutyMinutes % 60;
-        
-        // 🔹 Últimos 14 días (también ajustados a MX)
-        $last14Days = dutystatuslog::where('driver_id', $driver->id)
-            ->orderBy('changed_at', 'desc')
-            ->get()
-            ->groupBy(function($log) use ($tz) {
-                return Carbon::parse($log->changed_at)->setTimezone($tz)->format('Y-m-d');
-            })
-            ->take(14);
-
-        // 🔹 Logs "raw" para debug
-        $rawLogs = $todayLogs->map(function($log) {
-            return [
-                'status' => $log->status,
-                'changed_at' => $log->changed_at, // ya en UTC-6
-            ];
-        });
-
-        return view('driver.logs.show', compact(
-            'labels',
-            'dutyStatuses',
-            'totalOnDutyHours',
-            'totalOnDutyMins',
-            'last14Days',
-            'rawLogs'
-        ));
+    // 🔹 Si no hay log al inicio del día, agregar uno falso
+    if ($todayLogs->isEmpty() || Carbon::parse($todayLogs->first()->changed_at)->gt($today)) {
+        $fakeLog = new \stdClass();
+        $fakeLog->status = 'OFF';
+        $fakeLog->changed_at = $today->toDateTimeString();
+        $todayLogs->prepend($fakeLog);
     }
+
+    $yStatusMap = ['OFF'=>0, 'SB'=>1, 'D'=>2, 'ON'=>3, 'WT'=>4];
+
+    // 🔹 Generar bloques de 1 minuto
+    $labels = [];
+    for ($h = 0; $h < 24; $h++) {
+        $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
+        for ($m = 0; $m < 60; $m++) {
+            $labels[] = $m == 0 ? $hour : '';
+        }
+    }
+
+    $dutyStatuses = [];
+    $start = $today->copy();
+    $blocks = 1440; // 24 * 60
+    $logIndex = 0;
+    $lastStatus = 'OFF';
+
+    for ($i = 0; $i < $blocks; $i++) {
+        $time = $start->copy()->addMinutes($i);
+        if ($time->gt($now)) break;
+
+        while (isset($todayLogs[$logIndex]) && Carbon::parse($todayLogs[$logIndex]->changed_at)->lte($time)) {
+            $lastStatus = $todayLogs[$logIndex]->status;
+            $logIndex++;
+        }
+
+        $dutyStatuses[] = $yStatusMap[$lastStatus];
+    }
+
+    while (count($dutyStatuses) < $blocks) {
+        $dutyStatuses[] = null;
+    }
+
+    // 🔹 Total de horas ON duty
+    $totalOnDutyMinutes = 0;
+    $lastOffTime = null;
+    foreach ($todayLogs as $log) {
+        if ($log->status === 'OFF') {
+            $lastOffTime = Carbon::parse($log->changed_at);
+        } else {
+            if ($lastOffTime) {
+                $totalOnDutyMinutes += Carbon::parse($log->changed_at)->diffInMinutes($lastOffTime);
+                $lastOffTime = null;
+            }
+        }
+    }
+    $totalOnDutyHours = intdiv($totalOnDutyMinutes, 60);
+    $totalOnDutyMins = $totalOnDutyMinutes % 60;
+
+    // 🔹 Últimos 14 días sin conversión
+    $last14Days = dutystatuslog::where('driver_id', $driver->id)
+        ->orderBy('changed_at', 'desc')
+        ->get()
+        ->groupBy(function($log) {
+            return Carbon::parse($log->changed_at)->format('Y-m-d');
+        })
+        ->take(14);
+
+    // 🔹 Logs "raw"
+    $rawLogs = $todayLogs->map(function($log) {
+        return [
+            'status' => $log->status,
+            'changed_at' => $log->changed_at, // tal como está en la BD
+        ];
+    });
+
+    return view('driver.logs.show', compact(
+        'labels',
+        'dutyStatuses',
+        'totalOnDutyHours',
+        'totalOnDutyMins',
+        'last14Days',
+        'rawLogs'
+    ));
+}
+
 
 
 
@@ -350,6 +292,7 @@ class LogbookController extends Controller
     public function showActivities($date)
     {
         $driver = Auth::guard('driver')->user();
+        
         $tz = 'America/Mexico_City';
 
         // Convertir $date en un objeto Carbon en la zona horaria correcta
@@ -415,6 +358,93 @@ class LogbookController extends Controller
             ->first();
 
         return response()->json($lastLog);
+    }
+     public function currentStatus()
+    {
+        $driver = Auth::guard('driver')->user();
+
+        if (!$driver) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
+
+        $lastLog = dutystatuslog::where('driver_id', $driver->id)
+            ->orderBy('changed_at', 'desc')
+            ->first();
+
+        if (!$lastLog) {
+            return response()->json([
+                'status' => 'OFF',
+                'changed_at' => null,
+                'duration' => '0 min'
+            ]);
+        }
+
+        // Calcular duración desde el último cambio
+        $tz = 'America/Mexico_City';
+        $changedAt = Carbon::parse($lastLog->changed_at)->setTimezone($tz);
+        $now = Carbon::now($tz);
+        $duration = $changedAt->diff($now)->format('%Hh %Im');
+
+        return response()->json([
+            'status' => $lastLog->status,
+            'changed_at' => $changedAt->toDateTimeString(),
+            'duration' => $duration
+        ]);
+    }
+    public function getStatus()
+{
+    // Simula obtención de datos reales (ajusta según tu estructura)
+    $driverId = auth()->id();
+
+    $latestLog = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+                    ->latest('changed_at')
+                    ->first();
+
+    if (!$latestLog) {
+        return response()->json([
+            'status' => 'OFF',
+            'drive_time' => 0,
+            'shift_time' => 0,
+            'cycle_time' => 0,
+        ]);
+    }
+
+    // Calcula tiempo desde el último cambio
+    $now = now();
+    $changedAt = \Carbon\Carbon::parse($latestLog->changed_at);
+    $elapsedMinutes = $changedAt->diffInMinutes($now);
+
+    // Aquí podrías sumar tiempos reales de tu lógica de negocio
+    return response()->json([
+        'status' => $latestLog->status,
+        'drive_time' => 320,   // Ejemplo: minutos totales en Drive
+        'shift_time' => 400,   // Ejemplo: minutos totales en Shift
+        'cycle_time' => 1500,  // Ejemplo: minutos totales en Cycle
+        'elapsed_minutes' => $elapsedMinutes
+    ]);
+}
+
+    /**
+     * Guarda un nuevo cambio de estado
+     */
+    public function changeStatus(Request $request)
+    {
+        $driver = Auth::guard('driver')->user();
+
+        $request->validate([
+            'status' => 'required|in:ON,OFF,SB,D,WT,PC,YM',
+        ]);
+
+        $log = dutystatuslog::create([
+            'driver_id' => $driver->id,
+            'status' => $request->status,
+            'changed_at' => now('UTC'),
+        ]);
+
+        return response()->json([
+            'message' => 'Estado actualizado',
+            'log' => $log
+        ]);
     }
 
 }

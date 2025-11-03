@@ -32,7 +32,7 @@ class MessageController extends Controller
 
     public function chat($type, $id)
     {
-        // Buscar usuario según el tipo
+       // Buscar usuario según el tipo
         $user = $type === 'driver'
             ? Driver::find($id)
             : Admin::find($id);
@@ -96,6 +96,7 @@ class MessageController extends Controller
     }
 
 
+
     public function messagesJson($type, $id)
     {
         $messages = Message::where(function ($q) use ($id) {
@@ -108,7 +109,9 @@ class MessageController extends Controller
 
         return response()->json($messages);
     }
-      // Lista de usuarios para iniciar chat
+
+     
+        // Lista de usuarios para iniciar chat
     public function index_ad()
     {
          // Traer todos los drivers y admins MENOS el usuario autenticado
@@ -125,7 +128,7 @@ class MessageController extends Controller
 
     public function chat_ad($type, $id)
     {
-        // Buscar usuario según el tipo
+       // Buscar usuario según el tipo
         $user = $type === 'driver'
             ? Driver::find($id)
             : Admin::find($id);
@@ -153,4 +156,43 @@ class MessageController extends Controller
 
         return view('admin.messages.chat', compact('user', 'messages', 'type'));
     }
+
+    public function send_ad(Request $request, $type, $id)
+    {
+        $request->validate([
+            'message' => 'required|string|max:1000',
+            'client_time' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        $senderType = Auth::user() instanceof \App\Models\Driver ? 'driver' : 'admin';
+
+        // Guardar el mensaje
+        Message::create([
+            'sender_id'     => Auth::id(),
+            'sender_type'   => $senderType,
+            'receiver_id'   => $id,
+            'receiver_type' => $type,
+            'message'       => $request->message,
+            'created_at'    => $request->client_time,
+            'updated_at'    => $request->client_time,
+        ]);
+
+        // Crear la notificación para el receptor
+        \App\Models\Notification::create([
+            'user_id' => $id, // aquí va el ID del usuario que recibe el mensaje
+            'type'    => 'message',
+            'title'   => 'Nuevo mensaje',
+            'message' => 'Has recibido un nuevo mensaje de ' . Auth::user()->name,
+            'read_at' => null,
+        ]);
+            $receiver = $type === 'driver' ? \App\Models\Driver::find($id) : \App\Models\Admin::find($id);
+            Mail::to($receiver->email)->send(new NewMessageMail(Auth::user(), $receiver, $request->message));
+
+        return response()->json(['success' => true]); // importante para AJAX
+    }
+
+
+
+    
+
 }

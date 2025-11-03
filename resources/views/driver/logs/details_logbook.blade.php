@@ -4,11 +4,11 @@
 <div class="container mt-4">
 
     <a href="{{ url()->previous() }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back
+        <i class="fas fa-arrow-left me-1" data-key="back"></i> Back
     </a>
 
     <div class="card shadow mb-4">
-        <div class="card-header bg-primary text-white">Logbook Details</div>
+        <div class="card-header bg-primary text-white" data-key="logbook_details">Logbook Details</div>
         <div class="card-body">
             <!-- Gráfica interactiva -->
             <div class="chart-container mb-4" style="height:300px;">
@@ -21,9 +21,9 @@
                     <thead class="table-dark">
                         <tr>
                             <th>#</th>
-                            <th>Time</th>
-                            <th>Status</th>
-                            <th>Acciones</th>
+                            <th data-key="time">Time</th>
+                            <th data-key="status">Status</th>
+                            <th data-key="actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -33,11 +33,11 @@
                             <td>{{ \App\Helpers\TimeHelper::userTime($log->changed_at, 'H:i') }}</td>
                             <td>{{ $log->status }}</td>
                             <td>
-                                <a href="{{ route('driver.logs.edit', $log->id) }}" class="btn btn-sm btn-warning">Editar</a>
+                                <a href="{{ route('driver.logs.edit', $log->id) }}" class="btn btn-sm btn-warning" data-key="edit">Edit</a>
                                 <form action="{{ route('driver.logs.destroy', $log->id) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Eliminar este registro?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" data-key="delete">Delete</button>
                                 </form>
                             </td>
                         </tr>

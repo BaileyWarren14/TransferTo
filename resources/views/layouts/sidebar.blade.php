@@ -275,6 +275,7 @@ body {
     </label>
 </div>
 <script src="{{ asset('js/translations.js') }}"></script>
+
 <!-- =========================== JS =========================== -->
 <script>
 const sidebar = document.getElementById("mySidebar");
@@ -329,7 +330,30 @@ function applyLanguage(lang) {
     elements.forEach(el => {
         const key = el.getAttribute("data-key");
         if (translations[lang] && translations[lang][key]) {
-            el.textContent = translations[lang][key];
+
+            if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+                // Cambia el valor del input/textarea
+                el.value = translations[lang][key];
+
+                // Si quieres traducir también el placeholder
+                if (el.hasAttribute('placeholder')) {
+                    el.placeholder = translations[lang][key];
+                }
+
+            } else if (el.tagName === "SELECT") {
+                // Si quieres traducir opciones de select (opcional)
+                Array.from(el.options).forEach(option => {
+                    const optionKey = option.getAttribute("data-key");
+                    if(optionKey && translations[lang][optionKey]){
+                        option.textContent = translations[lang][optionKey];
+                    }
+                });
+
+            } else {
+                // Para todos los demás elementos (span, h1, p, etc.)
+                el.textContent = translations[lang][key];
+            }
+
         }
     });
 }

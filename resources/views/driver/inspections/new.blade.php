@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-  <title>Trip Inspection Report</title>
+  <title data-key="trip_inspection_report">Trip Inspection Report</title>
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Responsivo -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -44,7 +44,7 @@ body.dark-mode .input-group .input-group-text {
     <form id="myForm" method="POST" action="{{ route('inspections.store') }}">
       @csrf
   <div class="container my-4" id="report">
-    <h1 class="text-center mb-4">Trip Inspection Report</h1>
+    <h1 class="text-center mb-4" data-key="trip_inspection_report">Trip Inspection Report</h1>
 
     
 
@@ -52,27 +52,27 @@ body.dark-mode .input-group .input-group-text {
 
       <!-- Type of Inspection -->
       <fieldset class="mb-3">
-        <legend class="fw-bold">Type of Inspection</legend>
+        <legend class="fw-bold" data-key="type_of_inspection">Type of Inspection</legend>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="pre_trip" value="pre-trip" id="pretrip">
-          <label class="form-check-label" for="pretrip">Pre-trip Inspection</label>
+          <label class="form-check-label" for="pretrip" data-key="pre_trip_inspection">Pre-trip Inspection</label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="post_trip" value="post-trip" id="posttrip">
-          <label class="form-check-label" for="posttrip">Post-trip Inspection</label>
+          <label class="form-check-label" for="posttrip" data-key="post_trip_inspection">Post-trip Inspection</label>
         </div>
       </fieldset>
 
       <!-- Truck Info -->
   <fieldset class="mb-3">
-    <legend class="fw-bold">Truck Information</legend>
+    <legend class="fw-bold" data-key="truck_information">Truck Information</legend>
     <div class="row g-2">
       <div class="col-md-6">
-        <label for="truck_number" class="form-label">Truck/Tractor #</label>
+        <label for="truck_number" class="form-label" data-key="truck_tractor">Truck/Tractor #</label>
         <input type="text" class="form-control" id="truck_number" name="truck_number">
       </div>
       <div class="col-md-6">
-        <label for="odometer" class="form-label">Odometer Reading</label>
+        <label for="odometer" class="form-label" data-key="odometer_reding">Odometer Reading</label>
         <div class="input-group">
           <input type="text" class="form-control" id="odometer" name="odometer">
           <div class="input-group-text">
@@ -82,7 +82,7 @@ body.dark-mode .input-group .input-group-text {
             </div>
             <div class="form-check form-check-inline mb-0">
               <input class="form-check-input" type="radio" name="unit" value="miles" id="miles">
-              <label class="form-check-label" for="miles">Miles</label>
+              <label class="form-check-label" for="miles" data-key="miles">Miles</label>
             </div>
           </div>
         </div>
@@ -92,16 +92,16 @@ body.dark-mode .input-group .input-group-text {
 
       <!-- Condition -->
       <fieldset class="mb-3">
-        <legend class="fw-bold">Condition</legend>
+        <legend class="fw-bold" data-key="condition">Condition</legend>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="conditions" value="no_defect" id="nodefect">
-          <label class="form-check-label" for="nodefect">
+          <label class="form-check-label" for="nodefect" data-key="no_defect">
             I detected no defect or deficiency in this commercial motor vehicle.
           </label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="conditions" value="defects" id="defects">
-          <label class="form-check-label" for="defects">
+          <label class="form-check-label" for="defects" data-key="defect">
             I found the following defects as noted below:
           </label>
         </div>
@@ -109,69 +109,69 @@ body.dark-mode .input-group .input-group-text {
 
       <!-- Checklist -->
       <fieldset class="mb-3">
-        <legend class="fw-bold">Inspection Checklist</legend>
+        <legend class="fw-bold" data-key="inspection_checklist">Inspection Checklist</legend>
           <div class="form-check mb-2">
             <input class="form-check-input" type="checkbox" id="check_all">
-              <label class="form-check-label fw-bold" for="check_all">
+              <label class="form-check-label fw-bold" for="check_all" data-key="select_deselect">
                Select / Deselect All
               </label>
           </div>
         <div class="row">
           
             <div class="col-md-4">
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="air_compressor" id="air_compressor" name="checklist[]"><label class="form-check-label" for="air_compressor">Air Compressor</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="air_lines" id="air_lines" name="checklist[]"><label class="form-check-label" for="air_lines">Air Lines</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="axles" id="axles" name="checklist[]"><label class="form-check-label" for="axles">Axles</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="battery" id="battery" name="checklist[]"><label class="form-check-label" for="battery">Battery(s)</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="belts" id="belts" name="checklist[]"><label class="form-check-label" for="belts">Belts/Hoses</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="body_frame" id="body_frame" name="checklist[]"><label class="form-check-label" for="body_frame">Body/Frame</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="brakes_adjustment" id="brakes_adjustment" name="checklist[]"><label class="form-check-label" for="brakes_adjustment">Brakes/Adjustment</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="brakes_service" id="brakes_service" name="checklist[]"><label class="form-check-label" for="brakes_service">Brakes - Service System</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="brakes_parking" id="brakes_parking" name="checklist[]"><label class="form-check-label" for="brakes_parking">Brakes - Parking System</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="charging_system" id="charging_system" name="checklist[]"><label class="form-check-label" for="charging_system">Charging System</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="clutch" id="clutch" name="checklist[]"><label class="form-check-label" for="clutch">Clutch</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="cooling_system" id="cooling_system" name="checklist[]"><label class="form-check-label" for="cooling_system">Cooling System</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="coupling_devices" id="coupling_devices" name="checklist[]"><label class="form-check-label" for="coupling_devices">Coupling Devices</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="documents" id="documents" name="checklist[]"><label class="form-check-label" for="documents">Documents (insurance, permits, etc.)</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="doors" id="doors" name="checklist[]"><label class="form-check-label" for="doors">Doors/Compartments</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="air_compressor" id="air_compressor" name="checklist[]"><label class="form-check-label" for="air_compressor" data-key="air_compressor">Air Compressor</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="air_lines" id="air_lines" name="checklist[]"><label class="form-check-label" for="air_lines" data-key="air_lines">Air Lines</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="axles" id="axles" name="checklist[]"><label class="form-check-label" for="axles" data-key="axles">Axles</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="battery" id="battery" name="checklist[]"><label class="form-check-label" for="battery" data-key="battery>Battery(s)</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="belts" id="belts" name="checklist[]"><label class="form-check-label" for="belts" data-key="belts_hoses">Belts/Hoses</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="body_frame" id="body_frame" name="checklist[]"><label class="form-check-label" for="body_frame" data-key="body_frame">Body/Frame</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="brakes_adjustment" id="brakes_adjustment" name="checklist[]"><label class="form-check-label" for="brakes_adjustment" data-key="brakes_adjustment">Brakes/Adjustment</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="brakes_service" id="brakes_service" name="checklist[]"><label class="form-check-label" for="brakes_service" data-key="brakes_service_system">Brakes - Service System</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="brakes_parking" id="brakes_parking" name="checklist[]"><label class="form-check-label" for="brakes_parking" data-key="brakes_parking_system">Brakes - Parking System</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="charging_system" id="charging_system" name="checklist[]"><label class="form-check-label" for="charging_system" data-key="charging_system">Charging System</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="clutch" id="clutch" name="checklist[]"><label class="form-check-label" for="clutch" data-key="clutch">Clutch</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="cooling_system" id="cooling_system" name="checklist[]"><label class="form-check-label" for="cooling_system" data-key="cooling_system">Cooling System</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="coupling_devices" id="coupling_devices" name="checklist[]"><label class="form-check-label" for="coupling_devices" data-key="coupling_devices">Coupling Devices</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="documents" id="documents" name="checklist[]"><label class="form-check-label" for="documents" data-key="documents_insurance_permits">Documents (insurance, permits, etc.)</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="doors" id="doors" name="checklist[]"><label class="form-check-label" for="doors" data-key="doors_compartments">Doors/Compartments</label></div>
               
 
             </div>
 
             <div class="col-md-4">
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="drive_lines" id="drive_lines" name="checklist[]"><label class="form-check-label" for="brakdrive_lineses_adjustment">Drive Lines</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="emergency_equipment" id="emergency_equipment" name="checklist[]"><label class="form-check-label" for="emergency_equipment">Emergency Equipment</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="emergency_windows" id="emergency_windows" name="checklist[]"><label class="form-check-label" for="emergency_windows">Emergency Windows/Exits</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="engine" id="engine" name="checklist[]"><label class="form-check-label" for="engine">Engine</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="exhaust_system" id="exhaust_system" name="checklist[]"><label class="form-check-label" for="exhaust_system">Exhaust System</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fire_extinguishers" id="fire_extinguishers" name="checklist[]"><label class="form-check-label" for="fire_extinguishers">Fire Extinguishers</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="first_aid" id="first_aid" name="checklist[]"><label class="form-check-label" for="first_aid">First Aid Kit</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fluid_leaks" id="fluid_leaks" name="checklist[]"><label class="form-check-label" for="fluid_leaks">Fluid Leaks</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="frame" id="frame" name="checklist[]"><label class="form-check-label" for="frame">Frame</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fuel_system" id="fuel_system" name="checklist[]"><label class="form-check-label" for="fuel_system">Fuel System</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="heater" id="heater" name="checklist[]"><label class="form-check-label" for="heater">Heater/Defrosters</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="horns" id="horns" name="checklist[]"><label class="form-check-label" for="horns">Horns</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="inspection_decals" id="inspection_decals" name="checklist[]"><label class="form-check-label" for="inspection_decals">Inspection Decal/Licence Plates</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="interior_ligths" id="interior_ligths" name="checklist[]"><label class="form-check-label" for="interior_ligths">Interior Ligths</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="lights_reflectors" id="lights_reflectors" name="checklist[]"><label class="form-check-label" for="lights_reflectors">Lights/Reflectors</label></div>   
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="drive_lines" id="drive_lines" name="checklist[]"><label class="form-check-label" for="brakdrive_lineses_adjustment" data-key="drive_lines">Drive Lines</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="emergency_equipment" id="emergency_equipment" name="checklist[]"><label class="form-check-label" for="emergency_equipment" data-key="emergency_equipment">Emergency Equipment</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="emergency_windows" id="emergency_windows" name="checklist[]"><label class="form-check-label" for="emergency_windows" data-key="emergency_windows_exits">Emergency Windows/Exits</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="engine" id="engine" name="checklist[]"><label class="form-check-label" for="engine" data-key="engine" >Engine</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="exhaust_system" id="exhaust_system" name="checklist[]"><label class="form-check-label" for="exhaust_system" data-key="exhaust_system">Exhaust System</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fire_extinguishers" id="fire_extinguishers" name="checklist[]"><label class="form-check-label" for="fire_extinguishers" data-key="fire_extinguishers">Fire Extinguishers</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="first_aid" id="first_aid" name="checklist[]"><label class="form-check-label" for="first_aid" data-key="first_aid_kit">First Aid Kit</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fluid_leaks" id="fluid_leaks" name="checklist[]"><label class="form-check-label" for="fluid_leaks" data-key="fluid_leaks">Fluid Leaks</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="frame" id="frame" name="checklist[]"><label class="form-check-label" for="frame" data-key="frame">Frame</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="fuel_system" id="fuel_system" name="checklist[]"><label class="form-check-label" for="fuel_system" data-key="fuel_system">Fuel System</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="heater" id="heater" name="checklist[]"><label class="form-check-label" for="heater" data-key="heater_defrosters">Heater/Defrosters</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="horns" id="horns" name="checklist[]"><label class="form-check-label" for="horns" data-key="horns">Horns</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="inspection_decals" id="inspection_decals" name="checklist[]"><label class="form-check-label" for="inspection_decals" data-key="inspection_decal_licence_plates">Inspection Decal/Licence Plates</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="interior_ligths" id="interior_ligths" name="checklist[]"><label class="form-check-label" for="interior_ligths" data-key="interior_ligths">Interior Ligths</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="lights_reflectors" id="lights_reflectors" name="checklist[]"><label class="form-check-label" for="lights_reflectors" data-key="lights_reflectors">Lights/Reflectors</label></div>   
             </div>
 
             <div class="col-md-4">
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="load_security_device" id="load_security_device" name="checklist[]"><label class="form-check-label" for="load_security_device">Load Security Devices</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="lubrication_system" id="lubrication_system" name="checklist[]"><label class="form-check-label" for="lubrication_system">Lubrication System(s)</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="mirrows" id="mirrows" name="checklist[]"><label class="form-check-label" for="mirrows">Mirrows</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="mud_flaps" id="mud_flaps" name="checklist[]"><label class="form-check-label" for="mud_flaps">Mud Flaps</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="oil_pressure" id="oil_pressure" name="checklist[]"><label class="form-check-label" for="oil_pressure">Oil Pressure</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="rear_end" id="rear_end" name="checklist[]"><label class="form-check-label" for="rear_end">Rear End</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="recording_devices" id="recording_devices" name="checklist[]"><label class="form-check-label" for="recording_devices">Recording Device(s)</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="seats" id="seats" name="checklist[]"><label class="form-check-label" for="seats">Seats</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="suspension" id="suspension" name="checklist[]"><label class="form-check-label" for="suspension">Suspension</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="steering_mechanism" id="steering_mechanism" name="checklist[]"><label class="form-check-label" for="steering_mechanism">Steering Mechanism</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="transmission" id="transmission" name="checklist[]"><label class="form-check-label" for="transmission">Transmission(s)</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="wheels_tires" id="wheels_tires" name="checklist[]"><label class="form-check-label" for="wheels_tires">Wheels/Tires/Studs</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="windows" id="windows" name="checklist[]"><label class="form-check-label" for="windows">Windows/Visibility</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="wipers" id="wipers" name="checklist[]"><label class="form-check-label" for="wipers">Wipers/Washers</label></div>
-              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="other" id="other"name="checklist[]"><label class="form-check-label" for="other">Other</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="load_security_device" id="load_security_device" name="checklist[]"><label class="form-check-label" for="load_security_device" data-key="load_security_devices">Load Security Devices</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="lubrication_system" id="lubrication_system" name="checklist[]"><label class="form-check-label" for="lubrication_system" data-key="lubrication_system">Lubrication System(s)</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="mirrows" id="mirrows" name="checklist[]"><label class="form-check-label" for="mirrows" data-key="mirrows">Mirrows</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="mud_flaps" id="mud_flaps" name="checklist[]"><label class="form-check-label" for="mud_flaps" data-key="mud_flaps">Mud Flaps</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="oil_pressure" id="oil_pressure" name="checklist[]"><label class="form-check-label" for="oil_pressure" data-key="oil_pressure">Oil Pressure</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="rear_end" id="rear_end" name="checklist[]"><label class="form-check-label" for="rear_end" data-key="rear_end">Rear End</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="recording_devices" id="recording_devices" name="checklist[]"><label class="form-check-label" for="recording_devices" data-key="recording_device">Recording Device(s)</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="seats" id="seats" name="checklist[]"><label class="form-check-label" for="seats" data-key="seats">Seats</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="suspension" id="suspension" name="checklist[]"><label class="form-check-label" for="suspension" data-key="suspension">Suspension</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="steering_mechanism" id="steering_mechanism" name="checklist[]"><label class="form-check-label" for="steering_mechanism" data-key="steering_mechanism">Steering Mechanism</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="transmission" id="transmission" name="checklist[]"><label class="form-check-label" for="transmission" data-key="transmission">Transmission(s)</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="wheels_tires" id="wheels_tires" name="checklist[]"><label class="form-check-label" for="wheels_tires" data-key="wheels_tires_studs">Wheels/Tires/Studs</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="windows" id="windows" name="checklist[]"><label class="form-check-label" for="windows" data-key="windows_visibility">Windows/Visibility</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="wipers" id="wipers" name="checklist[]"><label class="form-check-label" for="wipers" data-key="wipers_washers">Wipers/Washers</label></div>
+              <div class="form-check"><input class="form-check-input checklist" type="checkbox" value="other" id="other"name="checklist[]"><label class="form-check-label" for="other" data-key="other">Other</label></div>
             </div>
           
         
@@ -195,7 +195,7 @@ body.dark-mode .input-group .input-group-text {
 
       <!-- Remarks -->
       <fieldset class="mb-3">
-        <legend class="fw-bold">Remarks</legend>
+        <legend class="fw-bold" data-key="remarks">Remarks</legend>
         <textarea class="form-control" name="remarks" rows="4"></textarea>
       </fieldset>
 
@@ -210,19 +210,19 @@ body.dark-mode .input-group .input-group-text {
             class="form-control" 
             placeholder="Enter name & signature"
             value="{{ Auth::user()->name }}" readonly>
-      <label for="signature" class="form-label d-block">Driver's Name & Signature</label>
+      <label for="signature" class="form-label d-block" data-key="driver_name">Driver's Name & Signature</label>
   </div>
 
     <!-- Date -->
     <div class="col-md-4">
       <input type="date" name="inspection_date" id="inspection_date" class="form-control">
-      <label for="inspection_date" class="form-label d-block">Date</label>
+      <label for="inspection_date" class="form-label d-block" data-key="date">Date</label>
     </div>
 
     <!-- Time -->
     <div class="col-md-4">
       <input type="time" name="inspection_time" id="inspection_time" class="form-control">
-      <label for="inspection_time" class="form-label d-block">Time</label>
+      <label for="inspection_time" class="form-label d-block" data-key="time">Time</label>
     </div>
 
   </div>
@@ -231,14 +231,14 @@ body.dark-mode .input-group .input-group-text {
        
       <!-- Carrier Agent Report -->
       <fieldset class="mb-3">
-        <legend class="fw-bold">Carrier/Agent's Report</legend>
+        <legend class="fw-bold" data-key="carrier_agent">Carrier/Agent's Report</legend>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="above_corrected" value="above_corrected" id="above_corrected">
-          <label class="form-check-label" for="above_corrected">Above defects corrected.</label>
+          <label class="form-check-label" for="above_corrected" data-key="above_defects">Above defects corrected.</label>
         </div>
         <div class="form-check">
           <input class="form-check-input" type="checkbox" name="above_not_corrected" value="above_not_corrected-trip" id="above_not_corrected">
-          <label class="form-check-label" for="above_not_corrected">Above defects need not be corrected for safe operation of vehicle.</label>
+          <label class="form-check-label" for="above_not_corrected" data-key="above_not_defects">Above defects need not be corrected for safe operation of vehicle.</label>
         </div>
       </fieldset>
 
@@ -248,25 +248,25 @@ body.dark-mode .input-group .input-group-text {
             <!-- Agent Name & Signature -->
             <div class="col-md-4">
             <input type="text" name="signature_agent" id="signature_agent" class="form-control" placeholder="Enter signature">
-            <label for="signature" class="form-label d-block">Signature</label>
+            <label for="signature" class="form-label d-block" data-key="signature">Signature</label>
             </div>
 
             <!-- Date -->
             <div class="col-md-4">
             <input type="date" name="date_today2" id="date_today2" class="form-control">
-            <label for="date_today" class="form-label d-block">Date</label>
+            <label for="date_today" class="form-label d-block" data-key="date">Date</label>
             </div>
 
             <!-- Time -->
             <div class="col-md-4">
             <input type="time" name="hour_inspection2" id="hour_inspection2" class="form-control">
-            <label for="hour_inspection" class="form-label d-block">Time</label>
+            <label for="hour_inspection" class="form-label d-block" data-key="time">Time</label>
             </div>
 
         </div>
         </fieldset>
 
-      <button type="submit"   class="btn btn-primary w-100" >Submit Report</button>
+      <button type="submit"   class="btn btn-primary w-100" data-key="submit_report">Submit Report</button>
     
   </div>
     </form>

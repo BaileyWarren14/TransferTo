@@ -34,7 +34,7 @@ class DutyStatusController extends Controller
 
         // Obtener driver autenticado
         $driver = Auth::guard('driver')->user();
-        $changedAt = Carbon::now('UTC');
+        $changedAt = Carbon::now('America/Mexico_City');;
         // Guardar en la tabla de logs
         DutyStatusLog::create([
             'driver_id' => $driver->id,
@@ -42,6 +42,7 @@ class DutyStatusController extends Controller
             'location' => $data['location'],
             'notes' => $data['notes'] ?? null,
             'changed_at' => $changedAt,
+            
         ]);
 
         // Actualizar el estado actual del driver

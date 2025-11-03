@@ -2,16 +2,16 @@
 
 @section('content')
 <div class="container mt-4">
-    <h4 class="mb-3">Activities for {{ \Carbon\Carbon::parse($date)->format('l, M d, Y') }}</h4>
+    <h4 class="mb-3" ><span data-key="activities_for">Activities for</span> {{ \Carbon\Carbon::parse($date)->format('l, M d, Y') }}</h4>
 
     <!-- Botón para regresar a show -->
-    <a href="{{ route('driver.logs.show') }}" class="btn btn-secondary mb-3">
-        ← Back to Logbook
+    <a href="{{ route('driver.logs.show') }}" class="btn btn-secondary mb-3" data-key="back_to_logbook">
+        <span data-key="">Back to Logbook</span>
     </a>
     <!-- Gráfica con resumen de estados -->
     <div class="card shadow mb-4">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-            <span>Today</span>
+            <span data-key="today">Today</span>
             <a href="{{ route('driver.logs.activities', ['date' => \Carbon\Carbon::now('America/Mexico_City')->toDateString()]) }}" class="btn btn-light btn-sm">➡️</a>
         </div>
         <div class="card-body text-center">
@@ -35,7 +35,7 @@
 
     <!-- Lista de actividades -->
     <div class="card shadow">
-        <div class="card-header bg-primary text-white">Activity Details</div>
+        <div class="card-header bg-primary text-white" data-key="activitiy_details">Activity Details</div>
         <div class="card-body">
             @foreach($activities as $activity)
                 <div class="mb-3 p-2 rounded border"

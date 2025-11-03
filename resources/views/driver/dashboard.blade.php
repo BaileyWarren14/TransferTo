@@ -295,7 +295,7 @@ body.dark-mode #map { background: #333; }
 
 <!-- ======================= Contenido ======================= -->
 <div class="app-body">
-    <h1 id="greeting" style="margin-bottom: 40px;"></h1>
+    <h1 id="greeting" data-key="" style="margin-bottom: 40px;"></h1>
     
 
     <!-- =================== Contenedores principales =================== -->
@@ -303,18 +303,18 @@ body.dark-mode #map { background: #333; }
         <div class="card-item card-logs" onclick="location.href='{{ route('driver.logs.show') }}'">
             <i class="bi bi-bar-chart-line-fill"></i>
 
-            <span>Logs</span>
+            <span data-key="logs">Logs</span>
             
         </div>
         <div class="card-item card-support" onclick="location.href='#'">
             <i class="fa-solid fa-headset"></i>
 
-            <span>Support</span>
+            <span data-key="support">Support</span>
             
         </div>
         <div class="card-item card-docs" onclick="location.href='#'">
             <i class="bi bi-file-earmark-text-fill"></i>
-            <span>Docs</span>
+            <span data-key="docs">Docs</span>
             
         </div>
     </div>
@@ -322,11 +322,11 @@ body.dark-mode #map { background: #333; }
     <!-- =================== Compliance =================== -->
     <div class="section-container">
         <div class="section-header">
-            <span>Compliance</span>
+            <span data-key="compliance">Compliance</span>
             <span>&gt;</span>
         </div>
         <div class="section-item" onclick="location.href='{{ route('driver.logs.show') }}'">
-            <span>Unidentified trips</span>
+            <span data-key="unidentified_trips">Unidentified trips</span>
             <span>5 &gt;</span>
         </div>
     </div>
@@ -334,19 +334,19 @@ body.dark-mode #map { background: #333; }
     <!-- =================== Maintenance =================== -->
     <div class="section-container">
         <div class="section-header">
-            <span>Maintenance</span>
+            <span data-key="maintenance">Maintenance</span>
             <span>&gt;</span>
         </div>
         <div class="section-item" onclick="location.href='{{ route('driver.inspections') }}'">
-            <span>Pre-trip Vehicle Inspection</span>
+            <span data-key="pre_trip_vehicle_inspection">Pre-trip Vehicle Inspection</span>
             <span>&gt;</span>
         </div>
         <div class="section-item" onclick="location.href='{{ route('driver.inspections') }}'">
-            <span>Post-trip Vehicle Inspection</span>
+            <span data-key="post_trip_vehicle_inspection">Post-trip Vehicle Inspection</span>
             <span>&gt;</span>
         </div>
         <div class="section-item" onclick="location.href='{{ route('driver.inspections') }}'">
-            <span>Vehicle Inspection</span>
+            <span data-key="vehicle_inspection">Vehicle Inspection</span>
             <span>&gt;</span>
         </div>
     </div>
@@ -420,22 +420,23 @@ body.dark-mode #map { background: #333; }
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.js"></script>
+
 
 <script>
-/* =================== Sidebar toggle =================== */
+    
+    /* =================== Sidebar toggle =================== */
 function toggleSidebar(){
     const sidebar = document.getElementById('bottomSidebar');
     sidebar.classList.toggle('collapsed');
     sidebar.classList.toggle('expanded');
 }
 
-/* =================== Timers y Charts =================== */
-const serverTimers = @json($serverTimers);
-const DRIVE_TOTAL = 11*3600;
-const SHIFT_TOTAL = 14*3600;
-const CYCLE_TOTAL = 70*3600;
 
+  // Variables globales desde Laravel
+window.TIMERS_ROUTE = "{{ route('driver.timers') }}";
+window.DRIVER_NAME = "{{ auth()->guard('driver')->user()->name ?? 'Driver' }}";
+
+/* =================== Helpers =================== */
 function secondsToHMS(s){
     s = Math.max(0, Math.floor(s));
     const h = Math.floor(s/3600).toString().padStart(2,'0');
@@ -443,6 +444,36 @@ function secondsToHMS(s){
     const sec = Math.floor(s%60).toString().padStart(2,'0');
     return `${h}:${m}:${sec}`;
 }
+async function fetchTimersAndShowAlert() {
+    try {
+        const res = await fetch('/driver/timers');
+        const data = await res.json();
+
+        const tiempoD = data.D;
+        const tiempoON = data.ON;
+        const tiempoOFF = data.OFF;
+        const totaltime = tiempoD + tiempoON;
+        const status = data.status || 'OFF';
+        const elapsedMinutes = data.elapsed_minutes || 0;
+
+        document.getElementById('estadoD').innerText = `${tiempoD} seg`;
+        document.getElementById('estadoON').innerText = `${tiempoON} seg`;
+        document.getElementById('estadoOFF').innerText = `${tiempoOFF} seg`;
+
+        alert(
+            `🟢 Estado actual: ${status}\n` +
+            `⏱️ Tiempo transcurrido: ${Math.floor(elapsedMinutes * 60)} segundos\n` +
+            `🚗 Drive: ${tiempoD } segundos\n` +
+            `🕒 Shift: ${tiempoON } segundos\n` +
+            `🔄 Cycle: ${totaltime } segundos\n` +
+            `🔄 OFF Duty: ${tiempoOFF } segundos\n`
+        );
+    } catch(e) {
+        console.error(e);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', fetchTimersAndShowAlert);
 
 function showRestAlert(timerName){
     Swal.fire({
@@ -453,163 +484,407 @@ function showRestAlert(timerName){
     });
 }
 
-let currentStatus = serverTimers.current_status || 'OFF';
 
-const timers = {
-    drive:{remaining:serverTimers.drive_remaining,total:DRIVE_TOTAL,running:(serverTimers.current_status==='D'),chart:null,labelId:'driveLabel',canvasId:'driveChart',name:'Drive'},
-    shift:{remaining:serverTimers.shift_remaining,total:SHIFT_TOTAL,running:(serverTimers.current_status!=='OFF' && serverTimers.current_status!=='SB'),chart:null,labelId:'shiftLabel',canvasId:'shiftChart',name:'Shift'},
-    cycle:{remaining:serverTimers.cycle_remaining,total:CYCLE_TOTAL,running:(serverTimers.current_status!=='OFF'),chart:null,labelId:'cycleLabel',canvasId:'cycleChart',name:'Cycle'}
+/* =================== Constantes =================== */
+const DRIVE_TOTAL = 11*3600;
+const SHIFT_TOTAL = 14*3600;
+const CYCLE_TOTAL = 70*3600;
+const STORAGE_KEY = 'driver_timers_state';
+const SYNC_INTERVAL = 10000; // 10 segundos
+const CLIENT_TICK_INTERVAL = 1000; // 1 segundo
+
+/* =================== Estado global =================== */
+let timers = {
+    drive:{remaining:DRIVE_TOTAL,total:DRIVE_TOTAL,running:false,chart:null,labelId:'driveLabel',canvasId:'driveChart',name:'Drive'},
+    shift:{remaining:SHIFT_TOTAL,total:SHIFT_TOTAL,running:false,chart:null,labelId:'shiftLabel',canvasId:'shiftChart',name:'Shift'},
+    cycle:{remaining:CYCLE_TOTAL,total:CYCLE_TOTAL,running:false,chart:null,labelId:'cycleLabel',canvasId:'cycleChart',name:'Cycle'}
 };
 
-function createDoughnutChart(canvasId,initialRemaining,total,color){
-    const ctx = document.getElementById(canvasId).getContext('2d');
+let currentStatus = 'OFF';
+let chartsCreated = false;
+let syncIntervalHandle = null;
+let tickIntervalHandle = null;
+
+/* =================== LocalStorage =================== */
+function saveStateToStorage(){
+    try {
+        const state = {
+            drive_remaining: timers.drive.remaining,
+            shift_remaining: timers.shift.remaining,
+            cycle_remaining: timers.cycle.remaining,
+            current_status: currentStatus,
+            timestamp: Date.now(),
+            drive_running: timers.drive.running,
+            shift_running: timers.shift.running,
+            cycle_running: timers.cycle.running
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        console.log('💾 State saved');
+    } catch(e) {
+        console.warn('Could not save state:', e);
+    }
+}
+
+
+
+
+
+
+
+function loadStateFromStorage(){
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if(!stored) return null;
+        
+        const state = JSON.parse(stored);
+        const age = Date.now() - (state.timestamp || 0);
+        
+        if(age > 30000) {
+            console.log('Stored state too old, syncing with server');
+            return null;
+        }
+        
+        console.log('📦 Loading from localStorage (age: ' + Math.floor(age/1000) + 's)');
+        return state;
+    } catch(e) {
+        console.warn('Could not load state:', e);
+        return null;
+    }
+}
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        const res = await fetch('{{ route("driver.status") }}');
+        let driveMax = DRIVE_TOTAL;
+        let shiftMax = SHIFT_TOTAL;
+        let cycleMax = CYCLE_TOTAL;
+        let driveRem = DRIVE_TOTAL;
+        let shiftRem = SHIFT_TOTAL;
+        let cycleRem = CYCLE_TOTAL;
+        let status = 'OFF';
+        let elapsedSeconds = 0;
+
+        if (res.ok) {
+            const data = await res.json();
+
+            status = data.status || 'OFF';
+            const elapsedMinutes = data.elapsed_minutes || 0;
+
+            // Valores en minutos que vienen del servidor
+            const driveMinutes = data.drive_time || driveMax/60;
+            const shiftMinutes = data.shift_time || shiftMax/60;
+            const cycleMinutes = data.cycle_time || cycleMax/60;
+
+            // Convertimos todo a segundos
+            const driveSeconds = driveMinutes * 60;
+            const shiftSeconds = shiftMinutes * 60;
+            const cycleSeconds = cycleMinutes * 60;
+            elapsedSeconds = elapsedMinutes * 60;
+
+            // Calculamos los timers restantes
+            driveRem = Math.max(0, driveSeconds - elapsedSeconds);
+            shiftRem = Math.max(0, shiftSeconds - elapsedSeconds);
+            cycleRem = Math.max(0, cycleSeconds - elapsedSeconds);
+
+            console.log("🟢 Estado actual:", status);
+            console.log("⏱️ Tiempo transcurrido:", elapsedSeconds, "s");
+            console.log("🚗 Drive:", driveRem, "s");
+            console.log("🕒 Shift:", shiftRem, "s");
+            console.log("🔄 Cycle:", cycleRem, "s");
+
+            alert(
+            `🟢 Estado actual: ${status}\n` +
+            `⏱️ Tiempo transcurrido: ${Math.floor(elapsedMinutes * 60)} segundos\n` +
+            `🚗 Drive: ${driveRem } segundos\n` +
+            `🕒 Shift: ${shiftRem } segundos\n` +
+            `🔄 Cycle: ${cycleRem } segundos`
+        );
+            
+        } else {
+            console.warn("No se obtuvieron datos del servidor. Se usarán valores por defecto.");
+        }
+
+        // Actualizamos timers globales
+        timers.drive.remaining = driveRem;
+        timers.shift.remaining = shiftRem;
+        timers.cycle.remaining = cycleRem;
+
+        timers.drive.total = driveMax;
+        timers.shift.total = shiftMax;
+        timers.cycle.total = cycleMax;
+
+        // Arrancamos estados según status
+        updateRunningStates(status);
+
+        // Inicializamos gráficas si no existen
+        if(!chartsCreated){
+            timers.drive.chart = createDoughnutChart('driveChart', timers.drive.remaining, timers.drive.total, '#007bff');
+            timers.shift.chart = createDoughnutChart('shiftChart', timers.shift.remaining, timers.shift.total, '#28a745');
+            timers.cycle.chart = createDoughnutChart('cycleChart', timers.cycle.remaining, timers.cycle.total, '#6c757d');
+            chartsCreated = true;
+        }
+
+        // Actualizamos UI inmediatamente
+        updateTimersUI();
+
+        // Arrancamos tickClient
+        if(!tickIntervalHandle){
+            tickIntervalHandle = setInterval(tickClient, CLIENT_TICK_INTERVAL);
+        }
+
+    } catch (err) {
+        console.error("❌ Error:", err);
+        alert("No se pudo obtener el estado actual del conductor. Se usarán valores por defecto.");
+        
+        // En caso de error, inicializamos con máximos
+        timers.drive.remaining = DRIVE_TOTAL;
+        timers.shift.remaining = SHIFT_TOTAL;
+        timers.cycle.remaining = CYCLE_TOTAL;
+        timers.drive.total = DRIVE_TOTAL;
+        timers.shift.total = SHIFT_TOTAL;
+        timers.cycle.total = CYCLE_TOTAL;
+
+        updateRunningStates('OFF');
+
+        if(!chartsCreated){
+            timers.drive.chart = createDoughnutChart('driveChart', timers.drive.remaining, timers.drive.total, '#007bff');
+            timers.shift.chart = createDoughnutChart('shiftChart', timers.shift.remaining, timers.shift.total, '#28a745');
+            timers.cycle.chart = createDoughnutChart('cycleChart', timers.cycle.remaining, timers.cycle.total, '#6c757d');
+            chartsCreated = true;
+        }
+
+        updateTimersUI();
+        tickIntervalHandle = setInterval(tickClient, CLIENT_TICK_INTERVAL);
+    }
+});
+/* =================== Charts =================== */
+function createDoughnutChart(canvasId, initialRemaining, total, color){
+    const el = document.getElementById(canvasId);
+    if(!el) return null;
+    const ctx = el.getContext('2d');
     return new Chart(ctx,{
         type:'doughnut',
-        data:{labels:['Remaining','Elapsed'],datasets:[{data:[initialRemaining,Math.max(0,total-initialRemaining)],backgroundColor:[color,'#e9ecef'],borderWidth:0}]},
-        options:{plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false,cutout:'70%'}
+        data:{ 
+            labels:['Remaining','Elapsed'], 
+            datasets:[{ 
+                data:[initialRemaining, Math.max(0,total-initialRemaining)], 
+                backgroundColor:[color,'#e9ecef'], 
+                borderWidth:0 
+            }] 
+        },
+        options:{ 
+            plugins:{legend:{display:false}}, 
+            responsive:true, 
+            maintainAspectRatio:false, 
+            cutout:'70%' 
+        }
     });
 }
 
-timers.drive.chart = createDoughnutChart(timers.drive.canvasId,timers.drive.remaining,timers.drive.total,'#007bff');
-timers.shift.chart = createDoughnutChart(timers.shift.canvasId,timers.shift.remaining,timers.shift.total,'#28a745');
-timers.cycle.chart = createDoughnutChart(timers.cycle.canvasId,timers.cycle.remaining,timers.cycle.total,'#6c757d');
+/* =================== Running states =================== */
+function updateRunningStates(status){
+    currentStatus = status;
+    timers.drive.running = (status === 'D');
+    timers.shift.running = ['D', 'ON', 'SB'].includes(status);
+    timers.cycle.running = ['D', 'ON'].includes(status);
+    
+    console.log(`Status: ${status} | Drive: ${timers.drive.running} | Shift: ${timers.shift.running} | Cycle: ${timers.cycle.running}`);
+}
 
-Object.values(timers).forEach(t=>{
-    const el = document.getElementById(t.labelId);
-    if(el) el.innerText = secondsToHMS(t.remaining);
-    // también sidebar
-    const sbEl = document.getElementById(t.labelId.replace('Label','SidebarTimer'));
-    if(sbEl) sbEl.innerText = secondsToHMS(t.remaining);
+/* =================== Update UI =================== */
+function updateTimersUI(){
+    Object.values(timers).forEach(timer => {
+        if(timer.chart){
+            const elapsed = Math.max(0, timer.total - timer.remaining);
+            timer.chart.data.datasets[0].data = [timer.remaining, elapsed];
+            timer.chart.update('none');
+        }
+        
+        const labelEl = document.getElementById(timer.labelId);
+        if(labelEl) labelEl.innerText = secondsToHMS(timer.remaining);
+    });
+    
+    const shiftTimerEl = document.getElementById('shiftTimerText');
+    if(shiftTimerEl) shiftTimerEl.innerText = secondsToHMS(timers.shift.remaining);
+}
+
+/* =================== Apply server data =================== */
+function applyServerData(data){
+    if(!data) return;
+
+    console.log('📡 Server sync:', {
+        drive: data.drive_remaining,
+        shift: data.shift_remaining,
+        cycle: data.cycle_remaining,
+        status: data.current_status
+    });
+
+    const driveRem = Math.max(0, Math.min(Number(data.drive_remaining) || 0, DRIVE_TOTAL));
+    const shiftRem = Math.max(0, Math.min(Number(data.shift_remaining) || 0, SHIFT_TOTAL));
+    const cycleRem = Math.max(0, Math.min(Number(data.cycle_remaining) || 0, CYCLE_TOTAL));
+
+    timers.drive.remaining = driveRem;
+    timers.shift.remaining = shiftRem;
+    timers.cycle.remaining = cycleRem;
+
+    const status = (data.current_status || 'OFF').toString();
+    updateRunningStates(status);
+
+    if(!chartsCreated){
+        timers.drive.chart = createDoughnutChart('driveChart', driveRem, DRIVE_TOTAL, '#007bff');
+        timers.shift.chart = createDoughnutChart('shiftChart', shiftRem, SHIFT_TOTAL, '#28a745');
+        timers.cycle.chart = createDoughnutChart('cycleChart', cycleRem, CYCLE_TOTAL, '#6c757d');
+        chartsCreated = true;
+    }
+
+    updateTimersUI();
+    
+    const statusEl = document.getElementById('statusText');
+    if(statusEl) statusEl.innerText = `Status: ${currentStatus}`;
+
+    saveStateToStorage();
+}
+
+/* =================== Apply stored state =================== */
+function applyStoredState(state){
+    console.log('📦 Applying stored state');
+
+    timers.drive.remaining = Math.max(0, Math.min(state.drive_remaining || DRIVE_TOTAL, DRIVE_TOTAL));
+    timers.shift.remaining = Math.max(0, Math.min(state.shift_remaining || SHIFT_TOTAL, SHIFT_TOTAL));
+    timers.cycle.remaining = Math.max(0, Math.min(state.cycle_remaining || CYCLE_TOTAL, CYCLE_TOTAL));
+
+    updateRunningStates(state.current_status || 'OFF');
+
+    if(!chartsCreated){
+        timers.drive.chart = createDoughnutChart('driveChart', timers.drive.remaining, DRIVE_TOTAL, '#007bff');
+        timers.shift.chart = createDoughnutChart('shiftChart', timers.shift.remaining, SHIFT_TOTAL, '#28a745');
+        timers.cycle.chart = createDoughnutChart('cycleChart', timers.cycle.remaining, CYCLE_TOTAL, '#6c757d');
+        chartsCreated = true;
+    }
+
+    updateTimersUI();
+    
+    const statusEl = document.getElementById('statusText');
+    if(statusEl) statusEl.innerText = `Status: ${currentStatus}`;
+}
+
+/* =================== Client tick =================== */
+function tickClient(){
+    let needsUpdate = false;
+    let shouldAlert = [];
+
+    Object.values(timers).forEach(timer => {
+        if(timer.running && timer.remaining > 0){
+            timer.remaining = Math.max(0, timer.remaining - 1);
+            needsUpdate = true;
+
+            if(timer.remaining === 0){
+                shouldAlert.push(timer.name);
+            }
+        }
+    });
+
+    if(needsUpdate){
+        updateTimersUI();
+        saveStateToStorage();
+    }
+
+    shouldAlert.forEach(name => showRestAlert(name));
+}
+
+/* =================== Sync with server =================== */
+async function syncWithServer(){
+    try {
+        console.log('🔄 Fetching from:', window.TIMERS_ROUTE);
+        
+        const res = await fetch(window.TIMERS_ROUTE, {
+            method: 'GET',
+            credentials: 'same-origin',
+            headers: { 
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if(!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        applyServerData(data);
+        
+    } catch(err) {
+        console.error('❌ Sync error:', err);
+    }
+}
+
+/* =================== Initialize =================== */
+async function initTimers(){
+    console.log('🚀 Initializing timer system...');
+    console.log('Route:', window.TIMERS_ROUTE);
+    
+    const storedState = loadStateFromStorage();
+    
+    if(storedState){
+        applyStoredState(storedState);
+        syncWithServer();
+    } else {
+        await syncWithServer();
+    }
+    
+    tickIntervalHandle = setInterval(tickClient, CLIENT_TICK_INTERVAL);
+    syncIntervalHandle = setInterval(syncWithServer, SYNC_INTERVAL);
+    
+    document.addEventListener('visibilitychange', () => {
+        if(document.visibilityState === 'visible'){
+            console.log('👁️ Tab visible - syncing...');
+            syncWithServer();
+        }
+    });
+    
+    console.log('✅ Timer system ready');
+}
+
+/* =================== Cleanup =================== */
+window.addEventListener('beforeunload', () => {
+    saveStateToStorage();
+    if(tickIntervalHandle) clearInterval(tickIntervalHandle);
+    if(syncIntervalHandle) clearInterval(syncIntervalHandle);
 });
 
-let lastTick = Date.now();
 
-function tickClient(){
-    const now = Date.now();
-    const deltaSec = Math.floor((now-lastTick)/1000);
-    if(deltaSec<=0) return;
+/* =================== Startup =================== */
+document.addEventListener('DOMContentLoaded', function () {
+    initTimers();
 
-    Object.values(timers).forEach(timer=>{
-        if(timer.running && timer.remaining>0){
-            timer.remaining = Math.max(0,timer.remaining - deltaSec);
-            timer.chart.data.datasets[0].data = [timer.remaining, Math.max(0,timer.total-timer.remaining)];
-            timer.chart.update();
-            const lbl = document.getElementById(timer.labelId);
-            if(lbl) lbl.innerText = secondsToHMS(timer.remaining);
-            const sbEl = document.getElementById(timer.labelId.replace('Label','SidebarTimer'));
-            if(sbEl) sbEl.innerText = secondsToHMS(timer.remaining);
-            if(timer.remaining===0){
-                timer.running=false;
-                showRestAlert(timer.name);
-            }
-        }
-    });
-    lastTick = now;
-}
+    // Nombre del conductor
+    const name = window.DRIVER_NAME || 'Driver';
 
-setInterval(tickClient,1000);
+    // Idioma
+    const lang = localStorage.getItem('language') || 'es';
+    const t = window.translations?.[lang] || {};
 
-function recalibrateFromServer(){
-    fetch("{{ route('driver.timers') }}",{method:'GET',credentials:'same-origin'})
-        .then(res=>{if(!res.ok)throw new Error('Network response not ok');return res.json()})
-        .then(data=>{
-            if(data.drive_remaining!==undefined) timers.drive.remaining=parseInt(data.drive_remaining,10);
-            if(data.shift_remaining!==undefined) timers.shift.remaining=parseInt(data.shift_remaining,10);
-            if(data.cycle_remaining!==undefined) timers.cycle.remaining=parseInt(data.cycle_remaining,10);
-
-            timers.drive.running = (data.current_status==='D');
-            timers.shift.running = (data.current_status!=='OFF' && data.current_status!=='SB');
-            timers.cycle.running = (data.current_status!=='OFF');
-
-            Object.values(timers).forEach(t=>{
-                t.chart.data.datasets[0].data=[t.remaining,Math.max(0,t.total-t.remaining)];
-                t.chart.update();
-                const lbl=document.getElementById(t.labelId);
-                if(lbl) lbl.innerText = secondsToHMS(t.remaining);
-                const sbEl = document.getElementById(t.labelId.replace('Label','SidebarTimer'));
-                if(sbEl) sbEl.innerText = secondsToHMS(t.remaining);
-            });
-
-            currentStatus = data.current_status||currentStatus;
-            lastTick=Date.now();
-        })
-        .catch(err=>console.error('Recalibrate error',err));
-}
-
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'){recalibrateFromServer();}});
-setInterval(recalibrateFromServer,5*60*1000);
-
-setInterval(()=>{
-    fetch("{{ route('driver.logs.latest') }}",{method:'GET',credentials:'same-origin'})
-        .then(res=>res.ok?res.json():Promise.reject('no ok'))
-        .then(lastLog=>{
-            const lastStatus = lastLog ? lastLog.status:'OFF';
-            if(lastStatus!==currentStatus){
-                currentStatus=lastStatus;
-                timers.drive.running=(currentStatus==='D');
-                timers.shift.running=(currentStatus!=='OFF' && currentStatus!=='SB');
-                timers.cycle.running=(currentStatus!=='OFF');
-                recalibrateFromServer();
-            }
-        }).catch(err=>{});
-},10000);
-
-/* =================== Mapa =================== */
-const map = L.map('map').setView([0,0],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'Map data © OpenStreetMap contributors'}).addTo(map);
-const marker = L.marker([0,0]).addTo(map);
-function updateLocation(){
-    if(navigator.geolocation){
-        navigator.geolocation.getCurrentPosition(pos=>{
-            const lat=pos.coords.latitude;
-            const lng=pos.coords.longitude;
-            marker.setLatLng([lat,lng]);
-            map.setView([lat,lng],13);
-        },err=>{}, {enableHighAccuracy:true,maximumAge:5000,timeout:5000});
-    }
-}
-updateLocation();
-setInterval(updateLocation,3000);
-
-/* =================== Inicialización =================== */
-(function init(){
-    timers.drive.running = (serverTimers.current_status==='D');
-    timers.shift.running = (serverTimers.current_status!=='OFF' && serverTimers.current_status!=='SB');
-    timers.cycle.running = (serverTimers.current_status!=='OFF');
-    recalibrateFromServer();
-    Object.values(timers).forEach(t=>{
-        if(!Number.isFinite(t.remaining)||t.remaining<0){
-            t.remaining=t.total;
-            t.chart.data.datasets[0].data=[t.remaining,0];
-            t.chart.update();
-            const lbl=document.getElementById(t.labelId);
-            if(lbl) lbl.innerText=secondsToHMS(t.remaining);
-            const sbEl = document.getElementById(t.labelId.replace('Label','SidebarTimer'));
-            if(sbEl) sbEl.innerText = secondsToHMS(t.remaining);
-        }
-    });
-    lastTick=Date.now();
-})();
-// Para el saludo
-(function(){
-    const name = "{{ auth()->guard('driver')->user()->name }}";
+    // Hora actual
     const now = new Date();
     const hour = now.getHours();
+
     let greeting = '';
 
-    if(hour >= 5 && hour < 12){
-        greeting = 'Good morning';
-    } else if(hour >= 12 && hour < 18){
-        greeting = 'Good afternoon';
-    } else if(hour >= 18 && hour < 22){
-        greeting = 'Good evening';
+    if (hour >= 5 && hour < 12) {
+        greeting = t.greeting_morning || (lang === 'es' ? 'Buenos días' : 'Good morning');
+    } else if (hour >= 12 && hour < 18) {
+        greeting = t.greeting_afternoon || (lang === 'es' ? 'Buenas tardes' : 'Good ');
+    } else if (hour >= 18 && hour < 22) {
+        greeting = t.greeting_evening || (lang === 'es' ? 'Buena tarde' : 'Good evening');
     } else {
-        greeting = 'Good night';
+        greeting = t.greeting_night || (lang === 'es' ? 'Buenas noches' : 'Good night');
     }
 
-    document.getElementById('greeting').innerText = `${greeting}, ${name}!`;
-})();
-
+    // Mostrar el saludo
+    const greetingEl = document.getElementById('greeting');
+    if (greetingEl) greetingEl.innerText = `${greeting}, ${name}!`;
+});
 </script>
 
 @if(session('alert_message'))

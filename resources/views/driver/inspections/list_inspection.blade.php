@@ -24,23 +24,23 @@ body.dark-mode .table td {
 <div class="d-flex justify-content-between align-items-center mb-3">
     
     
-    <h2 style="text-align: center;">Last 15 Inspections</h2>
-    <a href="{{ route('inspections.create') }}" class="btn btn-success">Add New Inspection</a>
+    <h2 style="text-align: center;" data-key="last_15_inspections">Last 15 Inspections</h2>
+    <a href="{{ route('inspections.create') }}" class="btn btn-success" data-key="add_new_inspection">Add New Inspection</a>
 </div>
 
 @if($inspections->isEmpty())
-    <p>No inspections recorded.</p>
+    <p data-key="no_inspections">No inspections recorded.</p>
 @else
 <table class="table table-bordered">
     <thead>
         <tr>
             <th>#</th>
-            <th>Driver</th>
-            <th>Truck Number</th>
-            <th>Odometer</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Acciones</th>
+            <th data-key="driver">Driver</th>
+            <th data-key="truck_number">Truck Number</th>
+            <th data-key="odometer">Odometer</th>
+            <th data-key="date">Date</th>
+            <th data-key="time">Time</th>
+            <th data-key="actions">Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -53,8 +53,8 @@ body.dark-mode .table td {
             <td>{{ $inspection->inspection_date }}</td>
             <td>{{ $inspection->inspection_time }}</td>
             <td>
-                <a href="{{ route('driver.inspections.edit_inspection', $inspection->id) }}" class="btn btn-sm btn-primary">Editar</a>
-                <a href="{{ route('driver.inspections.pdf', $inspection->id) }}" class="btn btn-sm btn-success">Download PDF</a>
+                <a href="{{ route('driver.inspections.edit_inspection', $inspection->id) }}" class="btn btn-sm btn-primary" data-key="edit">Edit</a>
+                <a href="{{ route('driver.inspections.pdf', $inspection->id) }}" class="btn btn-sm btn-success" data-key="download">Download PDF</a>
             </td>
             
         </tr>

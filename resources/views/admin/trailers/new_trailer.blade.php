@@ -1,38 +1,38 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 <div class="container my-5">
-    <h2 class="text-center mb-4"><i class="fas fa-plus-circle me-2"></i>Add New Trailer</h2>
+    <h2 class="text-center mb-4" data-key=""><i class="fas fa-plus-circle me-2" ></i><span data-key="add_new_trailer">Add New Trailer</span></h2>
 
     <a href="{{ route('trailers.index') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back to Trailers
+        <i class="fas fa-arrow-left me-1"></i> <span data-key="back_to_trailers">Back to Trailers</span>
     </a>
 
     <form id="addTrailerForm">
         @csrf
         <div class="row g-3">
             <div class="col-md-6">
-                <label for="axles" class="form-label">Axles</label>
-                <input type="number" name="axles" id="axles" class="form-control" placeholder="Enter number of axles" required>
+                <label for="axles" class="form-label" data-key="axles">Axles</label>
+                <input type="number" name="axles" id="axles" class="form-control" data-key="enter_number_of_axles" placeholder="Enter number of axles" required>
             </div>
 
             <div class="col-md-6">
-                <label for="trailer_type" class="form-label">Trailer Type</label>
-                <input type="text" name="trailer_type" id="trailer_type" class="form-control" placeholder="Enter trailer type" required>
+                <label for="trailer_type" class="form-label" data-key="trailer_type">Trailer Type</label>
+                <input type="text" name="trailer_type" id="trailer_type" class="form-control" data-key="enter_trailer_type" placeholder="Enter trailer type" required>
             </div>
 
             <div class="col-md-6">
-                <label for="license_plate" class="form-label">License Plate</label>
-                <input type="text" name="license_plate" id="license_plate" class="form-control" placeholder="Enter license plate" required>
+                <label for="license_plate" class="form-label" data-key="license_plate">License Plate</label>
+                <input type="text" name="license_plate" id="license_plate" class="form-control" data-key="enter_trailer_plates" placeholder="Enter license plate" required>
             </div>
         </div>
 
         <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-success btn-lg flex-grow-1">
-                <i class="fas fa-save me-1"></i> Save Trailer
+                <i class="fas fa-save me-1"></i> <span data-key="save_trailer">Save Trailer</span>
             </button>
             <a href="{{ route('trailers.index') }}" class="btn btn-secondary btn-lg flex-grow-1">
-                <i class="fas fa-times me-1"></i> Cancel
+                <i class="fas fa-times me-1"></i> <span data-key="cancel">Cancel</span>
             </a>
         </div>
     </form>

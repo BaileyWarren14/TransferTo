@@ -95,7 +95,7 @@
     </style>
 <div class="container mt-4">
     <div class="text-center mb-3">
-        <a href="{{ route('driver.logs.today') }}" class="btn btn-info px-4 py-2 rounded-pill">
+        <a href="{{ route('driver.logs.today') }}" class="btn btn-info px-4 py-2 rounded-pill" data-key="view_today_logs">
             View Today's Logs
         </a>
     </div>
@@ -103,7 +103,7 @@
         @csrf
         <div class="card shadow-lg p-4 rounded-4">
             <!-- Duty Status -->
-            <h5 class="fw-bold mb-3 text-center">DUTY STATUS*</h5>
+            <h5 class="fw-bold mb-3 text-center" data-key="duty_status">DUTY STATUS*</h5>
             <div class="grid grid-cols-5 gap-2 mb-4 text-center">
                 <button type="button" class="btn duty-btn" data-status="ON">ON</button>
                 <button type="button" class="btn duty-btn" data-status="OFF">OFF</button>
@@ -115,12 +115,12 @@
             <!-- Personal / Yard -->
             <div class="row mb-4">
                 <div class="col-6 d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="PERSONAL" name="PC">
+                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="PERSONAL" name="PC" data-key="personal_conveyance">
                         PERSONAL CONVEYANCE
                     </button>
                 </div>
                 <div class="col-6 d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="YARD" name="YD">
+                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="YARD" name="YD" data-key="yard_move">
                         YARD MOVE
                     </button>
                 </div>
@@ -131,12 +131,12 @@
                 <!-- Loader mientras se obtiene la ubicación -->
                 <div id="locationLoader" style="display:none; text-align:center; margin-top:5px;">
                     <div class="spinner"></div>
-                    <p>Obteniendo ubicación...</p>
+                    <p data-key="getting_location">Getting Location...</p>
                 </div>
 
-                <label for="location" class="form-label fw-bold">LOCATION*</label>
+                <label for="location" class="form-label fw-bold" data-key="location">LOCATION*</label>
                 <div class="input-group">
-                    <input type="text" id="location" class="form-control rounded-start-pill" placeholder="Current location...">
+                    <input type="text" id="location" class="form-control rounded-start-pill" placeholder="Current location..." data-key="current_location">
                     <button type="button" id="getLocation" class="btn btn-primary rounded-end-pill">
                         <i class="fas fa-location-arrow"></i>
                     </button>
@@ -145,13 +145,13 @@
 
             <!-- Notes -->
             <div class="mb-3">
-                <label for="notes" class="form-label fw-bold">NOTES</label>
-                <input type="text" id="notes" class="form-control rounded-pill" placeholder="Add notes...">
+                <label for="notes" class="form-label fw-bold" data-key="notes">NOTES</label>
+                <input type="text" id="notes" class="form-control rounded-pill" placeholder="Add notes..." data-key="add_notes">
             </div>
 
             <!-- Save -->
             <div class="text-center mt-4">
-                <button type="button" id="saveBtn" class="btn btn-success px-5 py-2 rounded-pill fw-bold shadow-sm">SAVE</button>
+                <button type="button" id="saveBtn" class="btn btn-success px-5 py-2 rounded-pill fw-bold shadow-sm" data-key="save">SAVE</button>
             </div>
         </div>
 

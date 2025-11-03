@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Document;
 
 class drivers extends Model
 {
@@ -21,4 +22,8 @@ class drivers extends Model
     'status'
 ];
 protected $hidden = ['password'];
+ public function documents()
+    {
+        return $this->hasMany(Document::class, 'driver_id');
+    }
 }

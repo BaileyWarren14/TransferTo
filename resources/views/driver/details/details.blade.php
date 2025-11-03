@@ -2,7 +2,7 @@
 
 
 @section('content')
-    <title>Fuel Form</title>
+    <title data-key="fuel_form">Fuel Form</title>
 
     <!-- Bootstrap CSS desde CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -49,90 +49,97 @@ body.dark-mode .form-control:focus {
 }
 </style>
 
+<div class="text-center mb-3">
+        <a href="{{ route('workorder.index') }}" class="btn btn-info px-4 py-2 rounded-pill">
+            <span data-key="return_to_work_order">Return To Wordk Order</span>
+        </a>
+    </div>
 
     <div class="container mt-4">
         <div class="card shadow-lg p-4 rounded-3">
-            <h3 class="mb-4 text-center">Fuel Log Form</h3>
+            <h3 class="mb-4 text-center" data-key="fuel_log_form">Fuel Log Form</h3>
 
             <form action="{{ route('fuel.store') }}" method="POST">
                 @csrf
 
                 <!-- Date -->
                 <div class="mb-3">
-                    <label for="date" class="form-label">Date</label>
+                    <label for="date" class="form-label" data-key="date">Date</label>
                     <input type="date" class="form-control" id="date" name="date" required>
                 </div>
 
                 <!-- Bill of Lading Number -->
                 <div class="mb-3">
-                    <label for="bol_number" class="form-label">BOL Number (Bill of Lading)</label>
-                    <input type="text" class="form-control" id="bol_number" name="bol_number" placeholder="Enter BOL number" required>
+                    <label for="bol_number" class="form-label" data-key="bol_number">BOL Number (Bill of Lading)</label>
+                    <input type="text" class="form-control" id="bol_number" name="bol_number" data-key="enter_bol_number" placeholder="Enter BOL number" required>
                 </div>
 
                 <!-- Trailer -->
                 <div class="mb-3">
                     <label for="trailer" class="form-label">Trailer</label>
-                    <input type="text" class="form-control" id="trailer" name="trailer" placeholder="Enter trailer number" required>
+                    <input type="text" class="form-control" id="trailer" name="trailer" data-key="enter_trailer_number" placeholder="Enter trailer number" required>
                 </div>
 
                 <!-- From -->
                 <div class="mb-3">
-                    <label for="from" class="form-label">From</label>
-                    <input type="text" class="form-control" id="from" name="from" placeholder="Origin" required>
+                    <label for="from" class="form-label" data-key="from">From</label>
+                    <input type="text" class="form-control" id="from" name="from" data-key="enter_origin" placeholder="Enter Origin" required>
                 </div>
 
                 <!-- Destination -->
                 <div class="mb-3">
-                    <label for="destination" class="form-label">Destination</label>
-                    <input type="text" class="form-control" id="destination" name="destination" placeholder="Destination" required>
+                    <label for="destination" class="form-label" data-key="destination">Destination</label>
+                    <input type="text" class="form-control" id="destination" name="destination" data-key="enter_destination" placeholder="Enter Destination" required>
                 </div>
 
                 <!-- ISO Capacity -->
                 <div class="mb-3">
-                    <label for="iso_capacity" class="form-label">ISO Capacity</label>
-                    <input type="number" step="0.01" class="form-control" id="iso_capacity" name="iso_capacity" placeholder="Capacity" required>
+                    <label for="iso_capacity" class="form-label" data-key="iso_capacity">ISO Capacity</label>
+                    <input type="number" step="0.01" class="form-control" id="iso_capacity" name="iso_capacity" data-key="capacity" placeholder="Capacity" required>
                 </div>
 
                 <!-- Inches/Gallon -->
                 <div class="mb-3">
-                    <label for="inches_gallon" class="form-label">Inches/Gallon</label>
-                    <input type="number" step="0.01" class="form-control" id="inches_gallon" name="inches_gallon" placeholder="Inches per gallon" required>
+                    <label for="inches_gallon" class="form-label" data-key="inches_gallon">Inches/Gallon</label>
+                    <input type="number" step="0.01" class="form-control" id="inches_gallon" name="inches_gallon" data-key="enter_inches_per_gallon" placeholder="Enter Inches per gallon" required>
                 </div>
 
                 <!-- Mileage Before -->
                 <div class="mb-3">
-                    <label for="mileage_before" class="form-label">Mileage Before</label>
-                    <input type="number" step="0.01" class="form-control" id="mileage_before" name="mileage_before" placeholder="Mileage before trip" required>
+                    <label for="mileage_before" class="form-label" data-key="mileage_before">Mileage Before</label>
+                    <input type="number" step="0.01" class="form-control" id="mileage_before" name="mileage_before" data-key="enter_mileage_before" placeholder="Enter Mileage before trip" required>
                 </div>
 
                 <!-- Mileage After -->
                 <div class="mb-3">
-                    <label for="mileage_after" class="form-label">Mileage After</label>
-                    <input type="number" step="0.01" class="form-control" id="mileage_after" name="mileage_after" placeholder="Mileage after trip" required>
+                    <label for="mileage_after" class="form-label" data-key="mileage_after">Mileage After</label>
+                    <input type="number" step="0.01" class="form-control" id="mileage_after" name="mileage_after"  data-key="enter_mileage_after" placeholder="Mileage after trip" required>
                 </div>
 
                 <!-- Total Miles -->
                 <div class="mb-3">
-                    <label for="total_miles" class="form-label">Total Miles</label>
-                    <input type="number" step="0.01" class="form-control" id="total_miles" name="total_miles" placeholder="Total miles driven" required>
+                    <label for="total_miles" class="form-label" data-key="total_miles">Total Miles</label>
+                    <input type="number" step="0.01" class="form-control" id="total_miles" name="total_miles" data-key="total_miles_driven" placeholder="Total miles driven" required>
                 </div>
 
                 <!-- Fuel Dispensed -->
                 <div class="mb-3">
-                    <label for="fuel_dispensed" class="form-label">Fuel Dispensed (Gallons)</label>
-                    <input type="number" step="0.01" class="form-control" id="fuel_dispensed" name="fuel_dispensed" placeholder="Enter fuel dispensed" required>
+                    <label for="fuel_dispensed" class="form-label" data-key="fuel_dispensed">Fuel Dispensed (Gallons)</label>
+                    <input type="number" step="0.01" class="form-control" id="fuel_dispensed" name="fuel_dispensed" data-key="enter_fuel_dispensed" placeholder="Enter fuel dispensed" required>
                 </div>
 
                 <!-- Submit -->
                 <div class="text-center">
-                    <button type="submit" class="btn btn-primary px-4">Submit</button>
+                    <button type="submit" class="btn btn-primary px-4" data-key="submit">Submit</button>
                 </div>
             </form>
         </div>
     </div>
+    
+
 
     <!-- Bootstrap JS desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
+ 
 
 @endsection

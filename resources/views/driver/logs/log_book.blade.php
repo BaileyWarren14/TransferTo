@@ -2,7 +2,7 @@
 
 @section('content')
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Logbook Chart</title>
+<title data-key="logbook_chart">Logbook Chart</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     body {
@@ -51,11 +51,11 @@
 
     <!-- 🔹 Botón para ir a show.blade.php -->
     <div class="text-center mb-3">
-       <a href="{{ route('driver.logs.show') }}" class="btn btn-primary">Ver Logs</a>
+       <a href="{{ route('driver.logs.show') }}" class="btn btn-primary" data-key="view_logs">View Logs</a>
 
     </div>
 
-<h2 style="text-align:center;">Logbook Style Chart</h2>
+<h2 style="text-align:center;" data-key="logbook_style_chart">Logbook Style Chart</h2>
 
 <div class="chart-container">
     <canvas id="logbookChart"></canvas>

@@ -1,4 +1,4 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 
@@ -6,11 +6,11 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
-        <h2 class="fw-bold text-primary"><i class="fas fa-truck-pickup me-2"></i>Trailer List</h2>
+        <h2 class="fw-bold text-primary" ><i class="fas fa-truck-pickup me-2"></i><span data-key="trailer_list">Trailer List</span></h2>
         <a href="{{ route('trailers.create') }}" 
            class="btn btn-success btn-lg text-white shadow add-trailer-btn mt-2 mt-md-0"
            style="text-decoration: none;">
-           <i class="fas fa-plus-circle me-2"></i> Add New Trailer
+           <i class="fas fa-plus-circle me-2"></i> <span data-key="add_new_trailer">Add New Trailer</span>
         </a>
     </div>
 
@@ -29,10 +29,10 @@
                         <thead class="table-header">
                             <tr>
                                 <th>ID</th>
-                                <th>Axles</th>
-                                <th>Type</th>
-                                <th>License Plate</th>
-                                <th class="text-center">Actions</th>
+                                <th data-key="axles">Axles</th>
+                                <th data-key="type">Type</th>
+                                <th data-key="license_plate">License Plate</th>
+                                <th class="text-center" data-key="actions">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -46,13 +46,13 @@
                                     <div class="d-flex justify-content-center gap-2 flex-wrap">
                                         <a href="{{ route('trailers.edit', $trailer->id) }}" 
                                            class="btn btn-primary btn-sm action-btn">
-                                           <i class="fas fa-edit me-1"></i> Edit
+                                           <i class="fas fa-edit me-1"></i> <span data-key="edit">Edit</span>
                                         </a>
                                         <form action="{{ route('trailers.destroy', $trailer->id) }}" method="POST" style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button" class="btn btn-danger btn-sm delete-btn" data-trailer="{{ $trailer->trailer_type }}">
-                                                <i class="fas fa-trash-alt me-1"></i> Delete
+                                                <i class="fas fa-trash-alt me-1"></i> <span data-key="delete">Delete</span>
                                             </button>
                                         </form>
                                     </div>

@@ -1,13 +1,13 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <div class="container my-5">
-    <h2 class="text-center mb-4"><i class="fas fa-user-plus me-2"></i>Add New Driver</h2>
+    <h2 class="text-center mb-4"><i class="fas fa-user-plus me-2"></i><span data-key="add_new_driver">Add New Driver</span></h2>
 
     <!-- Botón regresar -->
     <a href="{{ route('drivers.index') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back to Drivers
+        <i class="fas fa-arrow-left me-1"></i> <span data-key="back_to_drivers">Back to Drivers</span>
     </a>
 
     <!-- Formulario -->
@@ -16,48 +16,49 @@
         <div class="row g-3">
 
             <div class="col-md-6">
-                <label for="name" class="form-label">First Name</label>
-                <input type="text" name="name" id="name" class="form-control" placeholder="Enter first name" required>
+                <label for="name" class="form-label" data-key="first_name">First Name</label>
+                <input type="text" name="name" id="name" class="form-control" data-key="enter_first_name" placeholder="Enter first name" required>
             </div>
 
             <div class="col-md-6">
-                <label for="lastname" class="form-label">Last Name</label>
-                <input type="text" name="lastname" id="lastname" class="form-control" placeholder="Enter last name" required>
+                <label for="lastname" class="form-label" data-key="last_name">Last Name</label>
+                <input type="text" name="lastname" id="lastname" class="form-control" data-key="enter_last_name" placeholder="Enter last name" required>
             </div>
 
             <div class="col-md-6">
-                <label for="phone_number" class="form-label">Phone Number</label>
-                <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="Enter phone number">
+                <label for="phone_number" class="form-label" data-key="phone_number">Phone Number</label>
+                <input type="text" name="phone_number" id="phone_number" class="form-control" data-key="enter_phone_number" placeholder="Enter phone number">
             </div>
 
             <div class="col-md-6">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" placeholder="Enter email address" autocomplete="new-email">
+                <label for="email" class="form-label" data-key="email">Email</label>
+                <input type="email" name="email" id="email" class="form-control" data-key="enter_email_address" placeholder="Enter email address" autocomplete="new-email">
             </div>
 
             <div class="col-md-6">
-                <label for="social_security_number" class="form-label">Social Security Number</label>
-                <input type="text" name="social_security_number" id="social_security_number" class="form-control" placeholder="Enter Social Security Number">
+                <label for="social_security_number" class="form-label" data-key="social_security_number">Social Security Number</label>
+                <input type="text" name="social_security_number" id="social_security_number" class="form-control" 
+                data-key="enter_social_security_number" placeholder="Enter Social Security Number">
             </div>
 
             <div class="col-md-6">
-                <label for="license_number" class="form-label">Driver License Number</label>
-                <input type="text" name="license_number" id="license_number" class="form-control" placeholder="Enter Driver License Number">
+                <label for="license_number" class="form-label" data-key="driver_license_number">Driver License Number</label>
+                <input type="text" name="license_number" id="license_number" class="form-control" data-key="enter_driver_license_number" placeholder="Enter Driver License Number">
             </div>
 
             <div class="col-md-6">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" autocomplete="new-password">
+                <label for="password" class="form-label" data-key="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" data-key="enter_password" placeholder="Enter password" autocomplete="new-password">
             </div>
 
         </div>
 
         <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-success btn-lg flex-grow-1">
-                <i class="fas fa-save me-1"></i> Save Driver
+                <i class="fas fa-save me-1"></i> <span data-key="save_driver">Save Driver</span>
             </button>
             <a href="{{ route('drivers.index') }}" class="btn btn-secondary btn-lg flex-grow-1">
-                <i class="fas fa-times me-1"></i> Cancel
+                <i class="fas fa-times me-1"></i> <span data-key="cancel"> Cancel</span>
             </a>
         </div>
     </form>

@@ -56,25 +56,26 @@ class AdminController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'lastname' => 'required|string|max:255',
-            'phone_number' => 'nullable|string|max:255',
-            'email' => 'required|email|unique:administrators,email,'.$admin->id,
-            'department' => 'nullable|string|max:255',
-            'position' => 'required|string|max:255',
+            'email' => 'required|email',
+            'department' => 'nullable|string',
+            'position' => 'nullable|string',
+            'phone_number' => 'nullable|string|max:20',
+            'password' => 'nullable|min:6'
         ]);
 
-        $admin->update([
-            'name' => $request->name,
-            'lastname' => $request->lastname,
-            'phone_number' => $request->phone_number,
-            'email' => $request->email,
-            'department' => $request->department,
-            'position' => $request->position,
-        ]);
+        $admin->name = $request->name;
+        $admin->lastname = $request->lastname;
+        $admin->email = $request->email;
+        $admin->phone_number = $request->phone_number;
+        $admin->department = $request->department;
+        $admin->position = $request->position;
 
-        if($request->filled('password')){
-            $admin->password = Hash::make($request->password);
-            $admin->save();
+        // Solo actualizar password si se cambió
+        if ($request->filled('password')) {
+            $admin->password = bcrypt($request->password);
         }
+
+        $admin->save();
 
         return response()->json(['success' => true]);
     }

@@ -74,8 +74,8 @@
 
 </style>
 <div class="text-center mb-3">
-        <a href="{{ route('messages.index') }}" class="btn btn-info px-4 py-2 rounded-pill">
-            Return
+        <a href="{{ route('messages.index_ad') }}" class="btn btn-info px-4 py-2 rounded-pill">
+            <span data-key="return_to_messages">Return To Messages</span>
         </a>
     </div>
 <div class="chat-container">
@@ -87,7 +87,7 @@
         @csrf
         <input type="text" id="messageInput" name="message" placeholder="Escribe tu mensaje..." required>
         <input type="hidden" name="client_time" id="client_time">
-        <button type="submit">Send</button>
+        <button type="submit" data-key="send">Send</button>
     </form>
 </div>
 

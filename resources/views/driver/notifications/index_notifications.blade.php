@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="p-4 bg-gray-900 text-gray-100 min-h-screen">
-    <h2 class="text-2xl font-bold mb-4">Notifications</h2>
+    <h2 class="text-2xl font-bold mb-4" data-key="notifications">Notifications</h2>
 
     <div id="notifications-container">
         @php
@@ -41,7 +41,7 @@
                             @endif
                         </div>
                     @empty
-                        <p class="text-gray-400 italic">No notifications in this category.</p>
+                        <p class="text-gray-400 italic" data-key="no_notifications">No notifications in this category.</p>
                     @endforelse
                 </div>
             </div>

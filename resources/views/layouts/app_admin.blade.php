@@ -8,14 +8,7 @@
 </head>
 <body style="margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
 @include('sweetalert2::index')
-{{-- Incluir el sidebar --}}
-{{-- Mostrar sidebar según el guard activo --}}
-     @if(auth()->guard('driver')->check())
-        @include('layouts.sidebar') {{-- Drivers --}}
-    @elseif(auth()->guard('admin')->check())
-        @include('layouts.sidebar_admin') {{-- Admins --}}
-        
-    @endif
+
 
     <!-- Mobile navbar -->
 <!--<div class="mobile-navbar d-md-none">
@@ -46,7 +39,7 @@
         <div class="close-btn" id="closeMenu">
             <i class="fas fa-times"></i>
         </div>
-            <a href="{{ url('/admin/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
+            <a href="{{ url('/admin/dashboard') }}"><i class="fas fa-tachometer-alt" data-key="dashboard"></i> <span>Dashboard</span></a>
             <a href="{{ url('/admin/trucks') }}"><i class="fas fa-chart-line"></i> <span>Trucks</span></a>
             <a href="{{ url('/admin/trailers') }}"><i class="fas fa-toggle-on"></i> <span>Trailers</span></a>
             <a href="{{ url('/admin/drivers') }}"><i class="fas fa-plus-circle"></i> <span>Drivers</span></a>

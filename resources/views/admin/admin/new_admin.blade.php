@@ -1,12 +1,12 @@
-@extends('layouts.app_admin')
+@extends('layouts.app')
 
 @section('content')
 <div class="container my-5">
-    <h2 class="text-center mb-4"><i class="fas fa-user-shield me-2"></i>Add New Admin</h2>
+    <h2 class="text-center mb-4"><i class="fas fa-user-shield me-2"></i><span data-key="add_new_admin">Add New Admin</span></h2>
 
     <!-- Botón regresar -->
     <a href="{{ route('admin.index') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> Back to Admins
+        <i class="fas fa-arrow-left me-1"></i> <span data-key="back_admin">Back to Admins</span>
     </a>
 
     <!-- Formulario -->
@@ -15,48 +15,48 @@
         <div class="row g-3">
 
             <div class="col-md-6">
-                <label for="name" class="form-label">First Name</label>
-                <input type="text" name="name" id="name" class="form-control" placeholder="Enter first name" required>
+                <label for="name" class="form-label" data-key="first_name">First Name</label>
+                <input type="text" name="name" id="name" class="form-control" data-key="enter_first_name" placeholder="Enter first name" required>
             </div>
 
             <div class="col-md-6">
-                <label for="lastname" class="form-label">Last Name</label>
-                <input type="text" name="lastname" id="lastname" class="form-control" placeholder="Enter last name" required>
+                <label for="lastname" class="form-label" data-key="last_name">Last Name</label>
+                <input type="text" name="lastname" id="lastname" class="form-control" data-key="enter_last_name" placeholder="Enter last name" required>
             </div>
 
             <div class="col-md-6">
-                <label for="phone_number" class="form-label">Phone Number</label>
-                <input type="text" name="phone_number" id="phone_number" class="form-control" placeholder="Enter phone number">
+                <label for="phone_number" class="form-label" data-key="phone_number">Phone Number</label>
+                <input type="text" name="phone_number" id="phone_number" class="form-control" data-key="enter_phone_number" placeholder="Enter phone number">
             </div>
 
             <div class="col-md-6">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" name="email" id="email" class="form-control" placeholder="Enter email address" required autocomplete="new-email">
+                <label for="email" class="form-label" data-key="email">Email</label>
+                <input type="email" name="email" id="email" class="form-control" data-key="enter_email_address" placeholder="Enter email address" required autocomplete="new-email">
             </div>
 
             <div class="col-md-6">
-                <label for="department" class="form-label">Department</label>
-                <input type="text" name="department" id="department" class="form-control" placeholder="Enter department">
+                <label for="department" class="form-label" data-key="department">Department</label>
+                <input type="text" name="department" id="department" class="form-control" data-key="enter_department" placeholder="Enter department">
             </div>
 
             <div class="col-md-6">
-                <label for="position" class="form-label">Position</label>
-                <input type="text" name="position" id="position" class="form-control" placeholder="Enter position" required>
+                <label for="position" class="form-label" data-key="position">Position</label>
+                <input type="text" name="position" id="position" class="form-control" data-key="enter_position" placeholder="Enter position" required>
             </div>
 
             <div class="col-md-6">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required autocomplete="new-password">
+                <label for="password" class="form-label" data-key="password">Password</label>
+                <input type="password" name="password" id="password" class="form-control" data-key="enter_password" placeholder="Enter password" required autocomplete="new-password">
             </div>
 
         </div>
 
         <div class="mt-4 d-flex gap-2">
             <button type="submit" class="btn btn-success btn-lg flex-grow-1">
-                <i class="fas fa-save me-1"></i> Save Admin
+                <i class="fas fa-save me-1"></i> <span data-key="save_admin">Save Admin</span>
             </button>
             <a href="{{ route('admin.index') }}" class="btn btn-secondary btn-lg flex-grow-1">
-                <i class="fas fa-times me-1"></i> Cancel
+                <i class="fas fa-times me-1"></i> <span data-key="cancel">Cancel</span>
             </a>
         </div>
     </form>

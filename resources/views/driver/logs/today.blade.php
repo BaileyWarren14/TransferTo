@@ -2,17 +2,17 @@
 
 @section('content')
 <a href="{{ url()->previous() }}" class="btn btn-secondary">
-       <i class="fas fa-arrow-left me-1"></i> Back
+       <i class="fas fa-arrow-left me-1"></i> <span data-key="back">Back</span>
     </a>
 <div class="container-fluid mt-3 px-0">
     <div class="card shadow-lg rounded-4">
         <div class="card-header bg-dark text-white text-center rounded-top-4">
-            <h4 class="mb-0">📘 Today's Duty Log</h4>
+            <h4 class="mb-0" >📘 <span data-key="today_duty_logs">Today's Duty Log </span></h4>
         </div>
         <div class="card-body p-0">
             @if($todayLogs->isEmpty())
                 <div class="alert alert-warning text-center m-3">
-                    No records found for today.
+                    <span data-key="no_records">No records found for today.</span>
                 </div>
             @else
                 <div class="table-responsive">
@@ -20,17 +20,18 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>#</th>
-                                <th>Time</th>
-                                <th>Status</th>
-                                <th>Location</th>
-                                <th>Notes</th>
+                                <th data-key="time">Time</th>
+                                <th data-key="status">Status</th>
+                                <th data-key="location">Location</th>
+                                <th data-key="notes">Notes</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($todayLogs as $index => $log)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($log->changed_at)->timezone('America/Mexico_City')->format('H:i:s') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($log->changed_at)->format('H:i:s') }}</td>
+
 
                                     <td>
                                         @php
