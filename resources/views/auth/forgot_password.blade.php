@@ -6,6 +6,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/log.css') }}" rel="stylesheet">
 </head>
+<style>
+    /* ===================== Móviles ===================== */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 3rem 2rem; /* Más espacioso */
+        max-width: 90%;
+        width: 100%;
+    }
+    .login-card h3 {
+        font-size: 2rem;
+    }
+    .login-card p.text-muted {
+        font-size: 1.1rem;
+    }
+    .login-card input.form-control,
+    .login-card .btn-login {
+        font-size: 1.3rem;
+        padding: 1.1rem;
+    }
+    .login-card label.form-label {
+        font-size: 1.2rem;
+    }
+}
+
+
+</style>
 <body>
 
 <div class="login-card">

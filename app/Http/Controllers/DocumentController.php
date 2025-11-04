@@ -40,16 +40,41 @@ class DocumentController extends Controller
         return back()->with('success', 'Document uploaded successfully.');
     }
 
-    public function download($id)
+   public function download($id)
     {
         $doc = Document::findOrFail($id);
-        return Storage::disk('public')->download($doc->file_path);
+
+        // Verificar que el driver sea propietario
+        if($doc->driver_id != auth()->id()){
+            abort(403);
+        }
+
+        // Retornar el archivo con headers correctos
+        return response()->download(storage_path('app/public/' . $doc->file_path), $doc->file_name);
     }
 
     public function show($id)
     {
         $doc = Document::findOrFail($id);
+
+        if ($doc->driver_id != auth('driver')->id()) {
+            abort(403);
+        }
+
         return response()->file(storage_path('app/public/' . $doc->file_path));
+
+    }
+
+    public function show_ad($id)
+    {
+        $doc = Document::findOrFail($id);
+
+        // if ($doc->driver_id != auth('driver')->id()) {
+        //     abort(403);
+        // }
+
+        return response()->file(storage_path('app/public/' . $doc->file_path));
+
     }
 
     public function destroy($id)

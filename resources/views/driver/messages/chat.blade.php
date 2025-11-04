@@ -85,7 +85,7 @@
 
     <form id="chatForm" class="chat-input">
         @csrf
-        <input type="text" id="messageInput" name="message" placeholder="Escribe tu mensaje..." required>
+        <input type="text" id="messageInput" name="message" data-key="type_your_message" placeholder="Escribe tu mensaje..." required>
         <input type="hidden" name="client_time" id="client_time">
         <button type="submit">Send</button>
     </form>
@@ -98,7 +98,7 @@
 
     // Función para refrescar mensajes
     function refreshMessages() {
-        $.get(`/messages/${type}/${id}/json`, function(data){
+        $.get(`/driver/messages/${type}/${id}/json`, function(data){
             const chatBox = $('#chatBox');
             chatBox.empty();
             data.forEach(msg => {
@@ -138,7 +138,7 @@
         $('#client_time').val(client_time);
 
         $.ajax({
-            url: `/messages/${type}/${id}`,
+            url: `/driver/messages/${type}/${id}`,
             type: 'POST',
             data: {
                 _token: '{{ csrf_token() }}',

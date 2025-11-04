@@ -22,4 +22,10 @@ class Truck extends Model
         'current_motor_hours',
         'driver_id'
     ];
+
+    // Relación con Driver
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class, 'driver_id', 'id');
+    }
 }

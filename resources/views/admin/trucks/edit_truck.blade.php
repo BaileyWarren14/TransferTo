@@ -33,7 +33,8 @@
 
                     <div class="col-md-6">
                         <label for="year" class="form-label" data-key="year">Year</label>
-                        <input type="number" name="year" class="form-control" value="{{ old('year', $truck->year) }}">
+                        <input type="number" name="year" id="year" class="form-control" data-key="enter_year" 
+                            placeholder="Enter year" min="1900" max="2099" required>
                     </div>
 
                     <div class="col-md-6">
@@ -53,12 +54,28 @@
 
                     <div class="col-md-6">
                         <label for="cab_type" class="form-label" data-key="cab_type">Cab Type</label>
-                        <input type="text" name="cab_type" class="form-control" value="{{ old('cab_type', $truck->cab_type) }}">
+                        <select name="cab_type" id="cab_type" class="form-select" required>
+                            <option value="" disabled {{ $truck->cab_type ? '' : 'selected' }}>Select cab type</option>
+                            <option value="day_cab" {{ $truck->cab_type == 'day_cab' ? 'selected' : '' }}>Day Cab</option>
+                            <option value="sleeper_cab" {{ $truck->cab_type == 'sleeper_cab' ? 'selected' : '' }}>Sleeper Cab</option>
+                            <option value="extended_cab" {{ $truck->cab_type == 'extended_cab' ? 'selected' : '' }}>Extended Cab</option>
+                            <option value="crew_cab" {{ $truck->cab_type == 'crew_cab' ? 'selected' : '' }}>Crew Cab</option>
+                            <option value="cab_over" {{ $truck->cab_type == 'cab_over' ? 'selected' : '' }}>Cab-over / Forward Control</option>
+                            <option value="conventional" {{ $truck->cab_type == 'conventional' ? 'selected' : '' }}>Conventional</option>
+                        </select>
                     </div>
+
 
                     <div class="col-md-6">
                         <label for="transmission_type" class="form-label" data-key="transmission_type">Transmission Type</label>
-                        <input type="text" name="transmission_type" class="form-control" value="{{ old('transmission_type', $truck->transmission_type) }}">
+                        <select name="transmission_type" id="transmission_type" class="form-select" required>
+                            <option value="" disabled {{ $truck->transmission_type ? '' : 'selected' }}>Select transmission type</option>
+                            <option value="automatic" {{ $truck->transmission_type == 'automatic' ? 'selected' : '' }}>Automatic</option>
+                            <option value="manual" {{ $truck->transmission_type == 'manual' ? 'selected' : '' }}>Manual</option>
+                            <option value="amt" {{ $truck->transmission_type == 'amt' ? 'selected' : '' }}>Automated Manual (AMT)</option>
+                            <option value="cvt" {{ $truck->transmission_type == 'cvt' ? 'selected' : '' }}>Continuously Variable (CVT)</option>
+                            <option value="dual_clutch" {{ $truck->transmission_type == 'dual_clutch' ? 'selected' : '' }}>Dual Clutch</option>
+                        </select>
                     </div>
 
                     <div class="col-md-6">

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-         Schema::create('trucks', function (Blueprint $table) {
+         /*Schema::create('trucks', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('license_plate')->unique();
             $table->string('brand');
@@ -32,6 +32,13 @@ return new class extends Migration
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('set null');
 
             $table->timestamps();
+        });*/
+        Schema::table('trucks', function (Blueprint $table) {
+            $table->foreign('driver_id')
+                ->references('driver_id')
+                ->on('drivers')
+                ->onDelete('set null')
+                ->onUpdate('cascade');
         });
     }
 

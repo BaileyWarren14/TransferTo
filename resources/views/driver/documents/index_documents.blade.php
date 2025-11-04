@@ -47,9 +47,9 @@
                             <td>{{ $doc->type }}</td>
                             <td>{{ $doc->file_name }}</td>
                             <td>
-                                <a href="{{ route('documents.view', $doc->id) }}" 
-                                   class="btn btn-sm btn-info" target="_blank" data-key="view">
-                                   View
+                                <a href="{{ route('documents.view', $doc->id) }}"
+                                    class="btn btn-sm btn-info" target="_blank" data-key="view"> 
+                                    View
                                 </a>
 
                                 <a href="{{ route('documents.download', $doc->id) }}" 
@@ -71,6 +71,7 @@
         @endif
 
     </div>
+   
 </div>
 <script src="{{ asset('js/translations.js') }}"></script>
 <!-- SweetAlert2 -->

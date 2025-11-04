@@ -53,8 +53,8 @@ class TruckController extends Controller
      // Listado de Trucks
     public function index()
     {
-        $trucks = Truck::all();
-        return view('admin.trucks.list_trucks', compact('trucks'));
+        $trucks = Truck::with('driver')->get(); // Carga los drivers junto con los trucks
+    return view('admin.trucks.list_trucks', compact('trucks'));
     }
 
     // Formulario Crear Truck
@@ -117,7 +117,9 @@ class TruckController extends Controller
     public function destroy(Truck $truck)
     {
         $truck->delete();
-        return response()->json(['success' => true]);
+
+        return redirect()->route('trucks.list_trucks')
+            ->with('success', 'Truck deleted successfully.');
     }
 
     // Obtener horas de motor del truck asignado al driver
@@ -162,5 +164,51 @@ class TruckController extends Controller
 
         return response()->json($data);
     }
+    public function getAllTrucks()
+    {
+        return response()->json(Truck::all());
+    }
 
+    public function getTruck($id)
+    {
+        $truck = Truck::find($id);
+        if (!$truck) {
+            return response()->json(['error' => 'Truck not found'], 404);
+        }
+        return response()->json($truck);
+    }
+    // 🔹 Obtener los camiones sin driver asignado
+    public function availableTrucks()
+    {
+        $trucks = Truck::whereNull('driver_id')->get();
+        return response()->json($trucks);
+    }
+
+    // 🔹 Asignar un camión al driver autenticado
+    public function assignTruck(Request $request, $id)
+    {
+        $truck = Truck::findOrFail($id);
+        $driver = Auth::user();
+
+        // Si el camión ya está asignado, error
+        if ($truck->driver_id !== null) {
+            return response()->json(['error' => 'This truck is already assigned.'], 400);
+        }
+
+        // Asignar el camión al driver actual
+        $truck->driver_id = $driver->id;
+        $truck->save();
+
+        return response()->json([
+            'message' => 'Truck assigned successfully',
+            'truck' => $truck
+        ]);
+    }
+
+    // 🔹 Obtener los datos de un camión específico
+    public function show($id)
+    {
+        $truck = Truck::findOrFail($id);
+        return response()->json($truck);
+    }
 }

@@ -85,7 +85,7 @@
 
     <form id="chatForm" class="chat-input">
         @csrf
-        <input type="text" id="messageInput" name="message" placeholder="Escribe tu mensaje..." required>
+        <input type="text" id="messageInput" name="message" data-key="type_your_message" placeholder="Escribe tu mensaje..." required>
         <input type="hidden" name="client_time" id="client_time">
         <button type="submit" data-key="send">Send</button>
     </form>

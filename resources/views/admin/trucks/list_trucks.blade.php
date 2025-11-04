@@ -55,9 +55,10 @@
                                 <th data-key="model">Model</th>
                                 <th data-key="year">Year</th>
                                 <th data-key="color">Color</th>
-                                <th data-key="status">Status</th>
+                                
                                 <th data-key="driver">Driver</th>
                                 <th data-key="motor_hours">Motor Hours</th>
+                                <th data-key="status">Status</th>
                                 <th class="text-center" data-key="actions">Actions</th>
                             </tr>
                         </thead>
@@ -85,13 +86,12 @@
                                                class="btn btn-primary btn-sm action-btn">
                                                 <i class="fas fa-edit me-1"></i> <span data-key="edit">Edit</span>
                                             </a>
-                                            <form action="{{ route('trucks.destroy', $truck->id) }}" method="POST" style="display:inline-block;">
+                                            <form action="{{ route('trucks.destroy', $truck->id) }}" method="POST" class="delete-form" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="button" 
-                                                        class="btn btn-danger btn-sm action-btn delete-btn"
+                                                <button type="submit" class="btn btn-danger btn-sm action-btn delete-btn"
                                                         data-truck="{{ $truck->license_plate }}">
-                                                    <i class="fas fa-trash-alt me-1"></i> <span data-key="delete">Delete</span
+                                                    <i class="fas fa-trash-alt me-1"></i> Delete
                                                 </button>
                                             </form>
                                         </div>
@@ -113,53 +113,30 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function (e) {
+            e.preventDefault(); // Evita envío inmediato
             const form = this.closest('form');
             const truckName = this.dataset.truck;
-            const actionUrl = form.getAttribute('action');
-            const token = form.querySelector('input[name="_token"]').value;
 
             Swal.fire({
-                title: t('confirm_delete_title', { name: truckName }),
-                text: t('confirm_delete_text'),
+                title: `Delete ${truckName}?`,
+                text: "This action cannot be undone.",
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#dc3545',
+                confirmButtonColor: '#d33',
                 cancelButtonColor: '#6c757d',
-                confirmButtonText: t('confirm_delete_confirm'),
-                cancelButtonText: t('confirm_delete_cancel'),
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel'
             }).then(result => {
-                if(result.isConfirmed){
-                    fetch(actionUrl, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': token,
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if(data.success){
-                            Swal.fire({
-                                title: t('deleted_success_title'),
-                                text: t('deleted_success_text', { name: truckName }),
-                                icon: 'success',
-                                confirmButtonText: t('ok')
-                            }).then(() => {
-                                location.reload();
-                            });
-                        } else {
-                            Swal.fire(t('error_title'), t('error_delete'), 'error');
-                        }
-                    })
-                    .catch(() => {
-                        Swal.fire(t('error_title'), t('error_server'), 'error');
-                    });
+                if (result.isConfirmed) {
+                    form.submit(); // Envío tradicional → destroy()
                 }
             });
         });
     });
 });
+
+
 </script>
 
 @endsection

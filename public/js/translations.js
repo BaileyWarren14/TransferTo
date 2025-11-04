@@ -353,6 +353,7 @@ window.translations = window.translations || {
         return_to_messages:"Regresar a Mensajes",
         send:"Enviar",
         return_to_work_order:"Regresar A Orden de Trabajo",
+        type_your_message:"Escribe tu Mensaje...",
     },
     en: {
         dashboard: "Dashboard",
@@ -707,5 +708,6 @@ window.translations = window.translations || {
         return_to_messages:"Return To Messages",
         send:"Send",
         return_to_work_order:"Return To Work Order",
+        type_your_message:"Type Your Message...",
     }
 };

@@ -32,27 +32,29 @@ class MessageController extends Controller
 
     public function chat($type, $id)
     {
-       // Buscar usuario según el tipo
-        $user = $type === 'driver'
-            ? Driver::find($id)
+        // Guard del driver
+        $authUser = Auth::guard('driver')->user();
+        $authType = 'driver';
+
+        // Buscar usuario según el tipo
+        $user = $type === 'driver' 
+            ? Driver::find($id) 
             : Admin::find($id);
 
         if (!$user) {
             abort(404, "Usuario no encontrado");
         }
 
-        $authType = Auth::user() instanceof \App\Models\Driver ? 'driver' : 'admin';
-
         // Traer mensajes entre el usuario autenticado y el seleccionado
-        $messages = Message::where(function ($q) use ($id, $type, $authType) {
-                $q->where('sender_id', Auth::id())
+        $messages = Message::where(function ($q) use ($id, $type, $authUser, $authType) {
+                $q->where('sender_id', $authUser->id)
                 ->where('sender_type', $authType)
                 ->where('receiver_id', $id)
                 ->where('receiver_type', $type);
-            })->orWhere(function ($q) use ($id, $type, $authType) {
+            })->orWhere(function ($q) use ($id, $type, $authUser, $authType) {
                 $q->where('sender_id', $id)
                 ->where('sender_type', $type)
-                ->where('receiver_id', Auth::id())
+                ->where('receiver_id', $authUser->id)
                 ->where('receiver_type', $authType);
             })
             ->orderBy('created_at')
@@ -61,9 +63,9 @@ class MessageController extends Controller
         return view('driver.messages.chat', compact('user', 'messages', 'type'));
     }
 
-    public function send(Request $request, $type, $id)
+     public function send(Request $request, $type, $id)
     {
-        $request->validate([
+         $request->validate([
             'message' => 'required|string|max:1000',
             'client_time' => 'required|date_format:Y-m-d H:i:s',
         ]);

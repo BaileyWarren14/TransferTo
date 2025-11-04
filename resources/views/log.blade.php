@@ -21,9 +21,6 @@
 
         <h2>Truck Company Login</h2>-->
 
-        @if(session('error'))
-            <div class="feedback">{{ session('error') }}</div>
-        @endif
 
         <form id="loginForm" action="{{ route('login.post') }}" method="POST" novalidate>
             @csrf
@@ -53,6 +50,7 @@
 
     </div>
 
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Toggle password visibility - Siempre disponible
         const passwordInput = document.getElementById('password');
@@ -72,13 +70,29 @@
         }
     </script>
 
+
+
 @if(session('error'))
-    <div class="alert alert-danger">
-        {{ session('error') }}
-    </div>
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: '{{ session('error') }}',
+    });
+</script>
 @endif
 
-<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: '{{ session('success') }}',
+    });
+</script>
+@endif
+
+
 
 @if(session('password_reset_success'))
 <script>
@@ -105,6 +119,7 @@
             form.classList.add('was-validated');
         }, false);
     })();
+    
 </script>
 
 </body>

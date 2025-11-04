@@ -47,3 +47,32 @@ body {
             margin: 0 auto 1rem auto;
             width: 80px;
         }
+        /* ===================== Móviles ===================== */
+@media (max-width: 768px) {
+    .login-card {
+        padding: 2.5rem 2rem; /* un poco más espacioso */
+        max-width: 90%;       /* ocupa casi toda la pantalla */
+    }
+
+    .login-card h2 {
+        font-size: 1.8rem;    /* título más grande */
+    }
+
+    .login-card input.form-control,
+    .login-card .btn-login {
+        font-size: 1.2rem;    /* inputs y botones más grandes */
+        padding: 1rem;        /* más cómodos de tocar */
+    }
+
+    .login-card label.form-label {
+        font-size: 1.1rem;    /* etiquetas más visibles */
+    }
+
+    .feedback {
+        font-size: 1rem;      /* mensajes de error más grandes */
+    }
+
+    .logo {
+        width: 100px;          /* logo un poco más grande */
+    }
+}

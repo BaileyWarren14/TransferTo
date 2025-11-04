@@ -37,10 +37,16 @@ return [
 
     'guards' => [
     
+     'web' => [ // 👈 este es necesario
+        'driver' => 'session',
+        'provider' => 'drivers', // o 'administrators', depende de tu caso base
+    ],
+
     'driver' => [
         'driver' => 'session',
         'provider' => 'drivers',
     ],
+
     'admin' => [
         'driver' => 'session',
         'provider' => 'administrators',

@@ -28,9 +28,9 @@
 
             <div class="col-md-6">
                 <label for="year" class="form-label" data-key="year">Year</label>
-                <input type="number" name="year" id="year" class="form-control" data-key="enter_year" placeholder="Enter year">
+                <input type="number" name="year" id="year" class="form-control" data-key="enter_year" 
+                    placeholder="Enter year" min="1900" max="2099" title="Please enter a 4-digit year" required>
             </div>
-
             <div class="col-md-6">
                 <label for="current_mileage" class="form-label" data-key="current_mileage">Current Mileage</label>
                 <input type="number" name="current_mileage" id="current_mileage" class="form-control" data-key="enter_current_mileage" placeholder="Enter current mileage">
@@ -47,13 +47,28 @@
             </div>
 
             <div class="col-md-6">
-                <label for="cab_type" class="form-label" data-key="cab_type">Cab Type</label>
-                <input type="text" name="cab_type" id="cab_type" class="form-control" data-key="enter_cab_type" placeholder="Enter cab type">
+                <label for="cab_type" class="form-label">Cab Type</label>
+                <select name="cab_type" id="cab_type" class="form-select" required>
+                    <option value="" disabled selected>Select cab type</option>
+                    <option value="day_cab">Day Cab</option>
+                    <option value="sleeper_cab">Sleeper Cab</option>
+                    <option value="extended_cab">Extended Cab</option>
+                    <option value="crew_cab">Crew Cab</option>
+                    <option value="cab_over">Cab-over / Forward Control</option>
+                    <option value="conventional">Conventional</option>
+                </select>
             </div>
 
             <div class="col-md-6">
                 <label for="transmission_type" class="form-label" data-key="transmission_type">Transmission Type</label>
-                <input type="text" name="transmission_type" id="transmission_type" class="form-control" placeholder="Enter transmission type" data-key="enter_transmission_type">
+                <select name="transmission_type" id="transmission_type" class="form-select" required>
+                    <option value="" disabled selected>Select transmission type</option>
+                    <option value="automatic">Automatic</option>
+                    <option value="manual">Manual</option>
+                    <option value="amt">Automated Manual (AMT)</option>
+                    <option value="cvt">Continuously Variable (CVT)</option>
+                    <option value="dual_clutch">Dual Clutch</option>
+                </select>
             </div>
 
             <div class="col-md-6">

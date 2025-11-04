@@ -20,6 +20,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\SafetyController;
 
 
 
@@ -70,7 +71,8 @@ Route::post('/admin/reset-password', [ResetPasswordController::class, 'reset'])-
 // Login de drivers
 Route::get('/log', [LogController::class, 'showLoginForm'])->name('log');
 Route::post('/log', [LogController::class, 'login'])->name('login.post');
-Route::post('/logout', [LogController::class, 'logout'])->name('logout');
+Route::middleware(['auth:driver'])->post('/driver/logout', [LogController::class, 'logoutd'])->name('driver.logout');
+Route::middleware(['auth:admin'])->post('/driver/logout', [LogController::class, 'logout'])->name('driver.logout');
 
 // Login de admins
 //Route::get('/admin/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
@@ -203,6 +205,11 @@ Route::middleware(['auth:driver'])->group(function () {
     //para que obtenga los datos y se actualice el logbook automatico
     //Route::get('/driver/logs/today-data', [LogbookController::class, 'todayData'])->name('driver.logs.today-data');
 
+     Route::get('/api/trucks', [App\Http\Controllers\TruckController::class, 'getAllTrucks'])->name('api.trucks.all');
+    Route::get('/api/trucks/{id}', [App\Http\Controllers\TruckController::class, 'getTruck'])->name('api.trucks.show');
+
+    
+
     //Ruta para ver los logs del dia actual completos
     Route::get('/driver/activities/{date}', [LogbookController::class, 'showActivities'])
      ->name('driver.logs.activities');
@@ -233,7 +240,7 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/messages', [MessageController::class, 'index'])->name('messages.index');
 
     // Mostrar chat con usuario seleccionado
-    Route::get('/driver/messages/{type}/{id}', [MessageController::class, 'chat'])->name('messages.chat_driver');
+    Route::get('/driver/messages/{type}/{id}', [MessageController::class, 'chat'])->name('messages.chat');
 
     // Enviar mensaje
     Route::post('/driver/messages/{type}/{id}', [MessageController::class, 'send'])->name('messages.send');
@@ -243,7 +250,7 @@ Route::middleware(['auth:driver'])->group(function () {
 
 
     //Ruta para ver la vista de safety
-    Route::get('/driver/safety', [DriverController::class, 'safety'])->name('driver.safety');
+    Route::get('/driver/safety', [SafetyController::class, 'safety'])->name('driver.safety');
 
     // Mostrar vista de notifications
     Route::get('driver/notifications', [NotificationController::class, 'index'])->name('notifications.index');
@@ -321,7 +328,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/drivers/{id}/documents', [DriverController::class, 'documents'])->name('admin.drivers.documents');
 
     //Para ver los docuemntso
-    Route::get('/driver/documents/view/{id}', [DocumentController::class, 'show'])->name('documents.view');
+    Route::get('/admin/documents/view/{id}', [DocumentController::class, 'show_ad'])->name('documents.view');
 
 
 
@@ -370,16 +377,16 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::delete('/admin/admin/{admin}', [AdminController::class, 'destroy'])->name('admin.destroy');
 
     // Mostrar todos los drivers y admins
-    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index_ad');
+    Route::get('/messages', [MessageController::class, 'index_ad'])->name('messages.index_ad');
 
     // Mostrar chat con usuario seleccionado
-    Route::get('/messages/{type}/{id}', [MessageController::class, 'chat'])->name('messages.chat_ad');
+    Route::get('/messages/{type}/{id}', [MessageController::class, 'chat_ad'])->name('messages.chat_ad');
 
     // Enviar mensaje
-    Route::post('/messages/{type}/{id}', [MessageController::class, 'send'])->name('messages.send_ad');
+    Route::post('/messages/{type}/{id}', [MessageController::class, 'send_ad'])->name('messages.send_ad');
 
     // Mensajes en JSON (para refresco automático)
-    Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json');
+    Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json_ad');
 
     //Para ver los reportes
     Route::get('/reports', [AdminController::class, 'driversReports']);

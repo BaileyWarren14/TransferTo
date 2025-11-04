@@ -18,7 +18,6 @@ class LogController extends Controller
 
     public function login(Request $request)
     {
-        // Validar los datos del formulario
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
@@ -26,27 +25,40 @@ class LogController extends Controller
 
         $credentials = $request->only('email', 'password');
 
-        // 🔹 Intentar login como Admin
+        // Intenta login en ambos guards
         if (Auth::guard('admin')->attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended('/admin/dashboard')
-                            ->with('success', 'Login successful');
+                            ->with('status', ['type' => 'success', 'message' => 'Login successful']);
         }
 
-        // 🔹 Intentar login como Driver
         if (Auth::guard('driver')->attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended('/driver/dashboard')
-                            ->with('success', 'Login successful');
+                            ->with('status', ['type' => 'success', 'message' => 'Login successful']);
         }
 
-        // Si llega aquí → credenciales inválidas
-        return redirect()->route('log')->with('error', 'Invalid username or password');
-
-        
+        // Credenciales inválidas
+        return redirect()->route('log')
+                        ->with('status', ['type' => 'error', 'message' => 'Invalid username or password']);
     }
 
     public function logout(Request $request)
+    {
+       // Verifica qué guard está activo
+        if (Auth::guard('admin')->check()) {
+            Auth::guard('admin')->logout();
+        } elseif (Auth::guard('driver')->check()) {
+            Auth::guard('driver')->logout();
+        }
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('log');
+            
+        }
+        public function logoutd(Request $request)
     {
        // Verifica qué guard está activo
         if (Auth::guard('admin')->check()) {

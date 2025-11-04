@@ -3,40 +3,40 @@
 @section('content')
 
 <style>
-.vehicle-sidebar {
-    position: fixed;
-    top: 0;
-    right: -50%; /* Oculto inicialmente */
-    width: 50%;
-    height: 100%;
-    background-color: #212529;
-    color: white;
-    z-index: 1050;
-    box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
-    transition: right 0.4s ease;
-    overflow-y: auto;
-    border-left: 3px solid #0d6efd;
-}
+    .vehicle-sidebar {
+        position: fixed;
+        top: 0;
+        right: -50%; /* Oculto inicialmente */
+        width: 50%;
+        height: 100%;
+        background-color: #212529;
+        color: white;
+        z-index: 1050;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.4);
+        transition: right 0.4s ease;
+        overflow-y: auto;
+        border-left: 3px solid #0d6efd;
+    }
 
-.vehicle-sidebar.active {
-    right: 0;
-}
+    .vehicle-sidebar.active {
+        right: 0;
+    }
 
-.vehicle-sidebar .sidebar-header {
-    background-color: #0d6efd;
-    color: white;
-    padding: 1rem;
-}
+    .vehicle-sidebar .sidebar-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 1rem;
+    }
 
-.vehicle-sidebar .btn-outline-light {
-    border: none;
-    font-size: 1.5rem;
-    color: white;
-}
+    .vehicle-sidebar .btn-outline-light {
+        border: none;
+        font-size: 1.5rem;
+        color: white;
+    }
 
-.vehicle-sidebar .btn-outline-light:hover {
-    color: #ccc;
-}
+    .vehicle-sidebar .btn-outline-light:hover {
+        color: #ccc;
+    }
 </style>
 
 
@@ -65,15 +65,15 @@
         </div>
     </div>
 
-    <!-- Derecha: Vehículo -->
-    <div id="vehicleCard" class="text-end bg-light px-4 py-2 rounded shadow-sm d-flex align-items-center"
-         style="cursor: pointer; transition: background-color 0.3s;">
-        <div class="me-2 text-end">
+    <button id="vehicleCard" type="button"
+    class="btn w-100 text-end bg-light px-4 py-2 rounded shadow-sm d-flex align-items-center border-0"
+    data-bs-toggle="modal" data-bs-target="#truckModal">
+        <div class="me-2 text-end flex-grow-1">
             <h6 id="truckPlate" class="mb-0 fw-bold">XYZ-1234</h6>
             <small class="text-muted">Current Vehicle</small>
         </div>
-        <i class="fas fa-exchange-alt fa-lg text-primary"></i> <!-- icono tipo "tab" -->
-    </div>
+        <i class="fas fa-exchange-alt fa-lg text-primary"></i>
+    </button>
 </div>
 
     <!-- Hoy -->
@@ -136,23 +136,34 @@
 
 </div>
 
-<!-- Sidebar derecho del vehículo -->
-<div class="sidebar-body p-3">
-    <h6 class="text-light mb-3">Select a Truck</h6>
 
-    <!-- Contenedor para la lista de camiones -->
-    <div id="vehicleList" class="list-group mb-3 text-dark">
-        <div class="text-center text-muted py-3" id="loadingTrucks">Loading trucks...</div>
+
+<!-- Modal de selección de camión -->
+<div class="modal fade" id="truckModal" tabindex="-1" aria-labelledby="truckModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-dark text-light">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="truckModalLabel">Select a Truck</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="vehicleList" class="list-group mb-3 text-dark">
+          <div class="text-center text-muted py-3" id="loadingTrucks">Loading trucks...</div>
+        </div>
+      </div>
+
+      <div class="modal-footer border-0">
+        <button id="confirmTruck" class="btn btn-primary w-100" disabled>
+          Confirm Selection
+        </button>
+      </div>
     </div>
-
-    <button id="confirmTruck" class="btn btn-primary w-100 mt-3" disabled>
-        Confirm Selection
-    </button>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    
     // 📌 Recibimos directamente desde PHP 
     const labels = @json($labels);
     const duty_status = @json($dutyStatuses);
@@ -313,108 +324,63 @@
     // Actualizar cada 60 segundos
     setInterval(fetchCurrentStatus, 60000);
 
-    // Acción del botón
-    // Sidebar de vehículo
-    const sidebar = document.getElementById('vehicleSidebar');
-    const closeSidebarBtn = document.getElementById('closeSidebar');
-
-    // Abrir sidebar
-    vehicleCard.addEventListener('click', () => {
-        sidebar.classList.add('active');
-    });
-
-    // Cerrar sidebar
-    closeSidebarBtn.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-    });
-
-    // Cerrar si se hace clic fuera (opcional)
-    document.addEventListener('click', (e) => {
-        if (!sidebar.contains(e.target) && !vehicleCard.contains(e.target)) {
-            sidebar.classList.remove('active');
-        }
-    });
-});
-
-const vehicleList = document.getElementById('vehicleList');
-const loadingTrucks = document.getElementById('loadingTrucks');
-const confirmTruck = document.getElementById('confirmTruck');
-let selectedTruckId = null;
-
-// Cargar lista de camiones desde el servidor
-async function loadTrucks() {
-    try {
-        loadingTrucks.textContent = 'Loading trucks...';
-        const response = await fetch("{{ route('driver.vehicles') }}");
-        const trucks = await response.json();
-
-        vehicleList.innerHTML = '';
-
-        if (trucks.length === 0) {
-            vehicleList.innerHTML = '<div class="text-center text-muted py-3">No trucks found</div>';
-            return;
-        }
-
-        trucks.forEach(truck => {
-            const item = document.createElement('button');
-            item.className = 'list-group-item list-group-item-action';
-            item.innerHTML = `
-                <div class="fw-bold">${truck.plate}</div>
-                <small>${truck.model} (${truck.year})</small>
-            `;
-            item.addEventListener('click', () => selectTruck(item, truck.id));
-            vehicleList.appendChild(item);
-        });
-    } catch (error) {
-        console.error('Error loading trucks:', error);
-        vehicleList.innerHTML = '<div class="text-danger text-center py-3">Error loading trucks</div>';
-    }
-}
-
-// Seleccionar un camión
-function selectTruck(element, truckId) {
-    document.querySelectorAll('#vehicleList .list-group-item').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    element.classList.add('active');
-    selectedTruckId = truckId;
-    confirmTruck.disabled = false;
-}
-
-// Confirmar selección (ejemplo)
-confirmTruck.addEventListener('click', async () => {
-    if (!selectedTruckId) return;
-
-    try {
-        // Aquí puedes enviar la selección al backend (si quieres guardarla)
-        const response = await fetch("{{ route('driver.set_vehicle') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ vehicle_id: selectedTruckId })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            alert(`✅ Vehicle changed to: ${data.vehicle.plate}`);
-            sidebar.classList.remove('active');
-            document.getElementById('truckPlate').textContent = data.vehicle.plate;
-        } else {
-            alert('❌ Error changing vehicle');
-        }
-    } catch (error) {
-        console.error('Error confirming truck:', error);
-    }
-});
-
-// Cargar camiones cuando se abre el sidebar
-vehicleCard.addEventListener('click', () => {
-    sidebar.classList.add('active');
-    loadTrucks();
+    
 });
 
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const vehicleList = document.getElementById('vehicleList');
+    const confirmButton = document.getElementById('confirmTruck');
+    const truckPlate = document.getElementById('truckPlate');
+
+    // Cuando se abre el modal
+    const modal = document.getElementById('truckModal');
+    modal.addEventListener('show.bs.modal', async function () {
+        vehicleList.innerHTML = '<div class="text-center text-muted py-3">Loading trucks...</div>';
+        confirmButton.disabled = true;
+
+        try {
+            const response = await fetch('/api/trucks'); // <-- Endpoint Laravel que devuelve JSON
+            const trucks = await response.json();
+
+            if (trucks.length === 0) {
+                vehicleList.innerHTML = '<div class="text-center text-muted py-3">No trucks available.</div>';
+                return;
+            }
+
+            vehicleList.innerHTML = trucks.map(truck => `
+                <button class="list-group-item list-group-item-action" data-id="${truck.id}">
+                    <strong>${truck.license_plate}</strong> — ${truck.brand} ${truck.model} (${truck.year})
+                </button>
+            `).join('');
+
+            document.querySelectorAll('#vehicleList button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('#vehicleList button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    confirmButton.disabled = false;
+                    confirmButton.dataset.truckId = btn.dataset.id;
+                });
+            });
+        } catch (error) {
+            vehicleList.innerHTML = '<div class="text-center text-danger py-3">Error loading trucks.</div>';
+        }
+    });
+
+    // Confirmar selección
+    confirmButton.addEventListener('click', async function () {
+        const truckId = this.dataset.truckId;
+        const response = await fetch(`/api/trucks/${truckId}`);
+        const truck = await response.json();
+
+        // Actualiza el texto del botón principal
+        truckPlate.textContent = truck.license_plate;
+
+        // Cierra el modal
+        const modalInstance = bootstrap.Modal.getInstance(modal);
+        modalInstance.hide();
+    });
+});
+    </script>
 @endsection
