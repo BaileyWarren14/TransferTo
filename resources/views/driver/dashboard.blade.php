@@ -429,173 +429,245 @@ body.dark-mode #map { background: #333; }
     window.DRIVER_NAME = "{{ $driver ? ($driver->name ?? $driver->full_name ?? $driver->nombre ?? $driver->username ?? 'Conductor') : 'Conductor' }}";
 </script>
 <script>
-/* =================== Constantes =================== */
-const DRIVE_LIMIT = 11 * 3600;   // 11 horas en segundos
-const SHIFT_LIMIT = 14 * 3600;   // 14 horas en segundos
-const CYCLE_LIMIT = 70 * 3600;   // 70 horas en segundos
-const UPDATE_INTERVAL = 10000;   // 10 segundos
+    /* =================== Constantes =================== */
+    const DRIVE_LIMIT = 11 * 3600;   // 11 horas en segundos
+    const SHIFT_LIMIT = 14 * 3600;   // 14 horas en segundos
+    const CYCLE_LIMIT = 70 * 3600;   // 70 horas en segundos
+    const UPDATE_INTERVAL = 10000;   // 10 segundos
 
-/* =================== Estado global =================== */
-let timers = {
-drive: { remaining: DRIVE_LIMIT, chart: null, labelId: 'driveLabel', canvasId: 'driveChart', color: '#007bff' },
-shift: { remaining: SHIFT_LIMIT, chart: null, labelId: 'shiftLabel', canvasId: 'shiftChart', color: '#28a745' },
-cycle: { remaining: CYCLE_LIMIT, chart: null, labelId: 'cycleLabel', canvasId: 'cycleChart', color: '#6c757d' }
-};
-let chartsCreated = false;
+    /* =================== Estado global =================== */
+    let timers = {
+    drive: { remaining: DRIVE_LIMIT, chart: null, labelId: 'driveLabel', canvasId: 'driveChart', color: '#007bff' },
+    shift: { remaining: SHIFT_LIMIT, chart: null, labelId: 'shiftLabel', canvasId: 'shiftChart', color: '#28a745' },
+    cycle: { remaining: CYCLE_LIMIT, chart: null, labelId: 'cycleLabel', canvasId: 'cycleChart', color: '#6c757d' }
+    };
+    let chartsCreated = false;
 
-/* =================== Helpers =================== */
-function secondsToHMS(s) {
-s = Math.max(0, Math.floor(s));
-const h = Math.floor(s / 3600).toString().padStart(2, '0');
-const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-const sec = Math.floor(s % 60).toString().padStart(2, '0');
-return `${h}:${m}:${sec}`;
-}
-
-function secondsToHHMM(hoursDecimal) {
-const totalMinutes = Math.floor(hoursDecimal * 60);
-const h = Math.floor(totalMinutes / 60);
-const m = totalMinutes % 60;
-return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-}
-
-function createDoughnutChart(canvasId, initialRemaining, total, color) {
-const el = document.getElementById(canvasId);
-if (!el) return null;
-const ctx = el.getContext('2d');
-return new Chart(ctx, {
-type: 'doughnut',
-data: {
-labels: ['Remaining', 'Elapsed'],
-datasets: [{
-data: [initialRemaining, Math.max(0, total - initialRemaining)],
-backgroundColor: [color, '#e9ecef'],
-borderWidth: 0
-}]
-},
-options: {
-plugins: { legend: { display: false } },
-responsive: true,
-maintainAspectRatio: false,
-cutout: '70%'
-}
-});
-}
-
-/* =================== Actualizar UI =================== */
-function updateTimersUI() {
-Object.values(timers).forEach(timer => {
-if (timer.chart) {
-const elapsed = Math.max(0, (timer.total || 0) - timer.remaining);
-timer.chart.data.datasets[0].data = [timer.remaining, elapsed];
-timer.chart.update('none');
-}
-const labelEl = document.getElementById(timer.labelId);
-if (labelEl) labelEl.innerText = secondsToHMS(timer.remaining);
-});
-}
-
-/* =================== Función principal =================== */
-async function updateTimers() {
-try {
-const response = await fetch('/driver/timers');
-if (!response.ok) throw new Error(`HTTP ${response.status}`);
-const data = await response.json();
-
-
-    // Campos esperados del backend
-    const driveUsed = parseFloat(data.DriveHoy) || 0;
-    const shiftUsed = parseFloat(data.ShiftHoy) || 0;
-    const cycleUsed = parseFloat(data.CycleTotal) || 0;
-
-    // Calcular el tiempo restante
-    const driveRemaining = Math.max(0, DRIVE_LIMIT - driveUsed);
-    const shiftRemaining = Math.max(0, SHIFT_LIMIT - shiftUsed);
-    const cycleRemaining = Math.max(0, CYCLE_LIMIT - cycleUsed);
-
-    // Actualizar el estado global
-    timers.drive.remaining = driveRemaining;
-    timers.shift.remaining = shiftRemaining;
-    timers.cycle.remaining = cycleRemaining;
-
-    // Asignar totales (para los cálculos de "elapsed")
-    timers.drive.total = DRIVE_LIMIT;
-    timers.shift.total = SHIFT_LIMIT;
-    timers.cycle.total = CYCLE_LIMIT;
-
-    // Crear charts si aún no existen
-    if (!chartsCreated) {
-        timers.drive.chart = createDoughnutChart('driveChart', driveRemaining, DRIVE_LIMIT, timers.drive.color);
-        timers.shift.chart = createDoughnutChart('shiftChart', shiftRemaining, SHIFT_LIMIT, timers.shift.color);
-        timers.cycle.chart = createDoughnutChart('cycleChart', cycleRemaining, CYCLE_LIMIT, timers.cycle.color);
-        chartsCreated = true;
+    /* =================== Helpers =================== */
+    function secondsToHMS(s) {
+    s = Math.max(0, Math.floor(s));
+    const h = Math.floor(s / 3600).toString().padStart(2, '0');
+    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+    const sec = Math.floor(s % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${sec}`;
     }
 
-    // Actualizar UI
-    updateTimersUI();
+    function secondsToHHMM(hoursDecimal) {
+    const totalMinutes = Math.floor(hoursDecimal * 60);
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
 
-    // (Opcional) Mostrar log en consola
-    console.log(`Drive Remaining: ${secondsToHMS(driveRemaining)} | Shift Remaining: ${secondsToHMS(shiftRemaining)} | Cycle Remaining: ${secondsToHMS(cycleRemaining)}`);
-} catch (err) {
-    console.error('Error al obtener timers:', err);
-}
-
-
-}
-/* =================== Greeting =================== */
-function showGreeting(){
-    const name = window.DRIVER_NAME || 'Driver';
-    const lang = localStorage.getItem('language') || 'es';
-    const t = window.translations?.[lang] || {};
-    const hour = new Date().getHours();
-    let greeting = '';
-    if(hour>=5 && hour<12) greeting = t.greeting_morning || (lang==='es'?'Buenos días':'Good morning');
-    else if(hour>=12 && hour<18) greeting = t.greeting_afternoon || (lang==='es'?'Buenas tardes':'Good afternoon');
-    else if(hour>=18 && hour<22) greeting = t.greeting_evening || (lang==='es'?'Buena tarde':'Good evening');
-    else greeting = t.greeting_night || (lang==='es'?'Buenas noches':'Good night');
-    const el = document.getElementById('greeting');
-    if(el) el.innerText = `${greeting}, ${name}!`;
-}
-
-
-/* =================== Inicializar =================== */
-document.addEventListener('DOMContentLoaded', () => {
-updateTimers(); // Llamada inicial
-showGreeting();   
-setInterval(updateTimers, UPDATE_INTERVAL); // Actualiza cada 10s
-});
-
-
-
-
-
-
-/* =================== Sidebar toggle =================== */
-function toggleSidebar(){
-    const sidebar = document.getElementById('bottomSidebar');
-    sidebar.classList.toggle('collapsed');
-    sidebar.classList.toggle('expanded');
-}
-
-/* =================== Startup =================== */
-document.addEventListener('DOMContentLoaded', function(){
-    initTimers();
-    showGreeting();
-    updateTimers();
-    setInterval(updateTimers, 60000);
-
-    window.addEventListener('beforeunload', () => {
-        saveStateToStorage();
-        if(tickIntervalHandle) clearInterval(tickIntervalHandle);
-        if(syncIntervalHandle) clearInterval(syncIntervalHandle);
+    function createDoughnutChart(canvasId, initialRemaining, total, color) {
+    const el = document.getElementById(canvasId);
+    if (!el) return null;
+    const ctx = el.getContext('2d');
+    return new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+    labels: ['Remaining', 'Elapsed'],
+    datasets: [{
+    data: [initialRemaining, Math.max(0, total - initialRemaining)],
+    backgroundColor: [color, '#e9ecef'],
+    borderWidth: 0
+    }]
+    },
+    options: {
+    plugins: { legend: { display: false } },
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%'
+    }
     });
+    }
+
+    /* =================== Actualizar UI =================== */
+    function updateTimersUI() {
+    Object.values(timers).forEach(timer => {
+    if (timer.chart) {
+    const elapsed = Math.max(0, (timer.total || 0) - timer.remaining);
+    timer.chart.data.datasets[0].data = [timer.remaining, elapsed];
+    timer.chart.update('none');
+    }
+    const labelEl = document.getElementById(timer.labelId);
+    if (labelEl) labelEl.innerText = secondsToHMS(timer.remaining);
+    });
+    const shiftTimerEl = document.getElementById('shiftTimerText');
+    if (shiftTimerEl) {
+    shiftTimerEl.innerText = secondsToHMS(timers.shift.remaining);
+}
+    }
+
+    /* =================== Función principal =================== */
+    async function updateTimers() {
+    try {
+    const response = await fetch('/driver/timers');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+
+
+        // Campos esperados del backend
+        const driveUsed = parseFloat(data.DriveHoy) || 0;
+        const shiftUsed = parseFloat(data.ShiftHoy) || 0;
+        const cycleUsed = parseFloat(data.CycleTotal) || 0;
+
+        // Calcular el tiempo restante
+        const driveRemaining = Math.max(0, DRIVE_LIMIT - driveUsed);
+        const shiftRemaining = Math.max(0, SHIFT_LIMIT - shiftUsed);
+        const cycleRemaining = Math.max(0, CYCLE_LIMIT - cycleUsed);
+
+        // Actualizar el estado global
+        timers.drive.remaining = driveRemaining;
+        timers.shift.remaining = shiftRemaining;
+        timers.cycle.remaining = cycleRemaining;
+
+        // Asignar totales (para los cálculos de "elapsed")
+        timers.drive.total = DRIVE_LIMIT;
+        timers.shift.total = SHIFT_LIMIT;
+        timers.cycle.total = CYCLE_LIMIT;
+
+        // Crear charts si aún no existen
+        if (!chartsCreated) {
+            timers.drive.chart = createDoughnutChart('driveChart', driveRemaining, DRIVE_LIMIT, timers.drive.color);
+            timers.shift.chart = createDoughnutChart('shiftChart', shiftRemaining, SHIFT_LIMIT, timers.shift.color);
+            timers.cycle.chart = createDoughnutChart('cycleChart', cycleRemaining, CYCLE_LIMIT, timers.cycle.color);
+            chartsCreated = true;
+        }
+
+        // Actualizar UI
+        updateTimersUI();
+
+        // (Opcional) Mostrar log en consola
+        console.log(`Drive Remaining: ${secondsToHMS(driveRemaining)} | Shift Remaining: ${secondsToHMS(shiftRemaining)} | Cycle Remaining: ${secondsToHMS(cycleRemaining)}`);
+    } catch (err) {
+        console.error('Error al obtener timers:', err);
+    }
+
+
+    }
+    /* =================== Greeting =================== */
+    function showGreeting(){
+        const name = window.DRIVER_NAME || 'Driver';
+        const lang = localStorage.getItem('language') || 'es';
+        const t = window.translations?.[lang] || {};
+        const hour = new Date().getHours();
+        let greeting = '';
+        if(hour>=5 && hour<12) greeting = t.greeting_morning || (lang==='es'?'Buenos días':'Good morning');
+        else if(hour>=12 && hour<18) greeting = t.greeting_afternoon || (lang==='es'?'Buenas tardes':'Good afternoon');
+        else if(hour>=18 && hour<22) greeting = t.greeting_evening || (lang==='es'?'Buena tarde':'Good evening');
+        else greeting = t.greeting_night || (lang==='es'?'Buenas noches':'Good night');
+        const el = document.getElementById('greeting');
+        if(el) el.innerText = `${greeting}, ${name}!`;
+    }
+
+
+    /* =================== Inicializar =================== */
+    /* =================== Inicializar =================== */
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTimers();       // Llamada inicial al backend
+        showGreeting();       // Mostrar saludo
+
+        // ⏱️ Actualiza los timers del servidor cada 10 segundos
+        setInterval(updateTimers, UPDATE_INTERVAL);
+
+        // 🕐 Inicia el tick local (descuento por segundo)
+        setInterval(tickClient, 1000);
+    });
+
+
+
+
+
+
+    /* =================== Sidebar toggle =================== */
+    function toggleSidebar(){
+        const sidebar = document.getElementById('bottomSidebar');
+        sidebar.classList.toggle('collapsed');
+        sidebar.classList.toggle('expanded');
+    }
+
+    /* =================== Startup =================== */
+    document.addEventListener('DOMContentLoaded', function(){
+        initTimers();
+        showGreeting();
+        updateTimers();
+        setInterval(updateTimers, 60000);
+
+        window.addEventListener('beforeunload', () => {
+            saveStateToStorage();
+            if(tickIntervalHandle) clearInterval(tickIntervalHandle);
+            if(syncIntervalHandle) clearInterval(syncIntervalHandle);
+        });
+    });
+
+
+    function tickClient() {
+        let needsUpdate = false;
+
+        Object.values(timers).forEach(timer => {
+            if (timer.remaining > 0) {
+                timer.remaining = Math.max(0, timer.remaining - 1); // Resta 1 segundo
+                needsUpdate = true;
+            }
+        });
+
+        if (needsUpdate) updateTimersUI(); // 🔄 Refresca los cronómetros y donuts
+    }
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // Hacemos la petición al endpoint del controlador
+        const response = await fetch('/driver/status_truck');
+        const data = await response.json();
+        
+        // Si hubo error de autenticación
+        if (data.error) {
+            console.error('Error de autenticación:', data.error);
+            return;
+        }
+
+        // ✅ Primero obtener los elementos del DOM
+        const statusEl = document.getElementById('statusText');
+        const truckEl = document.getElementById('truckText');
+
+        // ✅ Actualizar los elementos
+        if (statusEl) {
+            statusEl.textContent = `Status: ${data.status || 'OFF'}`;
+        }
+        
+        if (truckEl) {
+            // Usar license_plate en lugar de name
+            const truckInfo = data.truck?.license_plate || data.truck?.name || data.truck?.id || '--';
+            truckEl.textContent = `Truck: ${truckInfo}`;
+        }
+
+        // ✅ Mostrar alert DESPUÉS de actualizar los elementos
+        if (statusEl && truckEl) {
+            alert(
+                `✅ DATOS ACTUALIZADOS\n\n` +
+                `Driver: ${data.driver}\n` +
+                `Status: ${data.status}\n` +
+                `Truck: ${data.truck?.license_plate || '--'}\n\n` +
+                `${statusEl.textContent}\n` +
+                `${truckEl.textContent}`
+            );
+        }
+
+        // Log en consola
+        console.log('✅ Status y Truck actualizados:', {
+            driver: data.driver,
+            status: data.status,
+            truck: data.truck?.license_plate || 'No asignado'
+        });
+        
+    } catch (error) {
+        console.error('❌ Error al obtener datos del driver:', error);
+        alert('❌ Error al cargar los datos del conductor');
+    }
 });
-
-
 
 
 </script>
-
 
 
 

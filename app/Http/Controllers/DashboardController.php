@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\dutystatuslog; 
+use App\Models\Truck; 
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -32,12 +33,40 @@ class DashboardController extends Controller
         ]);
     }*/
 
+    public function driverStatusAndTruck()
+    {
+        $driver = Auth::guard('driver')->user();
+
+        if (!$driver) {
+            return response()->json(['error' => 'Driver not authenticated'], 401);
+        }
+
+        // Obtener el camión asignado al driver
+        $truck = Truck::where('driver_id', $driver->id)->first();
+
+        // Obtener el último estado del driver
+        $status = DutyStatusLog::where('driver_id', $driver->id)
+            ->orderBy('changed_at', 'desc')
+            ->value('status');
+
+        // Retornar todo en formato JSON
+        return response()->json([
+            'driver' => $driver->name ?? $driver->email ?? 'Driver',
+            'status' => $status ?? 'OFF',
+            'truck' => $truck ? [
+                'id' => $truck->id,
+                'license_plate' => $truck->license_plate  ?? 'Unnamed Truck',
+            ] : null,
+        ]);
+    }
+
+
        // Método para obtener los timers vía AJAX
     public function timers()
     {
         $driver = Auth::guard('driver')->user();
         $timers = $this->computeTimersForDriver($driver->id);
-
+        
         return response()->json($timers);
     }
 
@@ -120,6 +149,8 @@ class DashboardController extends Controller
         // 🔹 Evitar negativos (por cualquier ajuste)
         $normalize = fn($v) => max(0, round($v, 2));
 
+        $driver = Auth::guard('driver')->user();      
+
         return [
             'DHoy' => $normalize($DHoy),
             'DTotal' => $normalize($DTotal),
@@ -139,6 +170,7 @@ class DashboardController extends Controller
             'ShiftHoy' => $normalize($ShiftHoy),
             'CycleHoy' => $normalize($CycleHoy),
             'CycleTotal' => $normalize($CycleTotal),
+            
         ];
     }
 

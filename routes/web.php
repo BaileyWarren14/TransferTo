@@ -175,6 +175,9 @@ Route::middleware(['auth:driver'])->group(function () {
 
     Route::get('/driver/dashboard', [DashboardController::class, 'index'])->name('driver.dashboard');
 
+    //ruta para que muestre el truck y el estado
+    Route::get('/driver/status_truck', [DashboardController::class, 'driverStatusAndTruck'])-> name('driver.trucks');
+
     // Esta es la ruta que tu JS necesita
     Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.timers');
 
