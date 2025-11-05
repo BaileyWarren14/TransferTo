@@ -205,10 +205,21 @@ Route::middleware(['auth:driver'])->group(function () {
     //para que obtenga los datos y se actualice el logbook automatico
     //Route::get('/driver/logs/today-data', [LogbookController::class, 'todayData'])->name('driver.logs.today-data');
 
-     Route::get('/api/trucks', [App\Http\Controllers\TruckController::class, 'getAllTrucks'])->name('api.trucks.all');
-    Route::get('/api/trucks/{id}', [App\Http\Controllers\TruckController::class, 'getTruck'])->name('api.trucks.show');
+    // Route::get('/api/trucks', [App\Http\Controllers\TruckController::class, 'getAllTrucks'])->name('api.trucks.all');
+    //Route::get('/api/trucks/{id}', [App\Http\Controllers\TruckController::class, 'getTruck'])->name('api.trucks.show');
 
+    //Obtener los trucks disponibles
+    Route::get('/driver/trucks/available', [TruckController::class, 'availableTrucks'])->name('driver.trucks.available');
     
+    //Obtener los trucks asignados
+    Route::post('/driver/trucks/{id}/assign', [TruckController::class, 'assignTruck'])->name('driver.trucks.assign');
+
+    //Obtener los trucks no asignados
+    Route::post('/driver/trucks/unassign', [TruckController::class, 'unassignTruck'])->name('driver.trucks.unassign');
+    
+    //
+    Route::get('/driver/status/current', [DutyStatusController::class, 'currentStatus'])
+    ->name('driver.status.current');
 
     //Ruta para ver los logs del dia actual completos
     Route::get('/driver/activities/{date}', [LogbookController::class, 'showActivities'])

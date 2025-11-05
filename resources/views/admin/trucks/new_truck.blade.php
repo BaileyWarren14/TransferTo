@@ -47,27 +47,27 @@
             </div>
 
             <div class="col-md-6">
-                <label for="cab_type" class="form-label">Cab Type</label>
+                <label for="cab_type" class="form-label" data-key="cab_type">Cab Type</label>
                 <select name="cab_type" id="cab_type" class="form-select" required>
-                    <option value="" disabled selected>Select cab type</option>
-                    <option value="day_cab">Day Cab</option>
-                    <option value="sleeper_cab">Sleeper Cab</option>
-                    <option value="extended_cab">Extended Cab</option>
-                    <option value="crew_cab">Crew Cab</option>
-                    <option value="cab_over">Cab-over / Forward Control</option>
-                    <option value="conventional">Conventional</option>
+                    <option value="" disabled selected data-key="select_cab_type">Select cab type</option>
+                    <option value="day_cab" data-key="day_cab">Day Cab</option>
+                    <option value="sleeper_cab" data-key="sleeper_cab">Sleeper Cab</option>
+                    <option value="extended_cab" data-key="extended_cab">Extended Cab</option>
+                    <option value="crew_cab" data-key="crew_cab">Crew Cab</option>
+                    <option value="cab_over" data-key="cab_over">Cab-over / Forward Control</option>
+                    <option value="conventional" data-key="conventional">Conventional</option>
                 </select>
             </div>
 
             <div class="col-md-6">
                 <label for="transmission_type" class="form-label" data-key="transmission_type">Transmission Type</label>
                 <select name="transmission_type" id="transmission_type" class="form-select" required>
-                    <option value="" disabled selected>Select transmission type</option>
-                    <option value="automatic">Automatic</option>
-                    <option value="manual">Manual</option>
-                    <option value="amt">Automated Manual (AMT)</option>
-                    <option value="cvt">Continuously Variable (CVT)</option>
-                    <option value="dual_clutch">Dual Clutch</option>
+                    <option value="" disabled selected data-key="select_transmission_type">Select transmission type</option>
+                    <option value="automatic" data-key="automatic">Automatic</option>
+                    <option value="manual" data-key="manual">Manual</option>
+                    <option value="amt" data-key="automated_manual">Automated Manual (AMT)</option>
+                    <option value="cvt" data-key="continuously_varible">Continuously Variable (CVT)</option>
+                    <option value="dual_clutch" data-key="dual_clucth">Dual Clutch</option>
                 </select>
             </div>
 

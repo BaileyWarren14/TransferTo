@@ -16,9 +16,16 @@
                 <input type="number" name="axles" id="axles" class="form-control" data-key="enter_number_of_axles" placeholder="Enter number of axles" required>
             </div>
 
-            <div class="col-md-6">
+             <div class="col-md-6">
                 <label for="trailer_type" class="form-label" data-key="trailer_type">Trailer Type</label>
-                <input type="text" name="trailer_type" id="trailer_type" class="form-control" data-key="enter_trailer_type" placeholder="Enter trailer type" required>
+                <select name="trailer_type" id="trailer_type" class="form-select" required>
+                    <option value="" disabled selected data-key="select_trailer_type">Select Trailer type</option>
+                    <option value="1" data-key="cistern">Cistern</option>
+                    <option value="2" data-key="dry_box">Dry Box</option>
+                    <option value="3" data-key="platform">platform</option>
+                    <option value="4" data-key="pneumatic">Pneunamtic</option>
+                    <option value="5" data-key="other">other</option>
+                </select>
             </div>
 
             <div class="col-md-6">

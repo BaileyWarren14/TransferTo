@@ -34,7 +34,7 @@
                     <div class="col-md-6">
                         <label for="year" class="form-label" data-key="year">Year</label>
                         <input type="number" name="year" id="year" class="form-control" data-key="enter_year" 
-                            placeholder="Enter year" min="1900" max="2099" required>
+                            placeholder="Enter year" min="1900" max="2099" required value="{{ old('year', $truck->year) }}">
                     </div>
 
                     <div class="col-md-6">

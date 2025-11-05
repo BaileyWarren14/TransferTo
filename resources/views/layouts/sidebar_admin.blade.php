@@ -246,15 +246,14 @@ body {
 <div class="mobile-menu" id="mobileMenu">
     <div class="close-btn" id="closeMenu"><i class="fas fa-times"></i></div>
 
-   <a href="{{ url('/admin/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-    <a href="{{ url('/admin/trucks') }}"><i class="fas fa-chart-line"></i> <span>Trucks</span></a>
-    <a href="{{ url('/admin/trailers') }}"><i class="fas fa-toggle-on"></i> <span>Trailers</span></a>
-    <a href="{{ url('/admin/drivers') }}"><i class="fas fa-plus-circle"></i> <span>Drivers</span></a>
-    <a href="{{ url('/admin/admin') }}"><i class="fas fa-info-circle"></i> <span>Admins</span></a>
-    <a href="{{ url('/messages') }}"><i class="fas fa-envelope"></i> <span>Messages</span></a>
-    <a href="{{ url('/reports') }}"><i class="fas fa-exclamation-triangle"></i> <span>Driver Reports</span></a>
-    <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span>Notifications</span></a>
-    
+        <a href="{{ url('/admin/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span data-key="dashboard">Dashboard</span></a>
+        <a href="{{ url('/admin/trucks') }}"><i class="fas fa-chart-line"></i> <span data-key="trucks">Trucks</span></a>
+        <a href="{{ url('/admin/trailers') }}"><i class="fas fa-toggle-on"></i> <span data-key="trailers">Trailers</span></a>
+        <a href="{{ url('/admin/drivers') }}"><i class="fas fa-plus-circle"></i> <span data-key="drivers">Drivers</span></a>
+        <a href="{{ url('/admin/admin') }}"><i class="fas fa-info-circle"></i> <span data-key="admins">Admins</span></a>
+        <a href="{{ url('/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
+        <a href="{{ url('/reports') }}"><i class="fas fa-exclamation-triangle"></i> <span data-key="driver_reports">Driver Reports</span></a>
+        <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
 
     <form method="POST" action="{{ route('logout') }}">
         @csrf

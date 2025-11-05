@@ -50,31 +50,39 @@
 <!-- Contenedor superior de estado -->
 <div class="card shadow-sm mb-4 p-3 d-flex flex-row justify-content-between align-items-center">
 
-    <!-- Izquierda: Estado actual -->
-    <div class="d-flex align-items-center">
-        <!-- Círculo de estado -->
-        <div id="statusCircle" class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-             style="width: 60px; height: 60px; font-size: 0.9rem; background-color: gray;">
+   <div class="d-flex align-items-center flex-grow-1">
+        <div id="statusCircle"
+            class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+            style="width: 60px; height: 60px; font-size: 0.9rem; background-color: gray;">
             OFF
         </div>
 
-        <!-- Texto y tiempo -->
         <div class="ms-3">
             <h6 id="statusText" class="mb-1">OFF DUTY</h6>
             <small id="statusDuration" class="text-muted">0h 00m</small>
         </div>
     </div>
 
-    <button id="vehicleCard" type="button"
-    class="btn w-100 text-end bg-light px-4 py-2 rounded shadow-sm d-flex align-items-center border-0"
-    data-bs-toggle="modal" data-bs-target="#truckModal">
-        <div class="me-2 text-end flex-grow-1">
-            <h6 id="truckPlate" class="mb-0 fw-bold">XYZ-1234</h6>
-            <small class="text-muted">Current Vehicle</small>
-        </div>
-        <i class="fas fa-exchange-alt fa-lg text-primary"></i>
-    </button>
+    <!-- Derecha: Contenedor del botón de vehículo -->
+    <div class="d-flex justify-content-end align-items-center" style="min-width: 250px;">
+        <button id="vehicleCard" type="button" 
+        class="btn w-100 text-end bg-light px-4 py-2 rounded shadow-sm d-flex align-items-center border-0"
+        data-bs-toggle="modal" data-bs-target="#truckModal"> 
+            <div class="me-2 text-end flex-grow-1"> 
+                <h6 id="truckPlate" class="mb-0 fw-bold">
+                    {{ $assignedTruck ? $assignedTruck->license_plate : 'No Truck Assigned' }}
+                </h6> 
+                <small class="text-muted">
+                    Current Vehicle
+                </small>
+            </div> 
+            <i class="fas fa-exchange-alt fa-lg text-primary">
+
+            </i>
+        </button>
+    </div>
 </div>
+
 
     <!-- Hoy -->
     <div class="card shadow mb-4">
@@ -163,6 +171,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     // 📌 Recibimos directamente desde PHP 
     const labels = @json($labels);
@@ -329,19 +339,22 @@
 
 </script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function () {
     const vehicleList = document.getElementById('vehicleList');
     const confirmButton = document.getElementById('confirmTruck');
     const truckPlate = document.getElementById('truckPlate');
-
-    // Cuando se abre el modal
     const modal = document.getElementById('truckModal');
+
+    let selectedTruckId = null;
+
+    // Load available trucks when modal opens
     modal.addEventListener('show.bs.modal', async function () {
         vehicleList.innerHTML = '<div class="text-center text-muted py-3">Loading trucks...</div>';
         confirmButton.disabled = true;
+        selectedTruckId = null;
 
         try {
-            const response = await fetch('/api/trucks'); // <-- Endpoint Laravel que devuelve JSON
+            const response = await fetch('{{ route("driver.trucks.available") }}');
             const trucks = await response.json();
 
             if (trucks.length === 0) {
@@ -350,8 +363,10 @@
             }
 
             vehicleList.innerHTML = trucks.map(truck => `
-                <button class="list-group-item list-group-item-action" data-id="${truck.id}">
-                    <strong>${truck.license_plate}</strong> — ${truck.brand} ${truck.model} (${truck.year})
+                <button class="list-group-item list-group-item-action bg-dark text-white border-secondary mb-2"
+                        data-id="${truck.id}">
+                    <strong>${truck.license_plate}</strong> — ${truck.brand} ${truck.model ?? ''}
+                    ${truck.driver_id ? '<span class="badge bg-primary float-end">Assigned to you</span>' : ''}
                 </button>
             `).join('');
 
@@ -359,8 +374,8 @@
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('#vehicleList button').forEach(b => b.classList.remove('active'));
                     btn.classList.add('active');
+                    selectedTruckId = btn.dataset.id;
                     confirmButton.disabled = false;
-                    confirmButton.dataset.truckId = btn.dataset.id;
                 });
             });
         } catch (error) {
@@ -368,19 +383,68 @@
         }
     });
 
-    // Confirmar selección
+    // Confirm truck selection
     confirmButton.addEventListener('click', async function () {
-        const truckId = this.dataset.truckId;
-        const response = await fetch(`/api/trucks/${truckId}`);
-        const truck = await response.json();
+        if (!selectedTruckId) return;
 
-        // Actualiza el texto del botón principal
-        truckPlate.textContent = truck.license_plate;
+        try {
+            const res = await fetch(`/driver/trucks/${selectedTruckId}/assign`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                }
+            });
 
-        // Cierra el modal
-        const modalInstance = bootstrap.Modal.getInstance(modal);
-        modalInstance.hide();
+            const data = await res.json();
+
+            if (res.ok) {
+                truckPlate.textContent = data.truck.license_plate;
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Truck Assigned',
+                    text: `Truck ${data.truck.license_plate} has been successfully assigned to you.`,
+                    confirmButtonColor: '#0d6efd'
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Assignment Failed',
+                    text: data.message || 'An error occurred while assigning the truck.',
+                    confirmButtonColor: '#dc3545'
+                });
+            }
+
+            // Close modal
+            const modalInstance = bootstrap.Modal.getInstance(modal);
+            modalInstance.hide();
+
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Server Error',
+                text: 'Could not connect to the server. Please try again later.',
+                confirmButtonColor: '#dc3545'
+            });
+        }
     });
 });
-    </script>
+
+document.addEventListener('DOMContentLoaded', async function () {
+    try {
+        const response = await fetch('{{ route("driver.status.current") }}');
+        const data = await response.json();
+
+        document.getElementById('statusCircle').textContent = data.status;
+        document.getElementById('statusCircle').style.backgroundColor = data.color;
+        document.getElementById('statusText').textContent = data.status_text;
+        document.getElementById('statusDuration').textContent = data.duration;
+    } catch (error) {
+        console.error('Error fetching duty status:', error);
+    }
+});
+</script>
+
+
 @endsection

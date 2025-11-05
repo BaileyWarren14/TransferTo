@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $timers = $this->computeTimersForDriver($driver->id);
 
         return view('driver.dashboard', [
-            'initialTimers' => $timers
+             'timers' => $timers
         ]);
     }
 
@@ -32,91 +32,119 @@ class DashboardController extends Controller
         ]);
     }*/
 
-
+       // Método para obtener los timers vía AJAX
     public function timers()
     {
         $driver = Auth::guard('driver')->user();
+        $timers = $this->computeTimersForDriver($driver->id);
 
-        // Llamar la función que calcula los tiempos
-        $data = $this->computeTimersForDriver($driver->id);
-
-        // Retornar JSON a la vista
-        return response()->json($data);
+        return response()->json($timers);
     }
+
+    // Función interna para calcular los timers
     protected function computeTimersForDriver($driverId)
     {
-        
-         // Fecha y hora actual (sin cambiar zona horaria)
-        $now = Carbon::now();
+        $estados = ['D', 'ON', 'OFF', 'SB', 'WT', 'PC', 'YM'];
+        $now = Carbon::now('America/Mexico_City');
+        $ahora = Carbon::now();
 
-        // Inicio de semana (lunes)
-        $weekStart = $now->copy()->startOfWeek(Carbon::MONDAY);
+        $hoyTimes = array_fill_keys($estados, 0);
+        $totalTimes = array_fill_keys($estados, 0);
 
-        // Obtener logs desde el inicio de semana hasta ahora
-        $logs = dutystatuslog::where('driver_id', $driverId)
-            ->whereBetween('changed_at', [$weekStart, $now])
+        // 🔹 Traemos solo los logs recientes (última semana)
+        $logs = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+            ->where('changed_at', '<=', $now->toDateTimeString())
             ->orderBy('changed_at', 'asc')
             ->get();
 
-        // Si no hay logs, retornar todo en cero
         if ($logs->isEmpty()) {
-            return [
-                'D' => 0,
-                'ON' => 0,
-                'OFF' => 0,
-                'SB' => 0,
-                'WT' => 0,
-                'total_logs' => 0,
-                'week_start' => $weekStart->toDateTimeString(),
-                'week_end' => $now->toDateTimeString(),
-                'last_log' => null,
-            ];
+            return array_fill_keys([
+                'DHoy','DTotal','ONHoy','ONTotal','SBHoy','SBTotal',
+                'WTHoy','WTTotal','PCHoy','PCTotal','OFFHoy','OFFTotal',
+                'YMHoy','YMTotal','DriveHoy','ShiftHoy','CycleHoy','CycleTotal'
+            ], 0);
         }
+        //dd($logs->toArray());
 
-        // Inicializar acumuladores de segundos
-        $totals = [
-            'D' => 0,
-            'ON' => 0,
-            'OFF' => 0,
-            'SB' => 0,
-            'WT' => 0,
-        ];
 
-        // Calcular segundos por estado
-        foreach ($logs as $i => $log) {
-            $start = Carbon::parse($log->changed_at);
-            $end = ($i + 1 < $logs->count())
-                ? Carbon::parse($logs[$i + 1]->changed_at)
-                : $now; // hasta el momento actual si es el último
+        $todayStart = Carbon::now('America/Mexico_City')->startOfDay();
+        $todayEnd = Carbon::now('America/Mexico_City')->endOfDay();
+        \Log::info('NOW:', [$now]);
 
-            if ($end->lt($start)) {
-                continue; // ignorar si la diferencia es negativa
+        foreach ($logs as $index => $log) {
+            $status = $log->status;
+
+            // Convertir la fecha de UTC → America/Mexico_City
+            $start = Carbon::createFromFormat('Y-m-d H:i:s', $log->changed_at, 'America/Mexico_City');
+
+
+            if ($index < count($logs) - 1) {
+                $end = Carbon::createFromFormat('Y-m-d H:i:s', $logs[$index + 1]->changed_at, 'America/Mexico_City');
+
+            } else {
+                $end = Carbon::now('America/Mexico_City');
             }
 
-            $diffSeconds = $end->diffInSeconds($start);
-            $status = strtoupper($log->status);
+            $diffSeconds = $start->diffInSeconds($end); // ya da positivo por defecto
 
-            if (array_key_exists($status, $totals)) {
-                $totals[$status] += $diffSeconds;
+            \Log::info('Comparando', [
+                'status' => $status,
+                'start' => $start->toDateTimeString(),
+                'end' => $end->toDateTimeString(),
+                'diff' => $diffSeconds,
+            ]);
+
+             //$diffSeconds = $end->diffInSeconds($start, false); 
+           
+
+            if (!in_array($status, $estados)) continue;
+
+            $totalTimes[$status] += $diffSeconds;
+
+            if ($start->between($todayStart, $todayEnd)) {
+                $hoyTimes[$status] += $diffSeconds;
             }
         }
 
-        $lastLog = $logs->last();
+        // 🔹 Calcular derivados
+        $DHoy = $hoyTimes['D'] ?? 0;
+        $DTotal = $totalTimes['D'] ?? 0;
+        $ONHoy = $hoyTimes['ON'] ?? 0;
+        $ONTotal = $totalTimes['ON'] ?? 0;
 
-        // Retornar resultados
+        $DriveHoy = $DHoy;
+        $ShiftHoy = $DHoy + $ONHoy;
+        $CycleHoy = $ShiftHoy;
+        $CycleTotal = $DTotal + $ONTotal;
+
+        // 🔹 Evitar negativos (por cualquier ajuste)
+        $normalize = fn($v) => max(0, round($v, 2));
+
         return [
-            'D' => $totals['D'],
-            'ON' => $totals['ON'],
-            'OFF' => $totals['OFF'],
-            'SB' => $totals['SB'],
-            'WT' => $totals['WT'],
-            'total_logs' => $logs->count(),
-            'week_start' => $weekStart->toDateTimeString(),
-            'week_end' => $now->toDateTimeString(),
-            'last_log' => $lastLog ? $lastLog->changed_at : null,
+            'DHoy' => $normalize($DHoy),
+            'DTotal' => $normalize($DTotal),
+            'ONHoy' => $normalize($ONHoy),
+            'ONTotal' => $normalize($ONTotal),
+            'SBHoy' => $normalize($hoyTimes['SB'] ?? 0),
+            'SBTotal' => $normalize($totalTimes['SB'] ?? 0),
+            'WTHoy' => $normalize($hoyTimes['WT'] ?? 0),
+            'WTTotal' => $normalize($totalTimes['WT'] ?? 0),
+            'PCHoy' => $normalize($hoyTimes['PC'] ?? 0),
+            'PCTotal' => $normalize($totalTimes['PC'] ?? 0),
+            'OFFHoy' => $normalize($hoyTimes['OFF'] ?? 0),
+            'OFFTotal' => $normalize($totalTimes['OFF'] ?? 0),
+            'YMHoy' => $normalize($hoyTimes['YM'] ?? 0),
+            'YMTotal' => $normalize($totalTimes['YM'] ?? 0),
+            'DriveHoy' => $normalize($DriveHoy),
+            'ShiftHoy' => $normalize($ShiftHoy),
+            'CycleHoy' => $normalize($CycleHoy),
+            'CycleTotal' => $normalize($CycleTotal),
         ];
-
     }
+
+
+
+
 
 /*
     public function timers()

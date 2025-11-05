@@ -14,6 +14,9 @@ class LogbookController extends Controller
       
     $driver = Auth::guard('driver')->user();
 
+    // Forzar zona horaria
+    date_default_timezone_set('America/Mexico_City');
+
     $now = Carbon::now(); // hora del servidor (ya México)
     $today = Carbon::today();
     
@@ -96,8 +99,11 @@ class LogbookController extends Controller
             'changed_at' => $log->changed_at, // tal como está en la BD
         ];
     });
-
+    $driver = auth()->user();
+    $assignedTruck = $driver->truck; // Asumiendo relación 'truck' en el modelo Driver
+    
     return view('driver.logs.show', compact(
+        'assignedTruck',
         'labels',
         'dutyStatuses',
         'totalOnDutyHours',

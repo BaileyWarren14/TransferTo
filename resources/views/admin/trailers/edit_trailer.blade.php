@@ -1,6 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+/* 🔹 Mantiene coherencia visual entre input y select flotantes */
+    .form-floating > label {
+        color: #6c757d;
+        transition: all 0.2s;
+    }
+
+    .form-floating > .form-control:focus ~ label,
+    .form-floating > .form-control:not(:placeholder-shown) ~ label,
+    .form-floating > .form-select:focus ~ label,
+    .form-floating > .form-select:not(:placeholder-shown) ~ label {
+        color: #0d6efd; /* Azul Bootstrap */
+        transform: scale(0.85) translateY(-0.5rem);
+}
+</style>
 <title>Edit Trailer</title>
 <meta name="csrf-token" content="{{ csrf_token() }}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,11 +47,22 @@
                         <label for="axles" data-key="number_of_axels">Number of Axles</label>
                     </div>
 
-                    <div class="col-md-6 form-floating">
-                        <input type="text" name="trailer_type" id="trailer_type" class="form-control" 
-                            placeholder="Trailer Type" value="{{ old('trailer_type', $trailer->trailer_type) }}" required>
+                     <div class="col-md-6 form-floating">
+                        <select name="trailer_type" 
+                                id="trailer_type" 
+                                class="form-select" 
+                                required>
+                            <option value="" disabled {{ $trailer->trailer_type ? '' : 'selected' }}>Select Trailer type</option>
+                            <option value="1" {{ $trailer->trailer_type == '1' ? 'selected' : '' }}>Cistern</option>
+                            <option value="2" {{ $trailer->trailer_type == '2' ? 'selected' : '' }}>Dry Box</option>
+                            <option value="3" {{ $trailer->trailer_type == '3' ? 'selected' : '' }}>Platform</option>
+                            <option value="4" {{ $trailer->trailer_type == '4' ? 'selected' : '' }}>Pneumatic</option>
+                            <option value="5" {{ $trailer->trailer_type == '5' ? 'selected' : '' }}>Other</option>
+                        </select>
                         <label for="trailer_type" data-key="trailer_type">Trailer Type</label>
                     </div>
+                    
+                   
 
                     <div class="col-md-6 form-floating">
                         <input type="text" name="license_plate" id="license_plate" class="form-control" 

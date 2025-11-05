@@ -177,34 +177,46 @@ class TruckController extends Controller
         }
         return response()->json($truck);
     }
-    // 🔹 Obtener los camiones sin driver asignado
+   // Mostrar camiones no asignados o el del driver actual
     public function availableTrucks()
     {
-        $trucks = Truck::whereNull('driver_id')->get();
+        $driver = Auth::guard('driver')->user();
+
+        // Traer camiones no asignados o el actual del driver (si tiene uno)
+        $trucks = Truck::whereNull('driver_id')
+                    ->orWhere('driver_id', $driver->id)
+                    ->get();
+
         return response()->json($trucks);
     }
 
-    // 🔹 Asignar un camión al driver autenticado
-    public function assignTruck(Request $request, $id)
+    // Asignar un camión al driver actual
+    public function assignTruck($id)
     {
+        $driver = Auth::guard('driver')->user();
+
+        // Primero desasigna cualquier camión previo
+        Truck::where('driver_id', $driver->id)->update(['driver_id' => null]);
+
         $truck = Truck::findOrFail($id);
-        $driver = Auth::user();
-
-        // Si el camión ya está asignado, error
-        if ($truck->driver_id !== null) {
-            return response()->json(['error' => 'This truck is already assigned.'], 400);
-        }
-
-        // Asignar el camión al driver actual
         $truck->driver_id = $driver->id;
         $truck->save();
 
         return response()->json([
-            'message' => 'Truck assigned successfully',
+            'message' => 'Truck assigned successfully.',
             'truck' => $truck
         ]);
     }
 
+    // Desasignar el camión actual
+    public function unassignTruck()
+    {
+        $driver = Auth::guard('driver')->user();
+
+        Truck::where('driver_id', $driver->id)->update(['driver_id' => null]);
+
+        return response()->json(['message' => 'Truck unassigned successfully.']);
+    }
     // 🔹 Obtener los datos de un camión específico
     public function show($id)
     {
