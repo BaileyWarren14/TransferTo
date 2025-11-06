@@ -27,12 +27,12 @@ class LogbookController extends Controller
         ->get();
 
     // 🔹 Si no hay log al inicio del día, agregar uno falso
-    if ($todayLogs->isEmpty() || Carbon::parse($todayLogs->first()->changed_at)->gt($today)) {
-        $fakeLog = new \stdClass();
-        $fakeLog->status = 'OFF';
-        $fakeLog->changed_at = $today->toDateTimeString();
-        $todayLogs->prepend($fakeLog);
-    }
+    // if ($todayLogs->isEmpty() || Carbon::parse($todayLogs->first()->changed_at)->gt($today)) {
+    //     $fakeLog = new \stdClass();
+    //     $fakeLog->status = 'OFF';
+    //     $fakeLog->changed_at = $today->toDateTimeString();
+    //     $todayLogs->prepend($fakeLog);
+    // }
 
     $yStatusMap = ['OFF'=>0, 'SB'=>1, 'D'=>2, 'ON'=>3, 'WT'=>4];
 
@@ -299,7 +299,7 @@ class LogbookController extends Controller
     {
         $driver = Auth::guard('driver')->user();
         
-        $tz = 'America/Mexico_City';
+        $tz = 'UTC';
 
         // Convertir $date en un objeto Carbon en la zona horaria correcta
         $day = Carbon::parse($date, $tz)->startOfDay();
@@ -398,37 +398,40 @@ class LogbookController extends Controller
         ]);
     }
     public function getStatus()
-{
-    // Simula obtención de datos reales (ajusta según tu estructura)
-    $driverId = auth()->id();
+    {
+        // Simula obtención de datos reales (ajusta según tu estructura)
+        $driverId = auth()->id();
 
-    $latestLog = \App\Models\DutyStatusLog::where('driver_id', $driverId)
-                    ->latest('changed_at')
-                    ->first();
+        $latestLog = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+                        ->latest('changed_at')
+                        ->first();
 
-    if (!$latestLog) {
+        if (!$latestLog) {
+            return response()->json([
+                'status' => 'OFF',
+                'drive_time' => 0,
+                'shift_time' => 0,
+                'cycle_time' => 0,
+            ]);
+        }
+
+        $timezone = 'America/Mexico_City';
+
+        // Calcula tiempo desde el último cambio usando la zona horaria correcta
+        $changedAt = Carbon::createFromFormat('Y-m-d H:i:s', $latestLog->changed_at, $timezone);
+        $now = Carbon::now($timezone);
+
+        $elapsedMinutes = $changedAt->diffInMinutes($now);
+        \Log::info('NOW:', [$now]);
+        \Log::info('changed at:', [$changedAt]);
+        \Log::info('elapsedMinutes:', [$elapsedMinutes]);
+        // Aquí podrías sumar tiempos reales de tu lógica de negocio
         return response()->json([
-            'status' => 'OFF',
-            'drive_time' => 0,
-            'shift_time' => 0,
-            'cycle_time' => 0,
+            'status' => $latestLog->status,
+              // Ejemplo: minutos totales en Cycle
+            'elapsed_minutes' => $elapsedMinutes
         ]);
     }
-
-    // Calcula tiempo desde el último cambio
-    $now = now();
-    $changedAt = \Carbon\Carbon::parse($latestLog->changed_at);
-    $elapsedMinutes = $changedAt->diffInMinutes($now);
-
-    // Aquí podrías sumar tiempos reales de tu lógica de negocio
-    return response()->json([
-        'status' => $latestLog->status,
-        'drive_time' => 320,   // Ejemplo: minutos totales en Drive
-        'shift_time' => 400,   // Ejemplo: minutos totales en Shift
-        'cycle_time' => 1500,  // Ejemplo: minutos totales en Cycle
-        'elapsed_minutes' => $elapsedMinutes
-    ]);
-}
 
     /**
      * Guarda un nuevo cambio de estado

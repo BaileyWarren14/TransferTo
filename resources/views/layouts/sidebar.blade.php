@@ -275,7 +275,7 @@ body {
     </label>
 </div>
 <script src="{{ asset('js/translations.js') }}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <!-- =========================== JS =========================== -->
 <script>
 const sidebar = document.getElementById("mySidebar");

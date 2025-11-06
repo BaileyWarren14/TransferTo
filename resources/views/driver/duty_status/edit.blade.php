@@ -36,7 +36,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary" data-key="save_changes">Save Changes</button>
-        <a href="{{ route('driver.logs.today') }}" class="btn btn-secondary" data-key="cancel">Cancel</a>
+        <a href="{{ route('driver.logs.activities', ['date' => \Carbon\Carbon::parse($log->changed_at)->toDateString()]) }}" class="btn btn-secondary" data-key="cancel">Cancel</a>
     </form>
 </div>
 @endsection

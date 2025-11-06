@@ -115,12 +115,12 @@
             <!-- Personal / Yard -->
             <div class="row mb-4">
                 <div class="col-6 d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="PERSONAL" name="PC" data-key="personal_conveyance">
+                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="PERSONAL" name="PC" data-status="PC" data-key="personal_conveyance">
                         PERSONAL CONVEYANCE
                     </button>
                 </div>
                 <div class="col-6 d-flex justify-content-center">
-                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="YARD" name="YD" data-key="yard_move">
+                    <button type="button" class="btn btn-outline-dark w-100 py-2 duty-btn" data-type="YARD" name="YD" data-status="YM" data-key="yard_move">
                         YARD MOVE
                     </button>
                 </div>

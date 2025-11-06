@@ -80,11 +80,19 @@ class DashboardController extends Controller
         $hoyTimes = array_fill_keys($estados, 0);
         $totalTimes = array_fill_keys($estados, 0);
 
-        // 🔹 Traemos solo los logs recientes (última semana)
-        $logs = \App\Models\DutyStatusLog::where('driver_id', $driverId)
-            ->where('changed_at', '<=', $now->toDateTimeString())
-            ->orderBy('changed_at', 'asc')
+        $weekStart = $now->copy()->startOfWeek();
+        $weekEnd = $now->copy()->endOfWeek();
+
+        $logs = DutyStatusLog::where('driver_id', $driverId)
+            ->whereBetween('changed_at', [$weekStart, $weekEnd])
+            ->orderBy('changed_at', 'asc') 
             ->get();
+
+        //   Traemos solo los logs recientes (última semana)
+        // $logs = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+        //     ->where('changed_at', '<=', $now->toDateTimeString())
+        //     ->orderBy('changed_at', 'asc')
+        //     ->get();
 
         if ($logs->isEmpty()) {
             return array_fill_keys([
@@ -94,40 +102,42 @@ class DashboardController extends Controller
             ], 0);
         }
         //dd($logs->toArray());
-
+        
 
         $todayStart = Carbon::now('America/Mexico_City')->startOfDay();
         $todayEnd = Carbon::now('America/Mexico_City')->endOfDay();
         \Log::info('NOW:', [$now]);
 
+        $offStreak = 0;
+        $lastResetTime = null;
+
         foreach ($logs as $index => $log) {
             $status = $log->status;
-
-            // Convertir la fecha de UTC → America/Mexico_City
             $start = Carbon::createFromFormat('Y-m-d H:i:s', $log->changed_at, 'America/Mexico_City');
 
+            $end = $index < count($logs) - 1
+                ? Carbon::createFromFormat('Y-m-d H:i:s', $logs[$index + 1]->changed_at, 'America/Mexico_City')
+                : Carbon::now('America/Mexico_City');
 
-            if ($index < count($logs) - 1) {
-                $end = Carbon::createFromFormat('Y-m-d H:i:s', $logs[$index + 1]->changed_at, 'America/Mexico_City');
+            $diffSeconds = $start->diffInSeconds($end);
 
+            // ✅ Si el estado es OFF, acumula descanso
+            if ($status === 'OFF') {
+                $offStreak += $diffSeconds;
             } else {
-                $end = Carbon::now('America/Mexico_City');
+                $offStreak = 0;
             }
 
-            $diffSeconds = $start->diffInSeconds($end); // ya da positivo por defecto
+            // ✅ Si acumula 10 horas o más, reinicia acumuladores
+            if ($offStreak >= 10 * 3600) {
+                $lastResetTime = $end->copy();
+                $hoyTimes = array_fill_keys($estados, 0);
+                //$totalTimes = array_fill_keys($estados, 0);
+                $offStreak = 0; // reset del contador OFF
+            }
 
-            \Log::info('Comparando', [
-                'status' => $status,
-                'start' => $start->toDateTimeString(),
-                'end' => $end->toDateTimeString(),
-                'diff' => $diffSeconds,
-            ]);
-
-             //$diffSeconds = $end->diffInSeconds($start, false); 
-           
-
+            // Continúa con la lógica normal después del posible reinicio
             if (!in_array($status, $estados)) continue;
-
             $totalTimes[$status] += $diffSeconds;
 
             if ($start->between($todayStart, $todayEnd)) {
@@ -135,7 +145,8 @@ class DashboardController extends Controller
             }
         }
 
-        // 🔹 Calcular derivados
+
+        //   Calcular derivados
         $DHoy = $hoyTimes['D'] ?? 0;
         $DTotal = $totalTimes['D'] ?? 0;
         $ONHoy = $hoyTimes['ON'] ?? 0;
@@ -144,9 +155,10 @@ class DashboardController extends Controller
         $DriveHoy = $DHoy;
         $ShiftHoy = $DHoy + $ONHoy;
         $CycleHoy = $ShiftHoy;
-        $CycleTotal = $DTotal + $ONTotal;
+        $CycleTotal = $ONTotal;
 
-        // 🔹 Evitar negativos (por cualquier ajuste)
+        //dd($CycleTotal, $ONTotal, $DriveHoy, $ShiftHoy, $CycleHoy);
+        //   Evitar negativos (por cualquier ajuste)
         $normalize = fn($v) => max(0, round($v, 2));
 
         $driver = Auth::guard('driver')->user();      

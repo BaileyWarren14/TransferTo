@@ -111,4 +111,19 @@
         }
     }
 </style>
+
+
+@if (session('success'))
+<script>
+    Swal.fire({
+        title: 'Success!',
+        text: "Duty Status change successfully saved",
+        icon: 'success',
+        confirmButtonText: 'accept',
+        confirmButtonColor: '#3085d6',
+        timer: 3000,
+        timerProgressBar: true
+    });
+</script>
+@endif
 @endsection

@@ -81,7 +81,9 @@ class DutyStatusController extends Controller
         $log->notes = $request->notes;
         $log->save();
 
-        return redirect()->route('driver.logs.today')
+         $date = Carbon::parse($log->changed_at)->toDateString();
+
+        return redirect()->route('driver.logs.activities', ['date' => $date])
                         ->with('success', 'Log updated successfully.');
     }
     //Para el logbook el tipo banner la vista es show.blade.php

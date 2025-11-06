@@ -93,7 +93,7 @@
         <div class="card-body text-center">
             <h5>{{ \Carbon\Carbon::now()->format('l, M d, Y') }}</h5>
 
-            <p>{{ $totalOnDutyHours }} hr {{ $totalOnDutyMins }} min</p>
+           
             <div class="d-flex justify-content-between align-items-start">
                  <!-- Gráfica -->
                 <div class="chart-container" style="height:200px; flex: 0 0 95%; max-width:95%; min-width:90%">
@@ -309,33 +309,7 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-    const statusDisplay = document.getElementById('statusDisplay');
-    const timeDisplay = document.getElementById('timeDisplay');
-    const vehicleCard = document.getElementById('vehicleCard');
-
-    async function fetchCurrentStatus() {
-        try {
-            const response = await fetch("{{ route('driver.status') }}");
-            const data = await response.json();
-            
-            if (data.status) {
-                statusDisplay.textContent = data.status;
-                timeDisplay.textContent = data.duration + ' desde último cambio';
-            }
-        } catch (error) {
-            console.error('Error al obtener el estado:', error);
-        }
-    }
-
-    // Cargar estado actual al iniciar
-    fetchCurrentStatus();
-
-    // Actualizar cada 60 segundos
-    setInterval(fetchCurrentStatus, 60000);
-
-    
-});
+   
 
 </script>
 <script>
@@ -431,19 +405,46 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-document.addEventListener('DOMContentLoaded', async function () {
-    try {
-        const response = await fetch('{{ route("driver.status.current") }}');
-        const data = await response.json();
+document.addEventListener('DOMContentLoaded', function() {
+    const statusCircle = document.getElementById('statusCircle');
+    const statusText = document.getElementById('statusText');
+    const statusDuration = document.getElementById('statusDuration');
 
-        document.getElementById('statusCircle').textContent = data.status;
-        document.getElementById('statusCircle').style.backgroundColor = data.color;
-        document.getElementById('statusText').textContent = data.status_text;
-        document.getElementById('statusDuration').textContent = data.duration;
-    } catch (error) {
-        console.error('Error fetching duty status:', error);
+    async function fetchCurrentStatus() {
+        try {
+            const response = await fetch("{{ route('driver.status') }}");
+            const data = await response.json();
+
+            if (data.status) {
+                if(statusCircle) {
+                    statusCircle.textContent = data.status;
+                    statusCircle.style.backgroundColor = data.color ?? 'gray';
+                }
+
+                if(statusText) statusText.textContent = data.status_text ?? data.status;
+                if(statusDuration) statusDuration.textContent = formatElapsedMinutes(data.elapsed_minutes);
+            }
+        } catch (error) {
+            console.error('Error al obtener el estado:', error);
+        }
     }
+
+    // Función para convertir minutos a hh:mm
+    function formatElapsedMinutes(minutes) {
+        if (!minutes) return '0h 00m';
+        const hours = Math.floor(minutes / 60);
+        const mins = Math.floor(minutes % 60);
+        return `${hours}h ${mins.toString().padStart(2,'0')}m`;
+    }
+
+    // Cargar estado al iniciar
+    fetchCurrentStatus();
+
+    // Actualizar cada 60 segundos
+    setInterval(fetchCurrentStatus, 60000);
 });
+
+
 </script>
 
 

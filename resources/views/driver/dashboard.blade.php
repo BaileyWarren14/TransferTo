@@ -433,70 +433,77 @@ body.dark-mode #map { background: #333; }
     const DRIVE_LIMIT = 11 * 3600;   // 11 horas en segundos
     const SHIFT_LIMIT = 14 * 3600;   // 14 horas en segundos
     const CYCLE_LIMIT = 70 * 3600;   // 70 horas en segundos
-    const UPDATE_INTERVAL = 10000;   // 10 segundos
+    const UPDATE_INTERVAL = 2000;   // 10 segundos
 
     /* =================== Estado global =================== */
     let timers = {
-    drive: { remaining: DRIVE_LIMIT, chart: null, labelId: 'driveLabel', canvasId: 'driveChart', color: '#007bff' },
-    shift: { remaining: SHIFT_LIMIT, chart: null, labelId: 'shiftLabel', canvasId: 'shiftChart', color: '#28a745' },
-    cycle: { remaining: CYCLE_LIMIT, chart: null, labelId: 'cycleLabel', canvasId: 'cycleChart', color: '#6c757d' }
+        drive: { remaining: DRIVE_LIMIT, chart: null, labelId: 'driveLabel', canvasId: 'driveChart', color: '#007bff' },
+        shift: { remaining: SHIFT_LIMIT, chart: null, labelId: 'shiftLabel', canvasId: 'shiftChart', color: '#28a745' },
+        cycle: { remaining: CYCLE_LIMIT, chart: null, labelId: 'cycleLabel', canvasId: 'cycleChart', color: '#6c757d' }
     };
+
     let chartsCreated = false;
 
     /* =================== Helpers =================== */
     function secondsToHMS(s) {
-    s = Math.max(0, Math.floor(s));
-    const h = Math.floor(s / 3600).toString().padStart(2, '0');
-    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-    const sec = Math.floor(s % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${sec}`;
+        s = Math.max(0, Math.floor(s));
+
+        const h = Math.floor(s / 3600).toString().padStart(2, '0');
+        const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+        const sec = Math.floor(s % 60).toString().padStart(2, '0');
+
+        return `${h}:${m}:${sec}`;
     }
 
     function secondsToHHMM(hoursDecimal) {
-    const totalMinutes = Math.floor(hoursDecimal * 60);
-    const h = Math.floor(totalMinutes / 60);
-    const m = totalMinutes % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+        const totalMinutes = Math.floor(hoursDecimal * 60);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
     }
 
     function createDoughnutChart(canvasId, initialRemaining, total, color) {
-    const el = document.getElementById(canvasId);
-    if (!el) return null;
-    const ctx = el.getContext('2d');
-    return new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-    labels: ['Remaining', 'Elapsed'],
-    datasets: [{
-    data: [initialRemaining, Math.max(0, total - initialRemaining)],
-    backgroundColor: [color, '#e9ecef'],
-    borderWidth: 0
-    }]
-    },
-    options: {
-    plugins: { legend: { display: false } },
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '70%'
-    }
-    });
+        const el = document.getElementById(canvasId);
+
+        if (!el) return null;
+
+        const ctx = el.getContext('2d');
+
+        return new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Remaining', 'Elapsed'],
+                datasets: [{
+                    data: [initialRemaining, Math.max(0, total - initialRemaining)],
+                    backgroundColor: [color, '#e9ecef'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%'
+            }
+        });
     }
 
     /* =================== Actualizar UI =================== */
     function updateTimersUI() {
-    Object.values(timers).forEach(timer => {
-    if (timer.chart) {
-    const elapsed = Math.max(0, (timer.total || 0) - timer.remaining);
-    timer.chart.data.datasets[0].data = [timer.remaining, elapsed];
-    timer.chart.update('none');
-    }
-    const labelEl = document.getElementById(timer.labelId);
-    if (labelEl) labelEl.innerText = secondsToHMS(timer.remaining);
-    });
-    const shiftTimerEl = document.getElementById('shiftTimerText');
-    if (shiftTimerEl) {
-    shiftTimerEl.innerText = secondsToHMS(timers.shift.remaining);
-}
+        Object.values(timers).forEach(timer => {
+            if (timer.chart) {
+                const elapsed = Math.max(0, (timer.total || 0) - timer.remaining);
+                timer.chart.data.datasets[0].data = [timer.remaining, elapsed];
+                timer.chart.update('none');
+            }
+                const labelEl = document.getElementById(timer.labelId);
+                if (labelEl) labelEl.innerText = secondsToHMS(timer.remaining);
+        });
+            const shiftTimerEl = document.getElementById('shiftTimerText');
+            if (shiftTimerEl) {
+                shiftTimerEl.innerText = secondsToHMS(timers.shift.remaining);
+            }
     }
 
     /* =================== Función principal =================== */
@@ -553,10 +560,16 @@ body.dark-mode #map { background: #333; }
         const t = window.translations?.[lang] || {};
         const hour = new Date().getHours();
         let greeting = '';
+
         if(hour>=5 && hour<12) greeting = t.greeting_morning || (lang==='es'?'Buenos días':'Good morning');
+
         else if(hour>=12 && hour<18) greeting = t.greeting_afternoon || (lang==='es'?'Buenas tardes':'Good afternoon');
+
         else if(hour>=18 && hour<22) greeting = t.greeting_evening || (lang==='es'?'Buena tarde':'Good evening');
+
         else greeting = t.greeting_night || (lang==='es'?'Buenas noches':'Good night');
+
+        
         const el = document.getElementById('greeting');
         if(el) el.innerText = `${greeting}, ${name}!`;
     }
@@ -607,12 +620,12 @@ body.dark-mode #map { background: #333; }
 
         Object.values(timers).forEach(timer => {
             if (timer.remaining > 0) {
-                timer.remaining = Math.max(0, timer.remaining - 1); // Resta 1 segundo
+                timer.remaining = Math.max(0, timer.remaining - 1); 
                 needsUpdate = true;
             }
         });
 
-        if (needsUpdate) updateTimersUI(); // 🔄 Refresca los cronómetros y donuts
+        if (needsUpdate) updateTimersUI(); 
     }
 document.addEventListener('DOMContentLoaded', async () => {
     try {
@@ -641,7 +654,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             truckEl.textContent = `Truck: ${truckInfo}`;
         }
 
-        // ✅ Mostrar alert DESPUÉS de actualizar los elementos
+        /* ✅ Mostrar alert DESPUÉS de actualizar los elementos
         if (statusEl && truckEl) {
             alert(
                 `✅ DATOS ACTUALIZADOS\n\n` +
@@ -651,7 +664,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `${statusEl.textContent}\n` +
                 `${truckEl.textContent}`
             );
-        }
+        }*/
 
         // Log en consola
         console.log('✅ Status y Truck actualizados:', {
@@ -666,6 +679,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// ---------------- MAPA ---------------- //
+const map = L.map('map').setView([0,0],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'Map data © OpenStreetMap contributors' }).addTo(map);
+const marker = L.marker([0,0]).addTo(map);
+function updateLocation(){
+    if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(pos=>{
+            marker.setLatLng([pos.coords.latitude,pos.coords.longitude]);
+            map.setView([pos.coords.latitude,pos.coords.longitude],13);
+        });
+    }
+}
+updateLocation();
+setInterval(updateLocation,3000);
 
 </script>
 
