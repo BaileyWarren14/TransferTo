@@ -13,6 +13,7 @@ class LogbookController extends Controller
     {
       
     $driver = Auth::guard('driver')->user();
+    
 
     // Forzar zona horaria
     date_default_timezone_set('America/Mexico_City');

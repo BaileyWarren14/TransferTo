@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
     .vehicle-sidebar {
         position: fixed;
@@ -37,13 +39,108 @@
     .vehicle-sidebar .btn-outline-light:hover {
         color: #ccc;
     }
+
+    
 </style>
 
+<style>
+    /* ====== Sidebar Derecho ====== */
+    .vehicle-sidebar {
+        position: fixed;
+        top: 0;
+        right: -50%; /* Oculto por defecto */
+        width: 50%;
+        height: 100%;
+        background-color: #212529;
+        color: white;
+        z-index: 1050;
+        box-shadow: -4px 0 12px rgba(0,0,0,0.4);
+        transition: right 0.4s ease;
+        overflow-y: auto;
+        border-left: 3px solid #0d6efd;
+    }
 
+    .vehicle-sidebar.active {
+        right: 0;
+    }
 
- <a href="{{ route('driver.logs.log_book') }}" class="btn btn-secondary mb-3">
-        <i class="fas fa-arrow-left me-1"></i> <span data-key="back_to_logbook">Back to logbook</span>
-    </a>
+    .vehicle-sidebar .sidebar-header {
+        background-color: #0d6efd;
+        color: white;
+        padding: 1rem;
+    }
+
+    .vehicle-sidebar .btn-outline-light {
+        border: none;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .vehicle-sidebar .btn-outline-light:hover {
+        color: #ccc;
+    }
+
+    /* ====== Charts y Mapa ====== */
+    .charts-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin: 20px;
+    }
+
+    .chart-container {
+        position: relative;
+       
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        min-height: 200px;
+    }
+
+    .chart-container canvas {
+        width: 100% !important;
+        height: 150px !important;
+    }
+
+    .chart-label {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    #map {
+        width: 90%;
+        height: 250px;
+        margin: 0 auto 20px auto;
+        border-radius: 8px;
+    }
+
+    /* Botón para abrir sidebar */
+    .open-sidebar-btn {
+        position: fixed;
+        top: 100px;
+        right: 20px;
+        z-index: 1060;
+    }
+</style>
+
+    <!-- ====== Botones de Navegación (Fijos arriba) ====== -->
+    <div class="nav-buttons-container">
+        <div class="d-flex justify-content-between align-items-center">
+            <!-- Izquierda: Back to Logbook -->
+            <a href="{{ route('driver.logs.log_book') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> <span data-key="back_to_logbook">Back to logbook</span>
+            </a>
+            
+            <!-- Derecha: Dashboard -->
+            <button id="openSidebar" class="btn btn-secondary">
+                <i class="bi bi-clock-history me-1"></i>
+            </button>
+        </div>
+    </div>
 
 <div class="container mt-4">
 
@@ -94,18 +191,19 @@
             <h5>{{ \Carbon\Carbon::now()->format('l, M d, Y') }}</h5>
 
            
-            <div class="d-flex justify-content-between align-items-start">
-                 <!-- Gráfica -->
-                <div class="chart-container" style="height:200px; flex: 0 0 95%; max-width:95%; min-width:90%">
+            <div class="chart-container" style="height:200px; flex: 0 0 100%; max-width:95%; min-width:90%">
                     <canvas id="logbookChart"></canvas>
                 </div>
 
+            <!-- <div class="d-flex justify-content-between align-items-start"> -->
+                 <!-- Gráfica -->
+                
                 <!-- Resumen compacto al lado derecho -->
-                <div class="state-summary" 
+                <!-- <div class="state-summary" 
                     style="flex: 0 0 5%; max-width:5%; min-width:10%; font-size:0.65rem; text-align:left; margin-left:5px; line-height:3.7;">
                     <ul id="stateSummaryList" class="list-unstyled mb-0"></ul>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -170,8 +268,47 @@
   </div>
 </div>
 
+<!-- ====== SIDEBAR DERECHO ====== -->
+<div id="vehicleSidebar" class="vehicle-sidebar">
+    <div class="sidebar-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Driver Dashboard</h5>
+        <button class="btn btn-outline-light" id="closeSidebar"><i class="bi bi-x-lg"></i></button>
+    </div>
+
+    <div class="p-3">
+        <p class="plan-title text-light fw-bold mb-3">Texas Oil and Gas 70 hours / 7 days</p>
+
+        <div class="charts-wrapper">
+            <div class="chart-container">
+                <canvas id="driveChart"></canvas>
+                <div class="chart-label" id="driveLabel">--:--:--</div>
+                <span class="badge bg-primary mt-2">Drive</span>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="shiftChart"></canvas>
+                <div class="chart-label" id="shiftLabel">--:--:--</div>
+                <span class="badge bg-success mt-2">Shift</span>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="cycleChart"></canvas>
+                <div class="chart-label" id="cycleLabel">--:--:--</div>
+                <span class="badge bg-secondary mt-2">Cycle</span>
+            </div>
+        </div>
+
+        <div id="map"></div>
+    </div>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 
 <script>
     // 📌 Recibimos directamente desde PHP 
@@ -226,12 +363,12 @@
     //stateSummary.push(`Total: ${totalHours}h ${totalMins}m`);
 
     // Llenar lista compacta
-    const summaryList = document.getElementById('stateSummaryList');
-    stateSummary.forEach(text => {
-        const li = document.createElement('li');
-        li.textContent = text;
-        summaryList.appendChild(li);
-    });
+    // const summaryList = document.getElementById('stateSummaryList');
+    // stateSummary.forEach(text => {
+    //     const li = document.createElement('li');
+    //     li.textContent = text;
+    //     summaryList.appendChild(li);
+    // });
 
     const ctx = document.getElementById('logbookChart').getContext('2d');
     new Chart(ctx, {
@@ -447,5 +584,171 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </script>
 
+<script>
+    /* =================== Constantes =================== */
+    const DRIVE_LIMIT = 11 * 3600;   // 11 horas en segundos
+    const SHIFT_LIMIT = 14 * 3600;   // 14 horas en segundos
+    const CYCLE_LIMIT = 70 * 3600;   // 70 horas en segundos
+    const UPDATE_INTERVAL = 2000;   // 10 segundos
+
+    /* =================== Estado global =================== */
+    let timers = {
+        drive: { remaining: DRIVE_LIMIT, chart: null, labelId: 'driveLabel', canvasId: 'driveChart', color: '#007bff' },
+        shift: { remaining: SHIFT_LIMIT, chart: null, labelId: 'shiftLabel', canvasId: 'shiftChart', color: '#28a745' },
+        cycle: { remaining: CYCLE_LIMIT, chart: null, labelId: 'cycleLabel', canvasId: 'cycleChart', color: '#6c757d' }
+    };
+
+    let chartsCreated = false;
+
+    /* =================== Helpers =================== */
+    function secondsToHMS(s) {
+        s = Math.max(0, Math.floor(s));
+
+        const h = Math.floor(s / 3600).toString().padStart(2, '0');
+        const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+        const sec = Math.floor(s % 60).toString().padStart(2, '0');
+
+        return `${h}:${m}:${sec}`;
+    }
+
+    function secondsToHHMM(hoursDecimal) {
+        const totalMinutes = Math.floor(hoursDecimal * 60);
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+
+        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    }
+
+    function createDoughnutChart(canvasId, initialRemaining, total, color) {
+        const el = document.getElementById(canvasId);
+
+        if (!el) return null;
+
+        const ctx = el.getContext('2d');
+
+        return new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Remaining', 'Elapsed'],
+                datasets: [{
+                    data: [initialRemaining, Math.max(0, total - initialRemaining)],
+                    backgroundColor: [color, '#e9ecef'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%'
+            }
+        });
+    }
+
+    /* =================== Actualizar UI =================== */
+    function updateTimersUI() {
+        Object.values(timers).forEach(timer => {
+            if (timer.chart) {
+                const elapsed = Math.max(0, (timer.total || 0) - timer.remaining);
+                timer.chart.data.datasets[0].data = [timer.remaining, elapsed];
+                timer.chart.update('none');
+            }
+                const labelEl = document.getElementById(timer.labelId);
+                if (labelEl) labelEl.innerText = secondsToHMS(timer.remaining);
+        });
+            const shiftTimerEl = document.getElementById('shiftTimerText');
+            if (shiftTimerEl) {
+                shiftTimerEl.innerText = secondsToHMS(timers.shift.remaining);
+            }
+    }
+
+    /* =================== Función principal =================== */
+    async function updateTimers() {
+        try {
+            const response = await fetch('/driver/timers');
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+
+
+                // Campos esperados del backend
+                const driveUsed = parseFloat(data.DriveHoy) || 0;
+                const shiftUsed = parseFloat(data.ShiftHoy) || 0;
+                const cycleUsed = parseFloat(data.CycleTotal) || 0;
+
+                // Calcular el tiempo restante
+                const driveRemaining = Math.max(0, DRIVE_LIMIT - driveUsed);
+                const shiftRemaining = Math.max(0, SHIFT_LIMIT - shiftUsed);
+                const cycleRemaining = Math.max(0, CYCLE_LIMIT - cycleUsed);
+
+                // Actualizar el estado global
+                timers.drive.remaining = driveRemaining;
+                timers.shift.remaining = shiftRemaining;
+                timers.cycle.remaining = cycleRemaining;
+
+                // Asignar totales (para los cálculos de "elapsed")
+                timers.drive.total = DRIVE_LIMIT;
+                timers.shift.total = SHIFT_LIMIT;
+                timers.cycle.total = CYCLE_LIMIT;
+
+                // Crear charts si aún no existen
+                if (!chartsCreated) {
+                    timers.drive.chart = createDoughnutChart('driveChart', driveRemaining, DRIVE_LIMIT, timers.drive.color);
+                    timers.shift.chart = createDoughnutChart('shiftChart', shiftRemaining, SHIFT_LIMIT, timers.shift.color);
+                    timers.cycle.chart = createDoughnutChart('cycleChart', cycleRemaining, CYCLE_LIMIT, timers.cycle.color);
+                    chartsCreated = true;
+                }
+
+                // Actualizar UI
+                updateTimersUI();
+
+                // (Opcional) Mostrar log en consola
+                console.log(`Drive Remaining: ${secondsToHMS(driveRemaining)} | Shift Remaining: ${secondsToHMS(shiftRemaining)} | Cycle Remaining: ${secondsToHMS(cycleRemaining)}`);
+        } catch (err) {
+            console.error('Error al obtener timers:', err);
+        }
+
+    }
+
+    /* =================== Inicializar =================== */
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTimers();       // Llamada inicial al backend
+
+        // ⏱️ Actualiza los timers del servidor cada 10 segundos
+        setInterval(updateTimers, UPDATE_INTERVAL);
+
+        // 🕐 Inicia el tick local (descuento por segundo)
+        setInterval(tickClient, 1000);
+    });
+
+    function tickClient() {
+        let needsUpdate = false;
+
+        Object.values(timers).forEach(timer => {
+            if (timer.remaining > 0) {
+                timer.remaining = Math.max(0, timer.remaining - 1); 
+                needsUpdate = true;
+            }
+        });
+
+        if (needsUpdate) updateTimersUI(); 
+    }
+   
+
+// ---------------- MAPA ---------------- //
+    const map = L.map('map').setView([0,0],13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'Map data © OpenStreetMap contributors' }).addTo(map);
+    const marker = L.marker([0,0]).addTo(map);
+    function updateLocation(){
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(pos=>{
+                marker.setLatLng([pos.coords.latitude,pos.coords.longitude]);
+                map.setView([pos.coords.latitude,pos.coords.longitude],13);
+            });
+        }
+    }
+    updateLocation();
+    setInterval(updateLocation,3000);
+
+</script>
 
 @endsection

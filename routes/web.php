@@ -21,7 +21,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\SafetyController;
-
+use App\Http\Controllers\FuelController;
 
 
 
@@ -205,6 +205,8 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('today', [LogbookController::class, 'today'])->name('driver.logs.today');
     //ruta para ver el libro electronico
     Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
+    //para obtener los timers de los cronometros
+    Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.logs.show.timers');
     //para que obtenga los datos y se actualice el logbook automatico
     //Route::get('/driver/logs/today-data', [LogbookController::class, 'todayData'])->name('driver.logs.today-data');
 
@@ -239,7 +241,27 @@ Route::middleware(['auth:driver'])->group(function () {
     //Ruta para mostrar el menu de las workorder
     Route::get('/driver/menu', [WorkOrderController::class, 'index'])->name('workorder.index');
 
+    // Ruta para ver cisterns
     Route::get('/driver/cisterns', [WorkOrderController::class, 'cisterns'])->name('workorder.cisterns');
+
+   // Para listar los fuel logs
+    Route::get('/driver/fuel', [FuelController::class, 'index'])->name('workorder.cistern.index');
+
+    // Formulario de nuevo fuel log
+    Route::get('/driver/fuel/create', [FuelController::class, 'create'])->name('workorder.cistern.create');
+
+    // Guardar registro
+    Route::post('/driver/fuel', [FuelController::class, 'store'])->name('workorder.cistern.store');
+
+    // Editar
+    Route::get('/driver/fuel/{fuel}/edit', [FuelController::class, 'edit'])->name('workorder.cistern.edit');
+
+    // Actualizar
+    Route::put('/driver/fuel/{fuel}', [FuelController::class, 'update'])->name('workorder.cistern.update');
+
+    // Eliminar
+    Route::delete('/driver/fuel/{fuel}', [FuelController::class, 'destroy'])->name('workorder.cistern.destroy');
+
     Route::get('/driver/dry-box', [WorkOrderController::class, 'dryBox'])->name('workorder.drybox');
     Route::get('/driver/platform', [WorkOrderController::class, 'platform'])->name('workorder.platform');
     Route::get('/driver/pneumatic', [WorkOrderController::class, 'pneumatic'])->name('workorder.pneumatic');

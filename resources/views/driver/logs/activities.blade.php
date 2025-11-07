@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h4 class="mb-3" ><span data-key="activities_for">Activities for</span> {{ \Carbon\Carbon::parse($date)->format('l, M d, Y') }}</h4>
+    <h4 class="mb-3" ><span data-key="activities_for">Activities for</span>  {{ \Carbon\Carbon::parse($date)->locale('en')->translatedFormat('l, M d, Y') }}</h4>
 
     <!-- Botón para regresar a show -->
     <a href="{{ route('driver.logs.show') }}" class="btn btn-secondary mb-3" data-key="back_to_logbook">
@@ -15,7 +15,7 @@
             <a href="{{ route('driver.logs.activities', ['date' => \Carbon\Carbon::now('America/Mexico_City')->toDateString()]) }}" class="btn btn-light btn-sm">➡️</a>
         </div>
         <div class="card-body text-center">
-            <h5>{{ \Carbon\Carbon::now('America/Mexico_City')->format('l, M d, Y') }}</h5>
+            <h5>{{ \Carbon\Carbon::parse($date)->locale('en')->translatedFormat('l, M d, Y') }}</h5>
 
             
             <div class="d-flex justify-content-between align-items-start">

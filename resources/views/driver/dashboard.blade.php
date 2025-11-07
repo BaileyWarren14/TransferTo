@@ -129,7 +129,7 @@ body.dark-mode .section-item span { color: #f0f0f0; }
 
 /* Altura expandida */
 .bottom-sidebar.expanded {
-    height: 60%;
+    height: 90%;
     width: 100%;
     
 }
@@ -288,7 +288,7 @@ body.dark-mode #map { background: #333; }
     }
 
     .bottom-sidebar.expanded {
-        height: 65%; /* opcional: menos alto en móvil */
+        height: 90%; /* opcional: menos alto en móvil */
     }
 }
 </style>

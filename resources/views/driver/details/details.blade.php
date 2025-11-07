@@ -50,8 +50,8 @@ body.dark-mode .form-control:focus {
 </style>
 
 <div class="text-center mb-3">
-        <a href="{{ route('workorder.index') }}" class="btn btn-info px-4 py-2 rounded-pill">
-            <span data-key="return_to_work_order">Return To Wordk Order</span>
+        <a href="{{ route('workorder.cistern.index') }}" class="btn btn-info px-4 py-2 rounded-pill">
+            <span data-key="return_to_list_work_order_cistern">Return To List Work Order Cistern</span>
         </a>
     </div>
 

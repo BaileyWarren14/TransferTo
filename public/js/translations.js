@@ -366,6 +366,7 @@ window.translations = window.translations || {
         send:"Enviar",
         return_to_work_order:"Regresar A Orden de Trabajo",
         type_your_message:"Escribe tu Mensaje...",
+        return_to_list_work_order_cistern:"Regresar a Lista de Ordenes de Trabajo de Cisternas",
     },
     en: {
         dashboard: "Dashboard",
@@ -734,5 +735,6 @@ window.translations = window.translations || {
         send:"Send",
         return_to_work_order:"Return To Work Order",
         type_your_message:"Type Your Message...",
+        return_to_list_work_order_cistern:"Return To List Work Order Cistern",
     }
 };

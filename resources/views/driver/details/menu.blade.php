@@ -104,7 +104,7 @@ body, .card-light-dark, .card-text-dark, .text-muted {
 
 <!-- CISTERN -->
 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-  <a href="{{ route('workorder.cisterns') }}" class="text-decoration-none">
+  <a href="{{ route('workorder.cistern.index') }}" class="text-decoration-none">
     <div class="card h-100 shadow-sm border-0 hover-shadow">
       <img src="{{ asset('images/tank.png') }}" class="card-img-top p-4" alt="Cistern icon" >
       <div class="card-body text-center">
