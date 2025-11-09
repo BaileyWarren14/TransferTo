@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Document;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Fuel;
+use App\Models\Driver;
 
 
 class DocumentController extends Controller
@@ -14,6 +16,7 @@ class DocumentController extends Controller
     {
         $driverId = auth()->id();
         $documents = Document::all();
+        
         return view('driver.documents.index_documents', compact('documents'));
     }
 
@@ -57,9 +60,9 @@ class DocumentController extends Controller
     {
         $doc = Document::findOrFail($id);
 
-        if ($doc->driver_id != auth('driver')->id()) {
-            abort(403);
-        }
+        // if ($doc->driver_id != auth('driver')->id()) {
+        //     abort(403);
+        // }
 
         return response()->file(storage_path('app/public/' . $doc->file_path));
 
@@ -72,9 +75,23 @@ class DocumentController extends Controller
         // if ($doc->driver_id != auth('driver')->id()) {
         //     abort(403);
         // }
+        
 
         return response()->file(storage_path('app/public/' . $doc->file_path));
 
+    }
+
+
+    public function showFuelBOL($id)
+    {
+        $fuel = Fuel::findOrFail($id);
+
+        // Verificar que el conductor sea propietario del camión
+        if ($fuel->truck->driver_id != auth('driver')->id()) {
+            abort(403);
+        }
+
+        return response()->file(storage_path('app/public/' . $fuel->bol_path));
     }
 
     public function destroy($id)
@@ -85,6 +102,22 @@ class DocumentController extends Controller
 
         return back()->with('success', 'Document deleted successfully.');
     }
+
+    public function documents($driverId)
+    {
+        $driver = \App\Models\Driver::findOrFail($driverId);
+
+        // Documentos normales del driver
+        $documents = $driver->documents;
+
+        // BOLs de Fuel Logs del conductor
+        $fuelBOLs = \App\Models\Fuel::whereHas('truck', function($q) use ($driverId) {
+            $q->where('driver_id', $driverId);
+        })->whereNotNull('bol_path')->get();
+
+        return view('admin.drivers.documents', compact('driver', 'documents', 'fuelBOLs'));
+    }
+
 
 
 }

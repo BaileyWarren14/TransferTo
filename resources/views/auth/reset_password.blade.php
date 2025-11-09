@@ -6,13 +6,50 @@
     <title>Reset Password</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298); /* fondo azul degradado */
+            min-height: 100vh;
+        }
+
+        .card {
+            background-color: #ffffffdd; /* ligeramente translúcida para contraste */
+        }
+
+        .card h4 {
+            color: #0d6efd;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+
+        input.form-control {
+            border-radius: 0.5rem;
+        }
+
+        .card-body {
+            padding: 2.5rem;
+        }
+
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.5rem;
+            }
+        }
+    </style>
 </head>
-<body class="bg-light d-flex align-items-center" style="min-height: 100vh;">
+<body class="d-flex align-items-center">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-5">
                 <div class="card shadow-lg border-0 rounded-4">
-                    <div class="card-body p-4">
+                    <div class="card-body">
                         <h4 class="text-center mb-4"><i class="fa-solid fa-key"></i> Reset Password</h4>
 
                         {{-- Show success messages --}}
@@ -53,17 +90,17 @@
                             </button>
                         </form>
 
-                        <div class="text-center mt-3">
-                            @if ($userType === 'admin')
-                                <a href="{{ url('/log') }}" class="text-decoration-none">← Back to Admin Login</a>
-                            @else
-                                <a href="{{ url('/log') }}" class="text-decoration-none">← Back to Login</a>
-                            @endif
+                        <div class="text-center mt-4">
+                            <a href="{{ url('/log') }}" class="text-decoration-none fw-semibold link-back">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Back to Login
+                            </a>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 </body>
 </html>

@@ -117,7 +117,7 @@ body, .card-light-dark, .card-text-dark, .text-muted {
 
 <!-- DRY BOX -->
 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-  <a href="{{ route('workorder.drybox') }}" class="text-decoration-none">
+  <a href="{{ route('comingsoon') }}" class="text-decoration-none">
     <div class="card h-100 shadow-sm border-0 hover-shadow">
       <img src="{{ asset('images/drybox.jpg') }}"  
            class="card-img-top p-4" alt="Dry Box icon">
@@ -131,7 +131,7 @@ body, .card-light-dark, .card-text-dark, .text-muted {
 
 <!-- PLATFORM -->
 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-  <a href="{{ route('workorder.platform') }}" class="text-decoration-none">
+  <a href="{{ route('comingsoon') }}" class="text-decoration-none">
     <div class="card h-100 shadow-sm border-0 hover-shadow">
       <img src="{{ asset('images/platform.jpg') }}" 
            class="card-img-top p-4" alt="Platform icon">
@@ -145,7 +145,7 @@ body, .card-light-dark, .card-text-dark, .text-muted {
 
 <!-- PNEUMATIC -->
 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-  <a href="{{ route('workorder.pneumatic') }}" class="text-decoration-none">
+  <a href="{{ route('comingsoon') }}" class="text-decoration-none">
     <div class="card h-100 shadow-sm border-0 hover-shadow">
       <img src="{{ asset('images/pneumatic.jpg') }}" 
            class="card-img-top p-4" alt="Pneumatic icon">

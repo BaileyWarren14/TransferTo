@@ -9,288 +9,288 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
-/* ======================= Estilos Dashboard ======================= */
-/* ======================= Estilos Generales ======================= */
-.app-body {
-    width: 100%;
-    min-height: 100vh;
-    padding: 20px;
-    background-color: #f5f5f5;
-    box-sizing: border-box;
-    position: relative; /* necesario para que el sidebar se posicione relativo a esto */
-    max-width: 1200px;  /* igual que tu contenedor principal */
-    margin: 0 auto;     /* centra en desktop */
-    min-height: 100vh;
-    padding-bottom: 70px; /* espacio para el sidebar colapsado */
-    box-sizing: border-box;
-}
-body.dark-mode .app-body {
-    background-color: #121212;
-    color: #f0f0f0;
-}
-
-/* =================== Contenedores principales (Cards) =================== */
-.top-cards {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 30px;
-    overflow-x: auto;     /* 🎯 Scroll horizontal solo aquí */
-    padding-bottom: 10px; /* Espacio para que no se corte */
-    -webkit-overflow-scrolling: touch; /* Suavidad en iOS */
-}
-.card-item {
-    flex: 1;
-    margin: 0 10px;
-    padding: 20px;
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;   /* Asegura centrado */
-    gap: 8px;                  /* Espacio entre icono y texto */
-    font-size: 1.2rem;
-    min-width: 200px;     /* Para que se vean tipo “cards” scrollables */
-    flex: 0 0 auto;     
-}
-.card-item i { 
-    font-size: 2rem; 
-}
-.card-logs   { background-color: #007bff; }
-.card-support{ background-color: #28a745; }
-.card-docs   { background-color: #001f3f; }
-
-/* Dark mode para cards */
-body.dark-mode .card-logs    { background-color: #0056b3; }
-body.dark-mode .card-support { background-color: #1f7a33; }
-body.dark-mode .card-docs    { background-color: #00172d; }
-
-/* =================== Compliance y Maintenance =================== */
-.section-container {
-    background-color: #fff;
-    border-radius: 10px;
-    padding: 15px 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-.section-header {
-    display: flex;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 1.1rem;
-}
-.section-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 5px 0;
-    cursor: pointer;
-}
-
-/* Dark mode sections */
-body.dark-mode .section-container {
-    background-color: #1e1e1e;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    color: #f0f0f0;
-}
-body.dark-mode .section-item span { color: #f0f0f0; }
-
-
-
-/* =================== Sidebar Inferior =================== */
-.bottom-sidebar {
-    
-     position: absolute;  /* relativo a .app-body */
-   padding: 20px;
-    background-color: #fff;
-    box-sizing: border-box;
-
-
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-    max-width: 1200px;  /* igual que tu main content */
-    border-top: 2px solid #ddd;
-    box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
-    transition: height 0.3s ease-in-out;
-    overflow: hidden;
-    z-index: 999;
-}
-@media (max-width: 768px) {
-    .top-cards {
-        overflow-x: auto;
-        justify-content: flex-start;
-    }
-}
-/* Altura contraída */
-.bottom-sidebar.collapsed {
-    height: 70px;
-}
-
-/* Altura expandida */
-.bottom-sidebar.expanded {
-    height: 90%;
-    width: 100%;
-    
-}
-
-/* Botón para expandir */
-.toggle-btn {
-    width: 100%;
-    text-align: center;
-    padding: 5px 0;
-    cursor: pointer;
-    font-size: 18px;
-    background: #f0f0f0;
-    border-bottom: 1px solid #ddd;
-}
-
-/* Dark mode sidebar */
-body.dark-mode .bottom-sidebar {
-    background-color: #1a1a1a;
-    border-top: 2px solid #333;
-    box-shadow: 0 -3px 10px rgba(0,0,0,0.7);
-}
-body.dark-mode .toggle-btn { background: #2a2a2a; color: #f0f0f0; border-bottom: 1px solid #444; }
-body.dark-mode .header-right .subtext { color: #aaa; }
-
-/* Header superior */
-.sidebar-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px;
-    flex-wrap: wrap;
-}
-
-.header-left,
-.header-right {
-    display: flex;
-    flex-direction: column;
-}
-
-.header-right {
-    text-align: right;
-}
-
-.header-right .subtext {
-    font-size: 12px;
-    color: #555;
-}
-
-/* Contenido scroll */
-.sidebar-scroll {
-    
-    padding: 10px 15px;
-    overflow-y: auto;
-    height: calc(100% - 60px); /* Resta toggle + header */
-}
-body.dark-mode .sidebar-scroll { color: #f0f0f0; }
-
-.plan-title {
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* Timers internos */
-.timers {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.timer-item {
-    background: #f7f7f7;
-    padding: 8px;
-    border-radius: 5px;
-    display: flex;
-    justify-content: space-between;
-}
-
-/* =================== Charts Responsive =================== */
-.charts-wrapper {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.chart-container {
-    position: relative;
-    background: #f9f9f9;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-    min-height: 200px;
-}
-body.dark-mode .timer-item { background: #2a2a2a; }
-
-.chart-container canvas {
-    width: 100% !important;
-    height: 150px !important;
-}
-
-.chart-label {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    font-weight: bold;
-}
-
-/* Dark mode charts */
-body.dark-mode .chart-container { background: #2a2a2a; color: #f0f0f0; }
-
-/* =================== Mapa =================== */
-#map {
-    width: 100%;
-    height: 200px;
-    background: #ddd;
-    border-radius: 8px;
-}
-body.dark-mode #map { background: #333; }
-.chart-container {
-    position: relative;
-    width: 200px;
-    height: 200px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.chart-container canvas {
-    width: 100% !important;
-    height: 100% !important;
-}
-
-.chart-label {
-    position: absolute;
-    top: 42%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
-    font-weight: bold;
-    pointer-events: none;
-}
-/* =================== Ajustes para móvil =================== */
-@media (max-width: 768px) {
+    /* ======================= Estilos Dashboard ======================= */
+    /* ======================= Estilos Generales ======================= */
     .app-body {
-        min-height: 90vh; /* antes era 100vh, ahora más pequeño en móvil */
-        padding: 15px 10px; /* opcional: menos padding en móvil */
+        width: 100%;
+        min-height: 100vh;
+        padding: 20px;
+        background-color: #f5f5f5;
+        box-sizing: border-box;
+        position: relative; /* necesario para que el sidebar se posicione relativo a esto */
+        max-width: 1200px;  /* igual que tu contenedor principal */
+        margin: 0 auto;     /* centra en desktop */
+        min-height: 100vh;
+        padding-bottom: 70px; /* espacio para el sidebar colapsado */
+        box-sizing: border-box;
+    }
+    body.dark-mode .app-body {
+        background-color: #121212;
+        color: #f0f0f0;
     }
 
+    /* =================== Contenedores principales (Cards) =================== */
     .top-cards {
-        overflow-x: auto;
-        justify-content: flex-start;
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 30px;
+        overflow-x: auto;     /* 🎯 Scroll horizontal solo aquí */
+        padding-bottom: 10px; /* Espacio para que no se corte */
+        -webkit-overflow-scrolling: touch; /* Suavidad en iOS */
     }
+    .card-item {
+        flex: 1;
+        margin: 0 10px;
+        padding: 20px;
+        border-radius: 10px;
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;   /* Asegura centrado */
+        gap: 8px;                  /* Espacio entre icono y texto */
+        font-size: 1.2rem;
+        min-width: 200px;     /* Para que se vean tipo “cards” scrollables */
+        flex: 0 0 auto;     
+    }
+    .card-item i { 
+        font-size: 2rem; 
+    }
+    .card-logs   { background-color: #007bff; }
+    .card-support{ background-color: #28a745; }
+    .card-docs   { background-color: #001f3f; }
 
+    /* Dark mode para cards */
+    body.dark-mode .card-logs    { background-color: #0056b3; }
+    body.dark-mode .card-support { background-color: #1f7a33; }
+    body.dark-mode .card-docs    { background-color: #00172d; }
+
+    /* =================== Compliance y Maintenance =================== */
     .section-container {
-        padding: 10px 15px;
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    .section-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        cursor: pointer;
     }
 
-    .bottom-sidebar.expanded {
-        height: 90%; /* opcional: menos alto en móvil */
+    /* Dark mode sections */
+    body.dark-mode .section-container {
+        background-color: #1e1e1e;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        color: #f0f0f0;
     }
-}
+    body.dark-mode .section-item span { color: #f0f0f0; }
+
+
+
+    /* =================== Sidebar Inferior =================== */
+    .bottom-sidebar {
+        
+        position: absolute;  /* relativo a .app-body */
+    padding: 20px;
+        background-color: #fff;
+        box-sizing: border-box;
+
+
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 1200px;  /* igual que tu main content */
+        border-top: 2px solid #ddd;
+        box-shadow: 0 -3px 10px rgba(0,0,0,0.1);
+        transition: height 0.3s ease-in-out;
+        overflow: hidden;
+        z-index: 999;
+    }
+    @media (max-width: 768px) {
+        .top-cards {
+            overflow-x: auto;
+            justify-content: flex-start;
+        }
+    }
+    /* Altura contraída */
+    .bottom-sidebar.collapsed {
+        height: 70px;
+    }
+
+    /* Altura expandida */
+    .bottom-sidebar.expanded {
+        height: 90%;
+        width: 100%;
+        
+    }
+
+    /* Botón para expandir */
+    .toggle-btn {
+        width: 100%;
+        text-align: center;
+        padding: 5px 0;
+        cursor: pointer;
+        font-size: 18px;
+        background: #f0f0f0;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Dark mode sidebar */
+    body.dark-mode .bottom-sidebar {
+        background-color: #1a1a1a;
+        border-top: 2px solid #333;
+        box-shadow: 0 -3px 10px rgba(0,0,0,0.7);
+    }
+    body.dark-mode .toggle-btn { background: #2a2a2a; color: #f0f0f0; border-bottom: 1px solid #444; }
+    body.dark-mode .header-right .subtext { color: #aaa; }
+
+    /* Header superior */
+    .sidebar-header {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 15px;
+        flex-wrap: wrap;
+    }
+
+    .header-left,
+    .header-right {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header-right {
+        text-align: right;
+    }
+
+    .header-right .subtext {
+        font-size: 12px;
+        color: #555;
+    }
+
+    /* Contenido scroll */
+    .sidebar-scroll {
+        
+        padding: 10px 15px;
+        overflow-y: auto;
+        height: calc(100% - 60px); /* Resta toggle + header */
+    }
+    body.dark-mode .sidebar-scroll { color: #f0f0f0; }
+
+    .plan-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    /* Timers internos */
+    .timers {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .timer-item {
+        background: #f7f7f7;
+        padding: 8px;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* =================== Charts Responsive =================== */
+    .charts-wrapper {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .chart-container {
+        position: relative;
+        background: #f9f9f9;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        min-height: 200px;
+    }
+    body.dark-mode .timer-item { background: #2a2a2a; }
+
+    .chart-container canvas {
+        width: 100% !important;
+        height: 150px !important;
+    }
+
+    .chart-label {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        font-weight: bold;
+    }
+
+    /* Dark mode charts */
+    body.dark-mode .chart-container { background: #2a2a2a; color: #f0f0f0; }
+
+    /* =================== Mapa =================== */
+    #map {
+        width: 100%;
+        height: 200px;
+        background: #ddd;
+        border-radius: 8px;
+    }
+    body.dark-mode #map { background: #333; }
+    .chart-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .chart-label {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        font-weight: bold;
+        pointer-events: none;
+    }
+    /* =================== Ajustes para móvil =================== */
+    @media (max-width: 768px) {
+        .app-body {
+            min-height: 90vh; /* antes era 100vh, ahora más pequeño en móvil */
+            padding: 15px 10px; /* opcional: menos padding en móvil */
+        }
+
+        .top-cards {
+            overflow-x: auto;
+            justify-content: flex-start;
+        }
+
+        .section-container {
+            padding: 10px 15px;
+        }
+
+        .bottom-sidebar.expanded {
+            height: 90%; /* opcional: menos alto en móvil */
+        }
+    }
 </style>
 
 <!-- ======================= Contenido ======================= -->
@@ -306,13 +306,13 @@ body.dark-mode #map { background: #333; }
             <span data-key="logs">Logs</span>
             
         </div>
-        <div class="card-item card-support" onclick="location.href='#'">
+        <div class="card-item card-support" onclick="location.href='{{ route('support') }}'">
             <i class="fa-solid fa-headset"></i>
 
             <span data-key="support">Support</span>
             
         </div>
-        <div class="card-item card-docs" onclick="location.href='#'">
+        <div class="card-item card-docs" onclick="location.href='{{ route('documents.index') }}'">
             <i class="bi bi-file-earmark-text-fill"></i>
             <span data-key="docs">Docs</span>
             

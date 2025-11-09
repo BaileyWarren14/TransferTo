@@ -19,15 +19,17 @@
 
             
             <div class="d-flex justify-content-between align-items-start">
-                 <!-- Gráfica -->
+                <!-- Gráfica -->
                 <div class="chart-container" style="height:200px; flex: 0 0 95%; max-width:95%; min-width:90%">
                     <canvas id="logbookChart"></canvas>
                 </div>
 
-                <!-- Resumen compacto al lado derecho -->
-                <div class="state-summary" 
-                    style="flex: 0 0 5%; max-width:5%; min-width:10%; font-size:0.65rem; text-align:left; margin-left:5px; line-height:3.7;">
-                    <ul id="stateSummaryList" class="list-unstyled mb-0"></ul>
+                <!-- Resumen alineado -->
+                <div class="state-summary d-flex flex-column justify-content-between text-start" 
+                    style="flex: 0 0 5%; max-width:5%; min-width:10%; font-size:0.65rem; margin-left:5px; height:200px;">
+                    <ul id="stateSummaryList" class="list-unstyled d-flex flex-column justify-content-between mb-0 w-100" style="height:100%;">
+                        <!-- Se llena dinámicamente -->
+                    </ul>
                 </div>
             </div>
         </div>
@@ -60,7 +62,7 @@
 <script>
 const labels = @json($labels);
 const dutyStatuses = @json($dutyStatuses);
-
+console.log(labels);
 // Categorías del eje Y
 const yCategories = ['OFF', 'SB', 'D', 'ON', 'WT'];
 
@@ -166,4 +168,5 @@ new Chart(ctx, {
     }
 });
 </script>
+
 @endsection

@@ -13,16 +13,15 @@ class Fuel extends Model
     protected $table = 'fuel_log_form';
 
     protected $fillable = [
-        'date',
-        'bol_number',
-        'trailer',
-        'from',
-        'destination',
-        'iso_capacity',
-        'inches_gallon',
-        'mileage_before',
-        'mileage_after',
-        'total_miles',
-        'fuel_dispensed',
+        'date', 'bol_number', 'trailer', 'from', 'destination',
+        'iso_capacity', 'inches_gallon', 'mileage_before', 'mileage_after',
+        'total_miles', 'fuel_dispensed', 'efficiency', 'truck_id', 'bol_path'
     ];
+
+    
+    public function truck()
+    {
+        return $this->belongsTo(Truck::class, 'truck_id'); // especificar llave foránea
+    }
+
 }

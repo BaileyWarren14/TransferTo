@@ -26,20 +26,39 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($documents as $index => $doc)
+                            @php $counter = 1; @endphp
+
+                            {{-- Documentos normales --}}
+                            @foreach($documents as $doc)
                                 <tr>
-                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $counter++ }}</td>
                                     <td>{{ $doc->name ?? 'Unnamed' }}</td>
                                     <td>{{ $doc->type ?? 'Unknown' }}</td>
                                     <td>{{ $doc->created_at ? $doc->created_at->format('Y-m-d') : '-' }}</td>
                                     <td>
                                         <a href="{{ route('documents.view', $doc->id) }}" target="_blank" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye me-1"></i> <span data-key="view">View</span>
+                                            <i class="fas fa-eye me-1"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+
+                            {{-- BOLs de Fuel --}}
+                            @foreach($fuelBOLs as $fuel)
+                                <tr>
+                                    <td>{{ $counter++ }}</td>
+                                    <td>BOL - {{ $fuel->bol_number }}</td>
+                                    <td>Fuel BOL</td>
+                                    <td>{{ $fuel->created_at ? $fuel->created_at->format('Y-m-d') : '-' }}</td>
+                                    <td>
+                                        <a href="{{ asset('storage/' . $fuel->bol_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye me-1"></i> View
                                         </a>
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
+
                     </table>
                 </div>
             </div>

@@ -209,14 +209,14 @@ body {
     <div id="sidebarToggle"><i class="fas fa-angle-left"></i></div>
 
     <a href="{{ url('/driver/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span data-key="dashboard">Dashboard</span></a>
-    <a href="{{ url('/driver/log_book') }}"><i class="fas fa-chart-line"></i> <span data-key="logs">Logs</span></a>
+    <a href="{{ url('/driver/show') }}"><i class="fas fa-chart-line"></i> <span data-key="logs">Logs</span></a>
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span data-key="duty_status">Duty Status</span></a>
     <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span data-key="dot">DOT Inspection Mode</span></a>
     <a href="{{ url('/driver/menu') }}"><i class="fas fa-info-circle"></i> <span data-key="work_order">Work Order</span></a>
     <a href="{{ url('/driver/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
     <a href="{{ url('/driver/safety') }}"><i class="fas fa-shield-alt"></i> <span data-key="safety">Safety</span></a>
     <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span data-key="truck_information">Truck information</span></a>
-    <a href="{{ url('/driver/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
+    <a href="{{ url('/driver/notifications/hos') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
     <a href="{{ url('/driver/documents') }}"><i class="fas fa-file-alt"></i> <span data-key="documents">Documents</span></a>
 
     <form method="POST" action="{{ route('logout') }}">
@@ -247,14 +247,14 @@ body {
     <div class="close-btn" id="closeMenu"><i class="fas fa-times"></i></div>
 
     <a href="{{ url('/driver/dashboard') }}"><i class="fas fa-tachometer-alt"></i> <span data-key="dashboard">Dashboard</span></a>
-    <a href="{{ url('/driver/log_book') }}"><i class="fas fa-chart-line"></i> <span data-key="logs">Logs</span></a>
+    <a href="{{ url('/driver/show') }}"><i class="fas fa-chart-line"></i> <span data-key="logs">Logs</span></a>
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span data-key="duty_status">Duty Status</span></a>
     <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span data-key="dot">DOT Inspection Mode</span></a>
     <a href="{{ url('/driver/menu') }}"><i class="fas fa-info-circle"></i> <span data-key="work_order">Work Order</span></a>
     <a href="{{ url('/driver/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
     <a href="{{ url('/driver/safety') }}"><i class="fas fa-shield-alt"></i> <span data-key="safety">Safety</span></a>
     <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span data-key="truck_information">Truck information</span></a>
-    <a href="{{ url('/driver/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
+    <a href="{{ url('/driver/notifications/hos') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
     <a href="{{ url('/driver/documents') }}"><i class="fas fa-file-alt"></i> <span data-key="documents">Documents</span></a>
 
     <form method="POST" action="{{ route('logout') }}">

@@ -178,6 +178,8 @@ window.translations = window.translations || {
         logbook_chart:"Gráfico del Libro Electrónico",
         view_logs:"Ver Registros",
         logbook_style_chart:"Estilo del Gráfico del Libro Electrónico",
+        download_logbook:"Descargar libro electrónico 7 días + hoy",
+        shareLogbook:"Compartir libro electrónico",
 
         //vista show
         last_days:"Últimos 14 Días",
@@ -367,6 +369,33 @@ window.translations = window.translations || {
         return_to_work_order:"Regresar A Orden de Trabajo",
         type_your_message:"Escribe tu Mensaje...",
         return_to_list_work_order_cistern:"Regresar a Lista de Ordenes de Trabajo de Cisternas",
+
+        support_help_message: "Nuestro equipo revisará tu solicitud lo antes posible. Para temas urgentes, incluye en el correo el número de vehículo, referencia de la orden o capturas que ayuden a entender el problema.",
+        support_contact_message: "Si necesitas ayuda o tienes alguna duda, por favor contacta a nuestro equipo de soporte:",
+        return_to_dashboard:"Regresar al Tablero",
+
+        //vista safety
+        safety_title: "Seguridad",
+        safety_intro: "Sigue estas recomendaciones de seguridad para asegurar un viaje seguro.",
+        driver_safety_title: "Seguridad del Conductor",
+        safety_driver_1: "No conduzcas si te sientes cansado o somnoliento.",
+        safety_driver_2: "Usa siempre el cinturón de seguridad mientras conduces.",
+        safety_driver_3: "Respeta los límites de velocidad y las señales de tránsito.",
+        safety_driver_4: "Evita distracciones como usar el teléfono mientras manejas.",
+        safety_driver_5: "Toma descansos regulares en viajes largos.",
+        safety_driver_6: "Mantente hidratado y come ligero durante el viaje.",
+        safety_driver_7: "Haz una revisión personal rápida antes de iniciar tu turno (fatiga, estrés, alcohol, medicamentos).",
+        truck_safety_title: "Seguridad del Camión",
+        safety_truck_1: "Revisa la presión y el estado de las llantas antes de cada viaje.",
+        safety_truck_2: "Inspecciona luces, frenos y espejos con regularidad.",
+        safety_truck_3: "Reporta de inmediato cualquier problema mecánico al área de mantenimiento.",
+        safety_truck_4: "Asegúrate de que la carga esté bien sujeta antes de salir.",
+
+        //Comming soon
+        coming_title: "Próximamente",
+        coming_message: "Estamos trabajando para ofrecerte algo increíble. ¡Mantente atento!"
+
+
     },
     en: {
         dashboard: "Dashboard",
@@ -545,7 +574,9 @@ window.translations = window.translations || {
         logbook_chart:"Logbook Chart",
         view_logs:"View Logs",
         logbook_style_chart:"logbook Style Chart",
-
+        download_logbook:"Download Logbook 7 days + Today",
+        shareLogbook:"Share Logbook",
+        
         //vista show
         last_days:"Last 14 Days",
 
@@ -736,5 +767,30 @@ window.translations = window.translations || {
         return_to_work_order:"Return To Work Order",
         type_your_message:"Type Your Message...",
         return_to_list_work_order_cistern:"Return To List Work Order Cistern",
+
+        support_help_message: "Our team will review your request as soon as possible. For urgent matters, please include in your email the vehicle number, order reference, or screenshots that help us understand the issue.",
+        support_contact_message: "If you need help or have any questions, please contact our support team:",
+        return_to_dashboard:"Return To Dashboard",
+
+        //Vista Safety
+        safety_title: "Safety",
+        safety_intro: "Follow these safety recommendations to ensure a secure trip.",
+        driver_safety_title: "Driver Safety",
+        safety_driver_1: "Do not drive if you feel tired or drowsy.",
+        safety_driver_2: "Always wear your seat belt while driving.",
+        safety_driver_3: "Respect speed limits and traffic signs.",
+        safety_driver_4: "Avoid distractions such as using your phone while driving.",
+        safety_driver_5: "Take regular breaks on long trips.",
+        safety_driver_6: "Stay hydrated and eat light meals during the trip.",
+        safety_driver_7: "Perform a quick personal check before starting your shift (fatigue, stress, alcohol, medication).",
+        truck_safety_title: "Truck Safety",
+        safety_truck_1: "Check tire pressure and condition before each trip.",
+        safety_truck_2: "Inspect lights, brakes, and mirrors regularly.",
+        safety_truck_3: "Report any mechanical issues immediately to maintenance.",
+        safety_truck_4: "Ensure cargo is properly secured before departure.",
+
+        //Comming soon
+        coming_title: "Coming Soon",
+        coming_message: "We're working hard to bring you something amazing. Stay tuned!"
     }
 };

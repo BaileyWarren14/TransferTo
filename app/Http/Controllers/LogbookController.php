@@ -100,7 +100,7 @@ class LogbookController extends Controller
             'changed_at' => $log->changed_at, // tal como está en la BD
         ];
     });
-    $driver = auth()->user();
+    $driver = Auth::guard('driver')->user();
     $assignedTruck = $driver->truck; // Asumiendo relación 'truck' en el modelo Driver
     
     return view('driver.logs.show', compact(
@@ -113,77 +113,6 @@ class LogbookController extends Controller
         'rawLogs'
     ));
 }
-
-
-
-
-
-    //
-      /*  public function index()
-    {
-        // Obtener logs del conductor (ajusta según tu modelo)
-        $userId = auth()->id(); // o auth()->user()->id
-        $logs = dutystatuslog::where('driver_id', $userId)
-                    ->orderBy('changed_at', 'desc')
-                    ->take(14)
-                    ->get();
-
-        // Calcular labels y dutyStatuses para la gráfica
-        $labels = [];  
-        $dutyStatuses = [];
-        $statusMap = ['OFF'=>0,'SB'=>1,'D'=>2,'ON'=>3,'WT'=>4,'PC'=>5,'YM'=>6];
-
-        foreach ($logs as $log) {
-            $labels[] = \Carbon\Carbon::parse($log->changed_at)->format('H:i');
-            $dutyStatuses[] = $statusMap[$log->status] ?? null;
-        }
-
-        // Total de horas ON DUTY
-        $totalOnDutyHours = $logs->where('status', 'ON')->count() * 0.25; 
-        // (asumiendo cada log = 15 min → 0.25 hrs, ajusta si es diferente)
-
-        
-
-        return view('driver.logs.show', compact('logs', 'labels', 'dutyStatuses', 'totalOnDutyHours'));
-    }*/
-
-    /*public function index()
-    {
-        $driver = Auth::guard('driver')->user();
-
-        // Logs de hoy
-        $todayLogs = DutyStatusLog::where('driver_id', $driver->id)
-                        ->whereDate('changed_at', Carbon::today())
-                        ->orderBy('changed_at', 'asc')
-                        ->get();
-
-        // Logs de los últimos 14 días (incluyendo hoy)
-        $last14DaysLogs = DutyStatusLog::where('driver_id', $driver->id)
-                            ->whereDate('changed_at', '>=', Carbon::today()->subDays(14))
-                            ->orderBy('changed_at', 'asc')
-                            ->get();
-
-        // Preparar datos para la gráfica del día de hoy
-        $labels = $todayLogs->map(function($log){
-            return Carbon::parse($log->changed_at)->format('H:i');
-        });
-
-        $dutyStatuses = $todayLogs->map(function($log){
-            $statusMap = ['OFF'=>0,'SB'=>1,'D'=>2,'ON'=>3,'WT'=>4,'PC'=>5,'YM'=>6];
-            return $statusMap[$log->status] ?? 0;
-        });
-
-        // Total horas ON (si tienes columna 'hours', puedes sumar, aquí simplificado)
-        $totalOnDutyHours = $todayLogs->where('status', 'ON')->count();
-
-        return view('driver.logs.show', compact(
-            'todayLogs',
-            'last14DaysLogs',
-            'labels',
-            'dutyStatuses',
-            'totalOnDutyHours'
-        ));
-    }*/
 
     public function today()
     {
@@ -342,7 +271,14 @@ class LogbookController extends Controller
             $minute = $day->copy()->addMinutes($i);
 
             // Etiquetas cada hora
-            $labels[] = $i % 60 === 0 ? $minute->format('H:i') : '';
+            $labels = [];
+            for ($h = 0; $h < 24; $h++) {
+                $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
+                for ($m = 0; $m < 60; $m++) {
+                    $labels[] = $m == 0 ? $hour : '';
+                }
+            }
+
 
             // Actualizar estado si hay un log en este minuto
             while (isset($logs[$logIndex]) && Carbon::parse($logs[$logIndex]->changed_at)->setTimezone($tz)->lte($minute)) {

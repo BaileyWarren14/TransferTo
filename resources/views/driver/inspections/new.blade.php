@@ -76,10 +76,7 @@ body.dark-mode .input-group .input-group-text {
         <div class="input-group">
           <input type="text" class="form-control" id="odometer" name="odometer">
           <div class="input-group-text">
-            <div class="form-check form-check-inline mb-0">
-              <input class="form-check-input" type="radio" name="unit" value="km" id="km">
-              <label class="form-check-label" for="km">Km</label>
-            </div>
+            
             <div class="form-check form-check-inline mb-0">
               <input class="form-check-input" type="radio" name="unit" value="miles" id="miles">
               <label class="form-check-label" for="miles" data-key="miles">Miles</label>

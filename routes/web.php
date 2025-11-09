@@ -207,6 +207,13 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
     //para obtener los timers de los cronometros
     Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.logs.show.timers');
+    
+    //para ir a support
+    Route::get('/support', function () {return view('driver.support');})->name('support');
+
+    //Comming soon
+    Route::get('/comingsoon', function () {return view('driver.comingsoon');})->name('comingsoon');
+
     //para que obtenga los datos y se actualice el logbook automatico
     //Route::get('/driver/logs/today-data', [LogbookController::class, 'todayData'])->name('driver.logs.today-data');
 
@@ -245,22 +252,33 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/cisterns', [WorkOrderController::class, 'cisterns'])->name('workorder.cisterns');
 
    // Para listar los fuel logs
-    Route::get('/driver/fuel', [FuelController::class, 'index'])->name('workorder.cistern.index');
+    Route::get('/driver/fuel', [WorkOrderController::class, 'indexes'])->name('workorder.cistern.index');
 
     // Formulario de nuevo fuel log
-    Route::get('/driver/fuel/create', [FuelController::class, 'create'])->name('workorder.cistern.create');
+    Route::get('/driver/fuel/create', [WorkOrderController::class, 'create'])->name('workorder.cistern.create');
 
     // Guardar registro
-    Route::post('/driver/fuel', [FuelController::class, 'store'])->name('workorder.cistern.store');
+    Route::post('/driver/fuel', [WorkOrderController::class, 'store'])->name('workorder.cistern.store');
+    
+    Route::post('/driver/fuel/uploadbol/{id}', [WorkOrderController::class, 'uploadBol'])
+    ->name('workorder.cistern.uploadbol');
 
     // Editar
-    Route::get('/driver/fuel/{fuel}/edit', [FuelController::class, 'edit'])->name('workorder.cistern.edit');
+    Route::get('/driver/fuel/{fuel}/edit', [WorkOrderController::class, 'edit'])->name('workorder.cistern.edit');
 
     // Actualizar
-    Route::put('/driver/fuel/{fuel}', [FuelController::class, 'update'])->name('workorder.cistern.update');
+    Route::put('/driver/fuel/{fuel}', [WorkOrderController::class, 'update'])->name('workorder.cistern.update');
 
     // Eliminar
-    Route::delete('/driver/fuel/{fuel}', [FuelController::class, 'destroy'])->name('workorder.cistern.destroy');
+    Route::delete('/driver/fuel/{fuel}', [WorkOrderController::class, 'destroy'])->name('workorder.cistern.destroy');
+    // Subir BOL
+    Route::post('/driver/fuel/{fuel}/upload-bol', [WorkOrderController::class, 'uploadBol'])->name('workorder.cistern.uploadBol');
+
+    // Finalizar viaje
+    Route::post('/driver/fuel/finish/{fuel}', [WorkOrderController::class, 'finalize'])
+    ->name('workorder.cistern.finalize');
+
+
 
     Route::get('/driver/dry-box', [WorkOrderController::class, 'dryBox'])->name('workorder.drybox');
     Route::get('/driver/platform', [WorkOrderController::class, 'platform'])->name('workorder.platform');
@@ -299,6 +317,11 @@ Route::middleware(['auth:driver'])->group(function () {
 
     //Para eliminar una notificacion de la vista
     Route::post('driver/notifications/{id}/markRead', [NotificationController::class, 'markRead'])->name('notifications.markRead');
+
+
+    //Para obtener notificaciones de Normativa de horas
+    Route::get('driver/notifications/hos', [NotificationController::class, 'hosViolations'])
+    ->name('notifications.hos');
 
 
     //Ruta para ver la vista de documents

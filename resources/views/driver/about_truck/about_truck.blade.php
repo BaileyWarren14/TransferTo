@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mt-4">
     <h2 class="mb-4">
-        <i class="fas fa-truck"></i><h2 data-key="truck_information">Truck Information</h2> 
+        <i class="fas fa-truck"></i><span data-key="truck_information">Truck Information</span> 
     </h2>
 
     @if(session('alert_message'))
@@ -48,11 +48,7 @@
         </div>
     @endif
 
-    <div class="mt-3">
-        <a href="{{ url('/driver/dashboard') }}" class="btn btn-primary">
-            <i class="fas fa-arrow-left"></i> <p data-key="back">Back</p>
-        </a>
-    </div>
+    
 </div>
 <script src="{{ asset('js/translations.js') }}"></script>
 <script>

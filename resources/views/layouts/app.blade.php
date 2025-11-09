@@ -65,6 +65,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 </script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'media', // cambia a 'class' si lo controlas manualmente
+    theme: {
+      extend: {
+        colors: {
+          'dark-hover': '#0f172a', // azul oscuro elegante
+          'light-hover': '#e2e8f0', // gris claro para modo claro
+        }
+      }
+    }
+  }
+</script>
     @stack('scripts')
 </body>
 </html>

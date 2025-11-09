@@ -40,7 +40,34 @@
         color: #ccc;
     }
 
-    
+    @media (max-width: 768px) {
+    .vehicle-sidebar {
+        width: 100% !important;
+        right: -100% !important; /* oculto completamente fuera del viewport */
+        border-left: none;
+        border-top: 4px solid #0d6efd;
+        bottom: 0;
+        height: 70%; /* ajustable según prefieras */
+        max-height: 100%;
+        border-radius: 0;
+    }
+
+    .vehicle-sidebar.active {
+        right: 0 !important;
+        left: 0;
+    }
+
+    /* Ajustes del botón que abre el sidebar para que no se salga en móvil */
+    #openSidebar {
+        top: 16px !important;
+        right: 12px !important;
+    }
+
+    /* Ajustes del mapa y charts para que quepan mejor en móvil */
+    #map { height: 220px; width: 96% !important; }
+    .chart-container canvas { height: 130px !important; }
+}
+
 </style>
 
 <style>
@@ -128,57 +155,64 @@
 </style>
 
     <!-- ====== Botones de Navegación (Fijos arriba) ====== -->
-    <div class="nav-buttons-container">
-        <div class="d-flex justify-content-between align-items-center">
-            <!-- Izquierda: Back to Logbook -->
-            <a href="{{ route('driver.logs.log_book') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left me-1"></i> <span data-key="back_to_logbook">Back to logbook</span>
+    <div class="nav-buttons-container mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <!-- Botones principales -->
+        <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
+            <!-- Descargar libro electrónico 8 días -->
+            <a href="" class="btn btn-primary w-100 w-sm-auto">
+                <i class="fas fa-download me-1"></i>
+                <span data-key="download_logbook">Descargar libro electrónico 8 días</span>
             </a>
-            
-            <!-- Derecha: Dashboard -->
-            <button id="openSidebar" class="btn btn-secondary">
-                <i class="bi bi-clock-history me-1"></i>
+
+            <!-- Compartir -->
+            <button type="button" class="btn btn-success w-100 w-sm-auto" id="shareLogbook">
+                <i class="fas fa-share-alt me-1"></i>
+                <span data-key="shareLogbook">Compartir</span>
             </button>
         </div>
-    </div>
 
-<div class="container mt-4">
-
-<!-- Contenedor superior de estado -->
-<div class="card shadow-sm mb-4 p-3 d-flex flex-row justify-content-between align-items-center">
-
-   <div class="d-flex align-items-center flex-grow-1">
-        <div id="statusCircle"
-            class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-            style="width: 60px; height: 60px; font-size: 0.9rem; background-color: gray;">
-            OFF
-        </div>
-
-        <div class="ms-3">
-            <h6 id="statusText" class="mb-1">OFF DUTY</h6>
-            <small id="statusDuration" class="text-muted">0h 00m</small>
-        </div>
-    </div>
-
-    <!-- Derecha: Contenedor del botón de vehículo -->
-    <div class="d-flex justify-content-end align-items-center" style="min-width: 250px;">
-        <button id="vehicleCard" type="button" 
-        class="btn w-100 text-end bg-light px-4 py-2 rounded shadow-sm d-flex align-items-center border-0"
-        data-bs-toggle="modal" data-bs-target="#truckModal"> 
-            <div class="me-2 text-end flex-grow-1"> 
-                <h6 id="truckPlate" class="mb-0 fw-bold">
-                    {{ $assignedTruck ? $assignedTruck->license_plate : 'No Truck Assigned' }}
-                </h6> 
-                <small class="text-muted">
-                    Current Vehicle
-                </small>
-            </div> 
-            <i class="fas fa-exchange-alt fa-lg text-primary">
-
-            </i>
+        <!-- Derecha: Dashboard / Sidebar -->
+        <button id="openSidebar" class="btn btn-secondary mt-2 mt-md-0">
+            <i class="bi bi-clock-history me-1"></i>
         </button>
     </div>
 </div>
+
+<div class="container mt-4">
+    <!-- Contenedor superior de estado -->
+    <div class="card shadow-sm mb-4 p-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+
+        <div class="d-flex align-items-center w-100 w-md-auto">
+            <div id="statusCircle"
+                 class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
+                 style="width: 60px; height: 60px; font-size: 0.9rem; background-color: gray;">
+                OFF
+            </div>
+
+            <div class="ms-3">
+                <h6 id="statusText" class="mb-1">OFF DUTY</h6>
+                <small id="statusDuration" class="text-muted">0h 00m</small>
+            </div>
+        </div>
+
+        <!-- Derecha: Contenedor del botón de vehículo -->
+        <div class="d-flex justify-content-end w-100 w-md-auto">
+            <button id="vehicleCard" type="button"
+                    class="btn w-100 text-end bg-light px-4 py-2 rounded shadow-sm d-flex align-items-center border-0"
+                    data-bs-toggle="modal" data-bs-target="#truckModal">
+                <div class="me-2 text-end flex-grow-1">
+                    <h6 id="truckPlate" class="fw-bold">
+                        {{ $assignedTruck->license_plate ?? 'Current Truck' }}
+                    </h6>
+                    <small class="text-muted">Current Vehicle</small>
+                </div>
+                <i class="fas fa-exchange-alt fa-lg text-primary"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
 
 
     <!-- Hoy -->
@@ -191,7 +225,7 @@
             <h5>{{ \Carbon\Carbon::now()->format('l, M d, Y') }}</h5>
 
            
-            <div class="chart-container" style="height:200px; flex: 0 0 100%; max-width:95%; min-width:90%">
+            <div class="chart-container" style="height:200px; width:100%;">
                     <canvas id="logbookChart"></canvas>
                 </div>
 
@@ -246,32 +280,32 @@
 
 <!-- Modal de selección de camión -->
 <div class="modal fade" id="truckModal" tabindex="-1" aria-labelledby="truckModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content bg-dark text-light">
-      <div class="modal-header border-0">
-        <h5 class="modal-title" id="truckModalLabel">Select a Truck</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <div id="vehicleList" class="list-group mb-3 text-dark">
-          <div class="text-center text-muted py-3" id="loadingTrucks">Loading trucks...</div>
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark text-light">
+        <div class="modal-header border-0">
+            <h5 class="modal-title" id="truckModalLabel">Select a Truck</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-      </div>
 
-      <div class="modal-footer border-0">
-        <button id="confirmTruck" class="btn btn-primary w-100" disabled>
-          Confirm Selection
-        </button>
-      </div>
+        <div class="modal-body">
+            <div id="vehicleList" class="list-group mb-3 text-dark">
+            <div class="text-center text-muted py-3" id="loadingTrucks">Loading trucks...</div>
+            </div>
+        </div>
+
+        <div class="modal-footer border-0">
+            <button id="confirmTruck" class="btn btn-primary w-100" disabled>
+            Confirm Selection
+            </button>
+        </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- ====== SIDEBAR DERECHO ====== -->
 <div id="vehicleSidebar" class="vehicle-sidebar">
     <div class="sidebar-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Driver Dashboard</h5>
+        <h5 class="mb-0"></h5>
         <button class="btn btn-outline-light" id="closeSidebar"><i class="bi bi-x-lg"></i></button>
     </div>
 
@@ -357,19 +391,6 @@
         totalMinutes += mins;
     }
 
-    // 🔹 Total general
-    //const totalHours = Math.floor(totalMinutes / 60);
-    //const totalMins = totalMinutes % 60;
-    //stateSummary.push(`Total: ${totalHours}h ${totalMins}m`);
-
-    // Llenar lista compacta
-    // const summaryList = document.getElementById('stateSummaryList');
-    // stateSummary.forEach(text => {
-    //     const li = document.createElement('li');
-    //     li.textContent = text;
-    //     summaryList.appendChild(li);
-    // });
-
     const ctx = document.getElementById('logbookChart').getContext('2d');
     new Chart(ctx, {
           type: 'line',
@@ -377,12 +398,12 @@
                 labels: labels,
                 datasets: [{
                     label: 'Driver Status',
-                    data: duty_status,       // 96 valores
+                    data: duty_status,       
                     borderColor: 'blue',
                     borderWidth: 2,
                     pointRadius: 0,
                     tension: 0,
-                    stepped: true,    // línea escalonada
+                    stepped: true,    
                     fill: false,
                     
                 }]
@@ -510,7 +531,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const data = await res.json();
 
             if (res.ok) {
-                truckPlate.textContent = data.truck.license_plate;
+                 document.getElementById('truckPlate').textContent = data.truck.license_plate;
 
                 Swal.fire({
                     icon: 'success',
@@ -527,9 +548,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             }
 
-            // Close modal
-            const modalInstance = bootstrap.Modal.getInstance(modal);
-            modalInstance.hide();
+            // Cierra el modal correctamente y elimina el backdrop
+            const modalEl = document.getElementById('truckModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+            }
+            document.body.classList.remove('modal-open');
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
 
         } catch (error) {
             Swal.fire({
@@ -581,7 +607,13 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(fetchCurrentStatus, 60000);
 });
 
-
+// Mostrar y ocultar sidebar
+document.getElementById('openSidebar')?.addEventListener('click', () => {
+    document.getElementById('vehicleSidebar').classList.add('active');
+});
+document.getElementById('closeSidebar')?.addEventListener('click', () => {
+    document.getElementById('vehicleSidebar').classList.remove('active');
+});
 </script>
 
 <script>
