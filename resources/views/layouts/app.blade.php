@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></script>
 <script>
   tailwind.config = {
     darkMode: 'media', // cambia a 'class' si lo controlas manualmente

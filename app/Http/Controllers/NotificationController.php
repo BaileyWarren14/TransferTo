@@ -7,6 +7,8 @@ use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\dutystatuslog;
+use App\Models\Driver;
+
 
 
 class NotificationController extends Controller
@@ -40,67 +42,251 @@ class NotificationController extends Controller
         return response()->json($notifications);
     }
 
-    public function hosViolations()
+  public function hosViolations()
     {
         $driverId = Auth::guard('driver')->id();
-        $today = Carbon::today('America/Mexico_City');
 
-        
-         // Obtener TODOS los logs del conductor
-        $logs = DutyStatusLog::where('driver_id', $driverId)
-            ->orderBy('changed_at', 'asc')
-            ->get();
+        $dates = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+            ->selectRaw('DATE(changed_at) as day')
+            ->distinct()
+            ->orderBy('day', 'desc')
+            ->pluck('day');
+
         $violations = [];
 
-        // Variables de control
-        $totalDrive = 0;
-        $totalOnDuty = 0;
-        $currentDriveStreak = 0;
-        $lastStatus = null;
-        $lastTime = null;
+        foreach ($dates as $day) {
+            $logs = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+                ->whereDate('changed_at', $day)
+                ->orderBy('changed_at', 'asc')
+                ->get();
 
-        foreach ($logs as $log) {
-            if ($lastTime) {
-                $duration = Carbon::parse($lastTime)->diffInMinutes(Carbon::parse($log->changed_at));
+            if ($logs->isEmpty()) continue;
 
-                // Acumular tiempos
-                if (in_array($lastStatus, ['D', 'ON'])) $totalOnDuty += $duration;
-                if ($lastStatus === 'D') {
-                    $totalDrive += $duration;
-                    $currentDriveStreak += $duration;
-                } else {
-                    $currentDriveStreak = 0; // reinicia si cambia el estado
+            $totalDrive = 0;
+            $totalOnDuty = 0;
+            $currentDriveStreak = 0;
+            $lastStatus = null;
+            $lastTime = null;
+            $didInspection = false;
+            $driveStartTime = null;
+
+            foreach ($logs as $log) {
+                $status = strtoupper($log->status);
+                $logTime = Carbon::parse($log->changed_at);
+
+                // Detectar inspección
+                if ((!empty($log->notes) && stripos($log->notes, 'inspection') !== false) || $status === 'INSP') {
+                    $didInspection = true;
                 }
 
-                // Detectar violaciones
-                if ($currentDriveStreak > 8 * 60 && !collect($violations)->contains('type', '8hr_drive')) {
-                    $violations[] = [
-                        'type' => '8hr_drive',
-                        'date' => $today->format('M d'),
-                        'message' => 'Violation Alert — 8 Hours continuous driving',
-                    ];
+                if ($lastTime) {
+                    $duration = Carbon::parse($lastTime)->diffInMinutes($logTime);
+
+                    if (in_array($lastStatus, ['D', 'ON'])) {
+                        $totalOnDuty += $duration;
+                    }
+
+                    if ($lastStatus === 'D') {
+                        $totalDrive += $duration;
+                        $currentDriveStreak += $duration;
+                    } else {
+                        $currentDriveStreak = 0;
+                    }
+
+                    // === HOS Violations ===
+                    if ($currentDriveStreak > 8 * 60) {
+                        $violations[] = [
+                            'type' => uniqid('8hr_drive_'),
+                            'category' => 'HOS',
+                            'date' => $day,
+                            'message' => 'Violation Alert — 8 Hours continuous driving',
+                        ];
+                    }
+
+                    if ($totalDrive > 11 * 60) {
+                        $violations[] = [
+                            'type' => uniqid('11hr_drive_'),
+                            'category' => 'HOS',
+                            'date' => $day,
+                            'message' => 'Violation Alert — More than 11 hours driving time expired',
+                        ];
+                    }
+
+                    if ($totalOnDuty > 14 * 60) {
+                        $violations[] = [
+                            'type' => uniqid('14hr_on_'),
+                            'category' => 'HOS',
+                            'date' => $day,
+                            'message' => 'Violation Alert — More than 14 hours on duty time expired',
+                        ];
+                    }
                 }
-                if ($totalDrive > 11 * 60 && !collect($violations)->contains('type', '11hr_drive')) {
-                    $violations[] = [
-                        'type' => '11hr_drive',
-                        'date' => $today->format('M d'),
-                        'message' => 'Violation Alert — More than 11 hours driving time expired',
-                    ];
+
+                // === DOT Inspection ===
+                if ($status === 'D') {
+                    if (!$driveStartTime) {
+                        $driveStartTime = $logTime;
+                        $didInspection = false;
+                    }
                 }
-                if ($totalOnDuty > 14 * 60 && !collect($violations)->contains('type', '14hr_on')) {
-                    $violations[] = [
-                        'type' => '14hr_on',
-                        'date' => $today->format('M d'),
-                        'message' => 'Violation Alert — More than 14 hours on duty time expired',
-                    ];
+
+                if ($driveStartTime && !$didInspection) {
+                    $elapsed = $driveStartTime->diffInMinutes($logTime);
+                    if ($elapsed > 15) {
+                        $violations[] = [
+                            'type' => uniqid('no_insp_'),
+                            'category' => 'DOT Inspection',
+                            'date' => $day,
+                            'message' => 'Violation Alert — More than 15 minutes without doing inspection',
+                        ];
+                        $didInspection = true;
+                    }
                 }
+
+                $lastStatus = $status;
+                $lastTime = $logTime;
             }
+        }
 
-            $lastStatus = $log->status;
-            $lastTime = $log->changed_at;
+        // === Ordenar por fecha completa (desc) ===
+        usort($violations, function ($a, $b) {
+            return strtotime($b['date']) <=> strtotime($a['date']);
+        });
+
+        // Convertir la fecha a formato visible
+        foreach ($violations as &$v) {
+            $v['display_date'] = Carbon::parse($v['date'])->format('M d');
         }
 
         return view('driver.notifications.hos_alerts', compact('violations'));
     }
+
+
+    //Funcion para los admins obtener todos los reportes de drivers
+    public function driversReports()
+    {
+        $drivers = Driver::all(); // Obtener todos los drivers
+        $allViolations = [];
+
+        foreach ($drivers as $driver) {
+            $dates = DutyStatusLog::where('driver_id', $driver->id)
+                ->selectRaw('DATE(changed_at) as day')
+                ->distinct()
+                ->orderBy('day', 'desc')
+                ->pluck('day');
+
+            $violations = [];
+
+            foreach ($dates as $day) {
+                $logs = DutyStatusLog::where('driver_id', $driver->id)
+                    ->whereDate('changed_at', $day)
+                    ->orderBy('changed_at', 'asc')
+                    ->get();
+
+                if ($logs->isEmpty()) continue;
+
+                $totalDrive = 0;
+                $totalOnDuty = 0;
+                $currentDriveStreak = 0;
+                $lastStatus = null;
+                $lastTime = null;
+                $didInspection = false;
+                $driveStartTime = null;
+
+                foreach ($logs as $log) {
+                    $status = strtoupper($log->status);
+                    $logTime = Carbon::parse($log->changed_at);
+
+                    if ((!empty($log->notes) && stripos($log->notes, 'inspection') !== false) || $status === 'INSP') {
+                        $didInspection = true;
+                    }
+
+                    if ($lastTime) {
+                        $duration = Carbon::parse($lastTime)->diffInMinutes($logTime);
+
+                        if (in_array($lastStatus, ['D', 'ON'])) {
+                            $totalOnDuty += $duration;
+                        }
+
+                        if ($lastStatus === 'D') {
+                            $totalDrive += $duration;
+                            $currentDriveStreak += $duration;
+                        } else {
+                            $currentDriveStreak = 0;
+                        }
+
+                        if ($currentDriveStreak > 8 * 60) {
+                            $violations[] = [
+                                'driver' => $driver->name . ' ' . $driver->lastname,
+                                'type' => uniqid('8hr_drive_'),
+                                'category' => 'HOS',
+                                'date' => $day,
+                                'message' => 'Violation Alert — 8 Hours continuous driving',
+                            ];
+                        }
+
+                        if ($totalDrive > 11 * 60) {
+                            $violations[] = [
+                                'driver' => $driver->name . ' ' . $driver->lastname,
+                                'type' => uniqid('11hr_drive_'),
+                                'category' => 'HOS',
+                                'date' => $day,
+                                'message' => 'Violation Alert — More than 11 hours driving time expired',
+                            ];
+                        }
+
+                        if ($totalOnDuty > 14 * 60) {
+                            $violations[] = [
+                                'driver' => $driver->name . ' ' . $driver->lastname,
+                                'type' => uniqid('14hr_on_'),
+                                'category' => 'HOS',
+                                'date' => $day,
+                                'message' => 'Violation Alert — More than 14 hours on duty time expired',
+                            ];
+                        }
+                    }
+
+                    if ($status === 'D') {
+                        if (!$driveStartTime) {
+                            $driveStartTime = $logTime;
+                            $didInspection = false;
+                        }
+                    }
+
+                    if ($driveStartTime && !$didInspection) {
+                        $elapsed = $driveStartTime->diffInMinutes($logTime);
+                        if ($elapsed > 15) {
+                            $violations[] = [
+                                'driver' => $driver->name . ' ' . $driver->lastname,
+                                'type' => uniqid('no_insp_'),
+                                'category' => 'DOT Inspection',
+                                'date' => $day,
+                                'message' => 'Violation Alert — More than 15 minutes without doing inspection',
+                            ];
+                            $didInspection = true;
+                        }
+                    }
+
+                    $lastStatus = $status;
+                    $lastTime = $logTime;
+                }
+            }
+
+            // Ordenar por fecha descendente
+            usort($violations, function ($a, $b) {
+                return strtotime($b['date']) <=> strtotime($a['date']);
+            });
+
+            // Formatear fechas
+            foreach ($violations as &$v) {
+                $v['display_date'] = Carbon::parse($v['date'])->format('M d');
+            }
+
+            $allViolations = array_merge($allViolations, $violations);
+        }
+
+        return view('admin.reports.reports', compact('allViolations'));
+    }
+
 
 }

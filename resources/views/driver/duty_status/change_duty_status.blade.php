@@ -93,6 +93,44 @@
 
 
     </style>
+    
+<style>
+    /* Estilo base de botones Duty Status */
+    .duty-btn {
+        border-radius: 50px !important;
+        font-weight: 600;
+        padding: 10px 15px;
+        transition: all 0.2s ease-in-out;
+        width: 100%;
+    }
+
+    /* Estado activo */
+    .duty-btn.active {
+        background-color: #007bff !important;
+        border-color: #0056b3 !important;
+        color: #fff !important;
+        box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Para mantener la grilla responsiva */
+    @media (max-width: 576px) {
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+    }
+
+    @media (min-width: 577px) {
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+    }
+</style>
+
+
 <div class="container mt-4">
     <div class="text-center mb-3">
         <a href="{{ route('driver.logs.today') }}" class="btn btn-info px-4 py-2 rounded-pill" data-key="view_today_logs">
@@ -136,7 +174,7 @@
 
                 <label for="location" class="form-label fw-bold" data-key="location">LOCATION*</label>
                 <div class="input-group">
-                    <input type="text" id="location" class="form-control rounded-start-pill" placeholder="Current location..." data-key="current_location">
+                    <input type="text" id="location" class="form-control rounded-start-pill" placeholder="Current location...">
                     <button type="button" id="getLocation" class="btn btn-primary rounded-end-pill">
                         <i class="fas fa-location-arrow"></i>
                     </button>
@@ -146,7 +184,7 @@
             <!-- Notes -->
             <div class="mb-3">
                 <label for="notes" class="form-label fw-bold" data-key="notes">NOTES</label>
-                <input type="text" id="notes" class="form-control rounded-pill" placeholder="Add notes..." data-key="add_notes">
+                <input type="text" id="notes" class="form-control rounded-pill" placeholder="Add notes..." >
             </div>
 
             <!-- Save -->
@@ -166,6 +204,7 @@
 <!-- FontAwesome para el ícono -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/js/all.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></script>
 <script>
     // Toggle Duty Status exclusivo
     document.querySelectorAll('.duty-btn').forEach(btn => {

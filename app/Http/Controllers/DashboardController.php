@@ -64,15 +64,24 @@ class DashboardController extends Controller
        // Método para obtener los timers vía AJAX
     public function timers()
     {
+        
         $driver = Auth::guard('driver')->user();
+
+    if (!$driver) {
+        // Seguridad: evitar referencia a null
+        return response()->json(['error' => 'Driver not authenticated'], 401);
+    }
+        
         $timers = $this->computeTimersForDriver($driver->id);
         
         return response()->json($timers);
     }
 
     // Función interna para calcular los timers
-    protected function computeTimersForDriver($driverId)
+    protected function computeTimersForDriver($driver)
     {
+        
+
         $estados = ['D', 'ON', 'OFF', 'SB', 'WT', 'PC', 'YM'];
         $now = Carbon::now('America/Mexico_City');
         $ahora = Carbon::now();
@@ -83,7 +92,7 @@ class DashboardController extends Controller
         $weekStart = $now->copy()->startOfWeek();
         $weekEnd = $now->copy()->endOfWeek();
 
-        $logs = DutyStatusLog::where('driver_id', $driverId)
+        $logs = DutyStatusLog::where('driver_id', $driver)
             ->whereBetween('changed_at', [$weekStart, $weekEnd])
             ->orderBy('changed_at', 'asc') 
             ->get();
@@ -185,13 +194,7 @@ class DashboardController extends Controller
             
         ];
     }
-
-
-
-
-
-/*
-    public function timers()
+     public function timerss()
     {
         $driverId = auth()->guard('driver')->id();
         $timers = $this->computeTimersForDriver($driverId);
@@ -207,6 +210,13 @@ class DashboardController extends Controller
             'reset_point' => $timers['reset_point'],
             'cycle_window_start' => $timers['cycle_window_start'],
         ]);
-    }*/
+    }
 
+
+
+
+
+
+
+   
 }

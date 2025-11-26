@@ -69,7 +69,13 @@ body.dark-mode .input-group .input-group-text {
     <div class="row g-2">
       <div class="col-md-6">
         <label for="truck_number" class="form-label" data-key="truck_tractor">Truck/Tractor #</label>
-        <input type="text" class="form-control" id="truck_number" name="truck_number">
+        <input 
+          type="text" 
+          class="form-control" 
+          id="truck_number" 
+          name="truck_number" 
+          value="{{ $truck->license_plate ?? '' }}" 
+          readonly>
       </div>
       <div class="col-md-6">
         <label for="odometer" class="form-label" data-key="odometer_reding">Odometer Reading</label>

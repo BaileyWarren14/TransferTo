@@ -21,12 +21,17 @@ class InspectionController extends Controller
     
      public function create()
     {
-        $driver = Auth::user(); // usuario logueado
+        $driver = Auth::guard('driver')->user(); // usuario logueado
+        $driver_id = $driver->id; // aquí obtenemos el ID numérico del conductor
+
         $trucks = Truck::where('status', 'active')->get(); // camiones activos
         $trailers = Trailer::all(); // todos los trailers
 
+        // Obtiene la placa del camión asignado al conductor
+        $truck = Truck::where('driver_id', $driver_id)->first(['license_plate']);
+
         // Ajuste aquí: referencia correcta a la vista
-        return view('driver.inspections.new', compact('driver', 'trucks', 'trailers'));
+        return view('driver.inspections.new', compact('driver', 'trucks', 'trailers', 'truck'));
     }
 
     public function store(Request $request)

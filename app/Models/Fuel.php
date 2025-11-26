@@ -15,13 +15,17 @@ class Fuel extends Model
     protected $fillable = [
         'date', 'bol_number', 'trailer', 'from', 'destination',
         'iso_capacity', 'inches_gallon', 'mileage_before', 'mileage_after',
-        'total_miles', 'fuel_dispensed', 'efficiency', 'truck_id', 'bol_path'
-    ];
+        'total_miles', 'fuel_dispensed', 'efficiency', 'truck_id', 'bol_path', 'driver_id',
+        ];
 
-    
-    public function truck()
-    {
-        return $this->belongsTo(Truck::class, 'truck_id'); // especificar llave foránea
-    }
+        
+        public function truck()
+        {
+            return $this->belongsTo(Truck::class, 'truck_id'); 
+        }
+        public function driver()
+        {
+            return $this->belongsTo(User::class, 'driver_id');
+        }
 
 }

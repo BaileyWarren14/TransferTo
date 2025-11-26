@@ -92,6 +92,7 @@ class DriverController extends Controller
     public function destroy($id)
     {
         $driver = Driver::findOrFail($id);
+        $driver->notifications()->delete();
         $driver->delete();
 
         return redirect()->route('drivers.index')->with('success', 'Driver deleted successfully.');
@@ -101,10 +102,7 @@ class DriverController extends Controller
         return view('driver.messages.index_messages');
     }
 
-    public function safety()
-    {
-        return view('driver.safety.index_safety');
-    }
+    
 
     public function notifications()
     {
@@ -140,10 +138,16 @@ class DriverController extends Controller
     }
     public function documents($id)
     {
-        $driver = Driver::findOrFail($id);
-         $documents = $driver->documents; 
+         $driver = Driver::findOrFail($id);
 
-        return view('admin.drivers.documents', compact('driver', 'documents'));
+        // Documentos normales del driver
+        $documents = $driver->documents;
+
+        // BOLs de fuel del driver
+        $fuelBOLs = $driver->fuels; // usando la relación fuels()
+
+        return view('admin.drivers.documents', compact('driver', 'documents', 'fuelBOLs'));
+        
     }
     public function show($id)
     {

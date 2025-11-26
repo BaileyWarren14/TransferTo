@@ -216,7 +216,7 @@ body {
     <a href="{{ url('/admin/admin') }}"><i class="fas fa-info-circle"></i> <span data-key="admins">Admins</span></a>
     <a href="{{ url('/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
     <a href="{{ url('/reports') }}"><i class="fas fa-exclamation-triangle"></i> <span data-key="driver_reports">Driver Reports</span></a>
-    <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
+    <!-- <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a> -->
     
 
     <form method="POST" action="{{ route('logout') }}">
@@ -253,7 +253,7 @@ body {
         <a href="{{ url('/admin/admin') }}"><i class="fas fa-info-circle"></i> <span data-key="admins">Admins</span></a>
         <a href="{{ url('/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
         <a href="{{ url('/reports') }}"><i class="fas fa-exclamation-triangle"></i> <span data-key="driver_reports">Driver Reports</span></a>
-        <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a>
+        <!-- <a href="{{ url('/admin/notifications') }}"><i class="fas fa-bell"></i> <span data-key="notifications">Notifications</span></a> -->
 
     <form method="POST" action="{{ route('logout') }}">
         @csrf

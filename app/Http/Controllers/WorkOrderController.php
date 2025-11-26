@@ -20,7 +20,16 @@ class WorkOrderController extends Controller
     // Mostrar lista
     public function indexes()
     {
-        $fuels = Fuel::orderBy('date', 'desc')->paginate(10);
+        // Intenta obtener el driver desde el guard 'driver'
+        $driver = Auth::guard('driver')->user();
+
+        
+
+        // Consulta solo los fuel logs del driver autenticado
+        $fuels = Fuel::where('driver_id', $driver->id)
+            ->orderBy('date', 'desc')
+            ->paginate(10);
+        
         return view('driver.details.list_fuel_cistern', compact('fuels'));
     }
 
@@ -73,6 +82,7 @@ class WorkOrderController extends Controller
             'fuel_dispensed' => 0,
             'efficiency' => 0,
             'truck_id' => $truck ? $truck->id : null,
+            'driver_id' => $driver->id,
         ]);
 
         return redirect()->route('workorder.cistern.index')->with('success', 'Fuel log created successfully!');

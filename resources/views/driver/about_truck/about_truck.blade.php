@@ -7,15 +7,7 @@
     </h2>
 
     @if(session('alert_message'))
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Notice",
-                    text: "{{ session('alert_message') }}"
-                });
-            });
-        </script>
+        
     @elseif($truck)
         <div class="card shadow p-4 dark-card">
             <h4 class="mb-3" data-key="unit">Unit: {{ $truck->unit_number ?? 'N/A' }}</h4>

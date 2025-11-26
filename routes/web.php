@@ -179,7 +179,7 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/status_truck', [DashboardController::class, 'driverStatusAndTruck'])-> name('driver.trucks');
 
     // Esta es la ruta que tu JS necesita
-    Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.timers');
+    Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.logs.show.timers');
 
    // Route::get('/driver/timers/data', [DashboardController::class, 'getTimers'])->name('driver.timers.data');
 
@@ -207,6 +207,9 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
     //para obtener los timers de los cronometros
     Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.logs.show.timers');
+    // ruta para generar el pdf del libro electronico
+    Route::get('/driver/logbook/pdf', [LogbookController::class, 'generateLogbookPDF'])->name('driver.logbook.pdf');
+
     
     //para ir a support
     Route::get('/support', function () {return view('driver.support');})->name('support');
@@ -332,7 +335,9 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('/driver/documents/view/{id}', [DocumentController::class, 'show'])->name('documents.view');
     Route::delete('/driver/documents/delete/{id}', [DocumentController::class, 'destroy'])->name('documents.delete');
 
+    Route::get('/driver/logbook/pdf/download', [LogbookController::class, 'downloadLogbookPDF'])->name('driver.logbook.download');
 
+    Route::post('/driver/logbook/pdf/email', [LogbookController::class, 'emailLogbookPDF'])->name('driver.logbook.email');
     
     //Ruta Para recibir y guardar la zona horaria y utilizarla en toda la aplicacion
     Route::post('/set-timezone', function (Request $request) {
@@ -448,7 +453,7 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json_ad');
 
     //Para ver los reportes
-    Route::get('/reports', [AdminController::class, 'driversReports']);
+    Route::get('/reports', [NotificationController::class, 'driversReports'])->name('reports');
 
 
     // Mostrar vista de notifications
@@ -500,9 +505,7 @@ Route::post('/logout', [LogController::class, 'logout'])->name('logout');
     //->middleware('auth:driver');
 
     // Guardar estado (ya existe)
-Route::prefix('driver/logs')->middleware('auth:driver')->group(function () {
-    
-});;
+
 
 
 //Route::get('/logbook/today', [LogbookController::class, 'today'])->name('logbook.today');

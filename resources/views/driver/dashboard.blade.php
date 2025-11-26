@@ -509,7 +509,7 @@
     /* =================== Función principal =================== */
     async function updateTimers() {
     try {
-    const response = await fetch('/driver/timers');
+    const response = await fetch("{{ route('driver.logs.show.timers') }}");
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const data = await response.json();
 
@@ -541,7 +541,7 @@
             timers.cycle.chart = createDoughnutChart('cycleChart', cycleRemaining, CYCLE_LIMIT, timers.cycle.color);
             chartsCreated = true;
         }
-
+        
         // Actualizar UI
         updateTimersUI();
 
@@ -602,7 +602,7 @@
 
     /* =================== Startup =================== */
     document.addEventListener('DOMContentLoaded', function(){
-        initTimers();
+         initTimers();
         showGreeting();
         updateTimers();
         setInterval(updateTimers, 60000);
@@ -675,7 +675,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         
     } catch (error) {
         console.error('❌ Error al obtener datos del driver:', error);
-        alert('❌ Error al cargar los datos del conductor');
+        //alert('❌ Error al cargar los datos del conductor');
     }
 });
 

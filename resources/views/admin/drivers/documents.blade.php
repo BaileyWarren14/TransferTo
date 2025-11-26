@@ -11,7 +11,7 @@
         <i class="fas fa-arrow-left me-1"></i> <span data-key="back_to_drivers">Back to Drivers</span>
     </a>
 
-    @if(count($documents) > 0)
+    @if(count($documents) > 0 || count($fuelBOLs) > 0)
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body">
                 <div class="table-responsive">
@@ -47,25 +47,29 @@
                             @foreach($fuelBOLs as $fuel)
                                 <tr>
                                     <td>{{ $counter++ }}</td>
-                                    <td>BOL - {{ $fuel->bol_number }}</td>
+                                    <td>BOL - {{ $fuel->bol_number ?? 'N/A' }}</td>
                                     <td>Fuel BOL</td>
                                     <td>{{ $fuel->created_at ? $fuel->created_at->format('Y-m-d') : '-' }}</td>
                                     <td>
-                                        <a href="{{ asset('storage/' . $fuel->bol_path) }}" target="_blank" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye me-1"></i> View
-                                        </a>
+                                        @if($fuel->bol_path)
+                                            <a href="{{ asset('storage/' . $fuel->bol_path) }}" target="_blank" class="btn btn-sm btn-primary">
+                                                <i class="fas fa-eye me-1"></i> View
+                                            </a>
+                                        @else
+                                            <span class="text-muted">No file</span>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
-
                     </table>
                 </div>
             </div>
         </div>
     @else
         <div class="alert alert-info mt-3">
-            <i class="fas fa-info-circle me-2"></i> <span data-key="no_documents_uploaded_for_this_driver">No documents uploaded for this driver.</span>
+            <i class="fas fa-info-circle me-2"></i> 
+            <span data-key="no_documents_uploaded_for_this_driver">No documents uploaded for this driver.</span>
         </div>
     @endif
 </div>

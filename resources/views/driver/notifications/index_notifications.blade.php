@@ -119,3 +119,6 @@
     setInterval(fetchNotifications, 10000);
 </script>
 @endsection
+
+
+

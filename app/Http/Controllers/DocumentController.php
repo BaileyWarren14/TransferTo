@@ -70,14 +70,18 @@ class DocumentController extends Controller
 
     public function show_ad($id)
     {
-        $doc = Document::findOrFail($id);
+        // Obtenemos el driver
+        $driver = Driver::findOrFail($id);
 
-        // if ($doc->driver_id != auth('driver')->id()) {
-        //     abort(403);
-        // }
-        
+        // Documentos asociados al driver
+        $documents = Document::where('driver_id', $driver->id)->get();
 
-        return response()->file(storage_path('app/public/' . $doc->file_path));
+        // BOLs de Fuel asociados al driver
+        $fuelBOLs = Fuel::where('driver_id', $driver->id)
+            ->whereNotNull('bol_path') // solo los que tienen archivo
+            ->get();
+
+        return view('admin.drivers.documents', compact('driver', 'documents', 'fuelBOLs'));
 
     }
 
@@ -105,10 +109,10 @@ class DocumentController extends Controller
 
     public function documents($driverId)
     {
-        $driver = \App\Models\Driver::findOrFail($driverId);
+         $driver = \App\Models\Driver::findOrFail($driverId);
 
         // Documentos normales del driver
-        $documents = $driver->documents;
+         $documents = Document::where('driver_id', $driverId)->get();
 
         // BOLs de Fuel Logs del conductor
         $fuelBOLs = \App\Models\Fuel::whereHas('truck', function($q) use ($driverId) {

@@ -30,17 +30,9 @@ class TruckController extends Controller
        $driver = Auth::guard('driver')->user();
 
         $today = Carbon::today();
-        $inspection = Inspection::where('driver_id', $driver->id)
-            ->whereDate('created_at', $today)
-            ->first();
+        $truck = Truck::where('driver_id', $driver->id)->first();       
 
-        if (!$inspection || !$inspection->truck_number) {
-            return redirect()->route('driver.dashboard')
-                ->with('alert_message', 'Please perform your inspection and select a truck.');
-        }
-
-        // Buscar el camión por placa
-        $truck = Truck::where('license_plate', $inspection->truck_number)->first();
+        
 
         if (!$truck) {
             return redirect()->route('driver.dashboard')

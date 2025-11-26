@@ -160,16 +160,17 @@
         <!-- Botones principales -->
         <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
             <!-- Descargar libro electrónico 8 días -->
-            <a href="" class="btn btn-primary w-100 w-sm-auto">
+            <a href="{{ route('driver.logbook.download') }}" class="btn btn-primary w-100 w-sm-auto">
                 <i class="fas fa-download me-1"></i>
                 <span data-key="download_logbook">Descargar libro electrónico 8 días</span>
             </a>
 
             <!-- Compartir -->
-            <button type="button" class="btn btn-success w-100 w-sm-auto" id="shareLogbook">
+            <button type="button" class="btn btn-success w-100 w-sm-auto" id="shareLogbook"  onclick="shareLogbook()">
                 <i class="fas fa-share-alt me-1"></i>
                 <span data-key="shareLogbook">Compartir</span>
             </button>
+            
         </div>
 
         <!-- Derecha: Dashboard / Sidebar -->
@@ -780,6 +781,59 @@ document.getElementById('closeSidebar')?.addEventListener('click', () => {
     }
     updateLocation();
     setInterval(updateLocation,3000);
+
+async function shareLogbook() {
+    const email = prompt("Introduce el correo al que deseas enviar el logbook:");
+    if (!email) return;
+
+    try {
+        const res = await fetch("{{ route('driver.logbook.email') }}", {
+            method: "POST",
+            credentials: "same-origin", // asegura que se envíen cookies de sesión
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "X-Requested-With": "XMLHttpRequest" // ayuda a Laravel a detectar AJAX
+            },
+            body: JSON.stringify({ email })
+        });
+
+        console.log("Fetch status:", res.status, res.statusText);
+
+        // Si no es 2xx, leer el cuerpo como texto (útil para ver HTML de redirect o error)
+        if (!res.ok) {
+            const text = await res.text();
+            console.error("Server returned non-OK response:", res.status, text);
+            // Mostrar alerta amigable
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `Server responded with status ${res.status}. Open console for more details.`
+            });
+            return;
+        }
+
+        // Intentar parsear JSON seguro
+        const data = await res.json();
+        console.log("Response JSON:", data);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Enviado',
+            text: data.message || 'El logbook ha sido enviado correctamente.'
+        });
+
+    } catch (err) {
+        // Error de red o parseo -> mostrar info útil en consola
+        console.error("Fetch failed:", err);
+        Swal.fire({
+            icon: 'error',
+            title: 'Network/error',
+            text: 'No se pudo conectar al servidor. Revisa la consola (F12) y la pestaña Network.'
+        });
+    }
+}
+
 
 </script>
 

@@ -5,6 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;   // 👈
 use App\Models\dutystatuslog; 
+use App\Models\Fuel;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewMessageMail;
+
 use Carbon\Carbon;
 
 class LogbookController extends Controller
@@ -391,6 +396,281 @@ class LogbookController extends Controller
             'message' => 'Estado actualizado',
             'log' => $log
         ]);
+    }
+
+    public function generateLogbookPDF(Request $request)
+    {
+        $driver = Auth::guard('driver')->user();
+
+        // Obtener últimos 8 días
+        $dates = \App\Models\DutyStatusLog::where('driver_id', $driver->id)
+            ->selectRaw('DATE(changed_at) as day')
+            ->distinct()
+            ->orderBy('day', 'desc')
+            ->take(8)
+            ->pluck('day');
+
+        $daysData = [];
+
+        foreach ($dates as $date) {
+            // Logs del día
+            $logs = \App\Models\DutyStatusLog::where('driver_id', $driver->id)
+                ->whereDate('changed_at', $date)
+                ->orderBy('changed_at', 'asc')
+                ->get();
+
+            // Buscar work order de ese día
+            $workOrder = Fuel::where('driver_id', $driver->id)
+                ->whereDate('created_at', $date)
+                ->first();
+
+            $daysData[] = [
+                'date' => Carbon::parse($date)->format('F d, Y'),
+                'logs' => $logs,
+                'distance' => $workOrder->distance ?? '',
+                'plate' => $workOrder->truck->plate ?? '',
+                'trailer' => $workOrder->trailer_number ?? '',
+            ];
+        }
+
+        // Renderizar PDF
+        $pdf = Pdf::loadView('driver.logs.pdf_logbook', [
+            'driver' => $driver,
+            'daysData' => $daysData
+        ])->setPaper('letter', 'portrait');
+
+        if ($request->get('action') === 'download') {
+            return $pdf->download('Driver_Logbook_' . now()->format('Ymd') . '.pdf');
+        } else {
+            // Acción de compartir por correo
+            $email = $request->get('email');
+            \Mail::send('emails.logbook_share', ['driver' => $driver], function ($message) use ($email, $pdf) {
+                $message->to($email)
+                    ->subject('Driver Logbook PDF')
+                    ->attachData($pdf->output(), 'Driver_Logbook.pdf');
+            });
+
+            return back()->with('success', 'Logbook enviado correctamente a ' . $email);
+        }
+    }
+     public function sendLogbook(Request $request, $type, $id)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'client_time' => 'required|date_format:Y-m-d H:i:s',
+        ]);
+
+        $senderType = Auth::user() instanceof \App\Models\Driver ? 'driver' : 'admin';
+
+        $driver = Auth::guard('driver')->user();
+
+        // =============================
+        //   OBTENER DATOS DEL LOGBOOK
+        // =============================
+        $dates = DutyStatusLog::where('driver_id', $driver->id)
+            ->selectRaw('DATE(changed_at) as day')
+            ->distinct()
+            ->orderBy('day', 'desc')
+            ->take(8)
+            ->pluck('day');
+
+        $daysData = [];
+
+        foreach ($dates as $date) {
+            $logs = DutyStatusLog::where('driver_id', $driver->id)
+                ->whereDate('changed_at', $date)
+                ->orderBy('changed_at')
+                ->get();
+
+            $workOrder = Fuel::where('driver_id', $driver->id)
+                ->whereDate('created_at', $date)
+                ->first();
+
+            $daysData[] = [
+                'date' => Carbon::parse($date)->format('F d, Y'),
+                'logs' => $logs,
+                'distance' => $workOrder->distance ?? '',
+                'plate' => $workOrder->truck->plate ?? '',
+                'trailer' => $workOrder->trailer_number ?? '',
+            ];
+        }
+
+        // =============================
+        //   GENERAR PDF
+        // =============================
+        $pdf = Pdf::loadView('driver.logs.pdf_logbook', [
+            'driver'    => $driver,
+            'daysData'  => $daysData,
+        ]);
+
+        $fileName = 'Driver_Logbook_' . now()->format('Ymd') . '.pdf';
+
+        // Guardar temporalmente
+        $pdfPath = storage_path('app/' . $fileName);
+        $pdf->save($pdfPath);
+
+        // =============================
+        //   ENVIAR CORREO
+        // =============================
+        Mail::send('emails.logbook_share', [
+            'driver' => $driver
+        ], function ($message) use ($request, $pdfPath, $fileName) {
+            $message->to($request->email)
+                    ->subject('Shared Driver Logbook')
+                    ->attach($pdfPath, [
+                        'as' => $fileName,
+                        'mime' => 'application/pdf',
+                    ]);
+        });
+
+        // =============================
+        //  CREAR NOTIFICACIÓN
+        // =============================
+        Notification::create([
+            'user_id' => $id,
+            'type'    => 'logbook',
+            'title'   => 'Nuevo Logbook compartido',
+            'message' => 'Has recibido un logbook de ' . Auth::user()->name,
+            'read_at' => null,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+     private function buildLogbookPDF($driver)
+    {
+        // Obtener últimos 8 días
+        $dates = DutyStatusLog::where('driver_id', $driver->id)
+            ->selectRaw('DATE(changed_at) as day')
+            ->distinct()
+            ->orderBy('day', 'desc')
+            ->take(8)
+            ->pluck('day');
+
+        $daysData = [];
+
+        foreach ($dates as $date) {
+            $logs = DutyStatusLog::where('driver_id', $driver->id)
+                ->whereDate('changed_at', $date)
+                ->orderBy('changed_at', 'asc')
+                ->get();
+
+            $workOrder = Fuel::where('driver_id', $driver->id)
+                ->whereDate('created_at', $date)
+                ->first();
+
+            $daysData[] = [
+                'date' => Carbon::parse($date)->format('F d, Y'),
+                'logs' => $logs,
+                'distance' => $workOrder->distance ?? '',
+                'plate' => $workOrder->truck->plate ?? '',
+                'trailer' => $workOrder->trailer_number ?? '',
+            ];
+        }
+
+        // Render PDF
+        return Pdf::loadView('driver.logs.pdf_logbook', [
+            'driver' => $driver,
+            'daysData' => $daysData
+        ])->setPaper('letter', 'portrait');
+    }
+
+
+    /**
+     * 2. Descargar el PDF
+     */
+    public function downloadLogbookPDF()
+    {
+        $driver = Auth::guard('driver')->user();
+
+        $pdf = $this->buildLogbookPDF($driver);
+
+        return $pdf->download('Driver_Logbook_' . now()->format('Ymd') . '.pdf');
+    }
+
+
+    /**
+     * 3. Enviar el PDF por correo
+     */
+    public function emailLogbookPDF(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $driver = Auth::guard('driver')->user();
+
+        // Generar PDF usando la función 1
+        $pdf = $this->buildLogbookPDF($driver);
+
+        // Renderizar el PDF en binario
+        $pdfContent = $pdf->output();
+        
+        // Enviar correo con adjunto
+        Mail::send('emails.logbook_share', ['driver' => $driver], function ($message) use ($request, $pdfContent) {
+            $message->to($request->email)
+                ->subject('Driver Logbook')
+                ->attachData($pdfContent, 'Driver_Logbook.pdf');
+        });
+
+        return response()->json(['success' => true, 'message' => 'Logbook enviado correctamente']);
+    }
+    private function generateDailyGraphSVG($logs, $date, $driverId)
+    {
+        $width = 1400;
+        $height = 200;
+
+        // Mapeo vertical
+        $yMap = [
+            'OFF' => 10,
+            'SB'  => 50,
+            'D'   => 90,
+            'ON'  => 130,
+            'WT'  => 170,
+        ];
+
+        // Crear bloques de 1 minuto (1440 puntos)
+        $minuteStatus = array_fill(0, 1440, 'OFF');
+
+        foreach ($logs as $log) {
+            $start = Carbon\Carbon::parse($log->changed_at)->minutesSinceMidnight();
+            $status = strtoupper($log->status);
+
+            for ($i = $start; $i < 1440; $i++) {
+                $minuteStatus[$i] = $status;
+            }
+        }
+
+        // Crear SVG
+        $svg = "<svg xmlns='http://www.w3.org/2000/svg' width='{$width}' height='{$height}' style='background:#fff;'>";
+
+        // Líneas horizontales (OFF, SB, D, ON, WT)
+        foreach ($yMap as $label => $y) {
+            $svg .= "<line x1='0' y1='{$y}' x2='{$width}' y2='{$y}' stroke='#ccc'/>";
+            $svg .= "<text x='5' y='".($y - 2)."' font-size='10'>{$label}</text>";
+        }
+
+        // Dibujar la gráfica (línea continua)
+        $xStep = $width / 1440;
+        $points = "";
+
+        for ($i = 0; $i < 1440; $i++) {
+            $x = $i * $xStep;
+            $status = $minuteStatus[$i];
+            $y = $yMap[$status] ?? 10;
+            $points .= "{$x},{$y} ";
+        }
+
+        $svg .= "<polyline points='{$points}' fill='none' stroke='blue' stroke-width='2'/>";
+
+        $svg .= "</svg>";
+
+        // Guardar archivo
+        $path = "logbook_graphs/graph_{$driverId}_{$date}.svg";
+
+        Storage::disk('local')->put($path, $svg);
+
+        return storage_path("app/{$path}");
     }
 
 }
