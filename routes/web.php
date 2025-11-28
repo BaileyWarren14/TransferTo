@@ -208,7 +208,7 @@ Route::middleware(['auth:driver'])->group(function () {
     //para obtener los timers de los cronometros
     Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.logs.show.timers');
     // ruta para generar el pdf del libro electronico
-    Route::get('/driver/logbook/pdf', [LogbookController::class, 'generateLogbookPDF'])->name('driver.logbook.pdf');
+    Route::get('/driver/logbook/pdf', [LogbookController::class, 'generarLogbook'])->name('driver.logbook.pdf');
 
     
     //para ir a support
@@ -339,6 +339,8 @@ Route::middleware(['auth:driver'])->group(function () {
 
     Route::post('/driver/logbook/pdf/email', [LogbookController::class, 'emailLogbookPDF'])->name('driver.logbook.email');
     
+    Route::post('/driver/logbook/save-chart', [LogbookController::class, 'saveLogbookChart'])->name('driver.logbook.saveChart');
+
     //Ruta Para recibir y guardar la zona horaria y utilizarla en toda la aplicacion
     Route::post('/set-timezone', function (Request $request) {
     $tz = $request->timezone ?? 'UTC';

@@ -28,4 +28,8 @@ class Truck extends Model
     {
         return $this->belongsTo(Driver::class, 'driver_id', 'id');
     }
+    public function fuelForms()
+    {
+        return $this->hasMany(FuelForm::class, 'truck_id', 'id');
+    }
 }

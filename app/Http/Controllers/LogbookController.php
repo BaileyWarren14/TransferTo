@@ -9,6 +9,8 @@ use App\Models\Fuel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewMessageMail;
+use App\Models\Truck;
+
 
 use Carbon\Carbon;
 
@@ -247,7 +249,7 @@ class LogbookController extends Controller
             ])
             ->orderBy('changed_at', 'asc')
             ->get();
-
+          
         // Transformar logs en actividades con duración
         $activities = [];
         foreach ($logs as $index => $log) {
@@ -453,7 +455,7 @@ class LogbookController extends Controller
             return back()->with('success', 'Logbook enviado correctamente a ' . $email);
         }
     }
-     public function sendLogbook(Request $request, $type, $id)
+    public function sendLogbook(Request $request, $type, $id)
     {
         $request->validate([
             'email' => 'required|email',
@@ -537,9 +539,10 @@ class LogbookController extends Controller
         return response()->json(['success' => true]);
     }
 
-     private function buildLogbookPDF($driver)
+    private function buildLogbookPDF($driver)
     {
-        // Obtener últimos 8 días
+        $driver = Auth::guard('driver')->user();
+        
         $dates = DutyStatusLog::where('driver_id', $driver->id)
             ->selectRaw('DATE(changed_at) as day')
             ->distinct()
@@ -550,10 +553,14 @@ class LogbookController extends Controller
         $daysData = [];
 
         foreach ($dates as $date) {
+
             $logs = DutyStatusLog::where('driver_id', $driver->id)
                 ->whereDate('changed_at', $date)
-                ->orderBy('changed_at', 'asc')
+                ->orderBy('changed_at')
                 ->get();
+
+            // 🔥 GENERAR GRAFICO SVG
+            $graph = $this->generarLogbook($logs);
 
             $workOrder = Fuel::where('driver_id', $driver->id)
                 ->whereDate('created_at', $date)
@@ -562,18 +569,17 @@ class LogbookController extends Controller
             $daysData[] = [
                 'date' => Carbon::parse($date)->format('F d, Y'),
                 'logs' => $logs,
+                'graph' => $graph,   // ← agregar gráfico
                 'distance' => $workOrder->distance ?? '',
                 'plate' => $workOrder->truck->plate ?? '',
                 'trailer' => $workOrder->trailer_number ?? '',
             ];
         }
 
-        // Render PDF
-        return Pdf::loadView('driver.logs.pdf_logbook', [
-            'driver' => $driver,
-            'daysData' => $daysData
-        ])->setPaper('letter', 'portrait');
+        return Pdf::loadView('driver.logs.pdf_logbook', compact('driver','daysData'))
+            ->setPaper('letter','portrait');
     }
+
 
 
     /**
@@ -671,6 +677,425 @@ class LogbookController extends Controller
         Storage::disk('local')->put($path, $svg);
 
         return storage_path("app/{$path}");
+    }
+
+    private function buildDailyDutyArrayForDate($driverId, $date)
+    {
+        // $date en 'Y-m-d'
+        $yStatusMap = ['OFF'=>0, 'SB'=>1, 'D'=>2, 'ON'=>3, 'WT'=>4];
+
+        $start = Carbon::parse($date)->startOfDay();
+        $end = Carbon::parse($date)->endOfDay();
+
+        $logs = \App\Models\DutyStatusLog::where('driver_id', $driverId)
+            ->whereBetween('changed_at', [$start, $end])
+            ->orderBy('changed_at')
+            ->get();
+
+        // labels (opcional, 1440 valores; aquí compactamos a cada minuto)
+        $labels = [];
+        for ($h = 0; $h < 24; $h++) {
+            for ($m = 0; $m < 60; $m++) {
+                $labels[] = ($m == 0) ? (string)$h : '';
+            }
+        }
+
+        $blocks = 1440;
+        $minuteStatuses = array_fill(0, $blocks, null);
+
+        // Si no hay logs, asumimos OFF todo el día
+        if ($logs->isEmpty()) {
+            for ($i = 0; $i < $blocks; $i++) $minuteStatuses[$i] = $yStatusMap['OFF'];
+            return [$labels, $minuteStatuses, $logs];
+        }
+
+        // Rellenar minuteStatuses según logs
+        $currentStatus = 'OFF';
+        $logIndex = 0;
+
+        for ($i = 0; $i < $blocks; $i++) {
+            $time = $start->copy()->addMinutes($i);
+
+            while (isset($logs[$logIndex]) && Carbon::parse($logs[$logIndex]->changed_at)->lte($time)) {
+                $currentStatus = $logs[$logIndex]->status;
+                $logIndex++;
+            }
+
+            $minuteStatuses[$i] = $yStatusMap[$currentStatus] ?? $yStatusMap['OFF'];
+        }
+
+        return [$labels, $minuteStatuses, $logs];
+    }
+
+    /**
+     * Método que prepara la vista con los últimos 8 días y sus arreglos para el chart
+     */
+    public function showLogbookWithCharts()
+    {
+        $driver = Auth::guard('driver')->user();
+        $dates = \App\Models\DutyStatusLog::where('driver_id', $driver->id)
+            ->selectRaw('DATE(changed_at) as day')
+            ->distinct()
+            ->orderBy('day', 'desc')
+            ->take(8)
+            ->pluck('day');
+
+        $daysForCharts = [];
+
+        foreach ($dates as $date) {
+            [$labels, $dutyStatuses, $logs] = $this->buildDailyDutyArrayForDate($driver->id, $date);
+            $daysForCharts[] = [
+                'raw_date' => $date,
+                'display_date' => Carbon::parse($date)->format('F d, Y'),
+                'labels' => $labels,
+                'dutyStatuses' => $dutyStatuses
+            ];
+        }
+
+        // También puedes pasar assignedTruck, last14Days, etc.
+        $assignedTruck = $driver->truck ?? null;
+
+        return view('driver.logs.show', compact('daysForCharts', 'assignedTruck'));
+    }
+
+    public function saveLogbookChart(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|string',          // formato Y-m-d
+            'image' => 'required|string'          // dataURL base64
+        ]);
+
+        $driver = Auth::guard('driver')->user();
+        $date = $request->input('date');
+
+        $data = $request->input('image');
+
+        // quitar prefijo data:image/png;base64,
+        if (preg_match('/^data:image\/(\w+);base64,/', $data, $matches)) {
+            $ext = strtolower($matches[1]) === 'png' ? 'png' : $matches[1];
+            $data = substr($data, strpos($data, ',') + 1);
+        } else {
+            return response()->json(['error' => 'Invalid image data'], 422);
+        }
+
+        $data = base64_decode($data);
+        if ($data === false) return response()->json(['error' => 'Decoding failed'], 422);
+
+        // Crear carpeta si no existe
+        $dir = storage_path('app/public/logbook_graphs');
+        if (!is_dir($dir)) mkdir($dir, 0777, true);
+
+        $fileName = "logbook_{$driver->id}_{$date}.png";
+        $filePath = $dir . '/' . $fileName;
+
+        file_put_contents($filePath, $data);
+
+        // Devuelve la ruta relativa para usarla luego en el PDF si quieres
+        $publicPath = storage_path('app/public/logbook_graphs/' . $fileName);
+
+        return response()->json([
+            'success' => true,
+            'file' => $fileName,
+            'path' => $publicPath,
+            'url' => asset('storage/logbook_graphs/' . $fileName)
+        ]);
+    }
+/*
+    private function generarLogbook($logs)
+    {   
+        // mapa de estados (ajusta si tienes otros)
+        $yStatusMap = [
+            'OFF' => 0, 'SB' => 1, 'D' => 2, 'ON' => 3, 'WT' => 4,
+            'PC'  => 5, 'YM' => 6
+        ];
+
+        // asegurar carpeta pública
+        $directory = public_path('logbook_graphs');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        // dimensiones
+        $width = 1100;
+        $height = 240; // un poco más para labels abajo
+        $rowHeight = 28;
+
+        // xml header + svg tag con namespace
+        $svg  = '<?xml version="1.0" encoding="UTF-8"?>';
+        $svg .= "<svg xmlns='http://www.w3.org/2000/svg' width='{$width}' height='{$height}' viewBox='0 0 {$width} {$height}' ";
+        $svg .= "style='background:#fff;font-family:Arial,Helvetica,sans-serif'>";
+
+        // fondo blanco
+        $svg .= "<rect width='100%' height='100%' fill='white'/>";
+
+        // ▸ MARCAS DE HORA (00..23)
+        for ($h = 0; $h < 24; $h++) {
+            $x = ($h * 60) * ($width / (24 * 60));
+            $label = str_pad($h, 2, "0", STR_PAD_LEFT);
+            $svg .= "<line x1='{$x}' y1='0' x2='{$x}' y2='".($height-30)."' stroke='#eee' stroke-width='1' />";
+            $svg .= "<text x='".($x + 2)."' y='".($height - 8)."' font-size='11' fill='#333'>{$label}</text>";
+        }
+
+        // ▸ LÍNEAS HORIZONTALES Y ETIQUETAS DE ESTADO
+        foreach ($yStatusMap as $label => $index) {
+            $y = 10 + $index * $rowHeight;
+            $svg .= "<line x1='0' y1='{$y}' x2='{$width}' y2='{$y}' stroke='#f0f0f0' stroke-width='1' />";
+            $svg .= "<text x='4' y='".($y + 9)."' font-size='11' fill='#444'>{$label}</text>";
+        }
+
+        // colores por estado
+        $colorMap = [
+            'OFF' => '#6c757d',
+            'SB'  => '#ffc107',
+            'D'   => '#0d6efd',
+            'ON'  => '#198754',
+            'WT'  => '#adb5bd',
+            'PC'  => '#6610f2',
+            'YM'  => '#dc3545',
+        ];
+
+        // Si no hay logs: barra OFF completa
+        if ($logs->isEmpty()) {
+            $y = 10 + ($yStatusMap['OFF'] ?? 0) * $rowHeight;
+            $svg .= "<rect x='0' y='".($y-6)."' width='{$width}' height='12' fill='".($colorMap['OFF'] ?? '#6c757d')."' />";
+        } else {
+            // construir segmentos entre cambios
+            $dayStart = \Carbon\Carbon::parse($logs->first()->changed_at)->startOfDay();
+            $prevTime = $dayStart;
+            $prevStatus = strtoupper($logs->first()->status ?? 'OFF');
+
+            foreach ($logs as $log) {
+                $logTime = \Carbon\Carbon::parse($log->changed_at);
+                // evitar que logTime < dayStart
+                if ($logTime->lt($dayStart)) $logTime = $dayStart->copy();
+
+                $minutesStart = (int) $prevTime->diffInMinutes($dayStart);
+                $minutesEnd = (int) $logTime->diffInMinutes($dayStart);
+
+                $x1 = ($minutesStart / 1440) * $width;
+                $x2 = ($minutesEnd / 1440) * $width;
+
+                $statusKey = strtoupper($prevStatus);
+                if (!array_key_exists($statusKey, $yStatusMap)) $statusKey = 'OFF';
+
+                $y = 10 + ($yStatusMap[$statusKey] * $rowHeight);
+                $color = $colorMap[$statusKey] ?? '#000';
+
+                // dibujar rect de segmento
+                $barY = $y - 6;
+                $barHeight = 12;
+                $w = max(1, $x2 - $x1);
+                $svg .= "<rect x='{$x1}' y='{$barY}' width='{$w}' height='{$barHeight}' fill='{$color}' />";
+
+                // avanzar
+                $prevTime = $logTime->copy();
+                $prevStatus = $log->status;
+            }
+
+            
+
+            // segmento final hasta fin del día
+            $dayEnd = $dayStart->copy()->endOfDay();
+            $minutesStart = (int) $prevTime->diffInMinutes($dayStart);
+            $minutesEnd = 1440;
+            $x1 = ($minutesStart / 1440) * $width;
+            $x2 = $width;
+            $statusKey = strtoupper($prevStatus);
+            if (!array_key_exists($statusKey, $yStatusMap)) $statusKey = 'OFF';
+            $y = 10 + ($yStatusMap[$statusKey] * $rowHeight);
+            $color = $colorMap[$statusKey] ?? '#000';
+            $svg .= "<rect x='{$x1}' y='".($y-6)."' width='".max(1, $x2-$x1)."' height='12' fill='{$color}' />";
+        }
+
+        $svg .= "</svg>";
+
+        // Guardar en public/logbook_graphs con nombre único
+        $filename = 'graph_' . uniqid() . '.svg';
+        $fullpath = $directory . DIRECTORY_SEPARATOR . $filename;
+        file_put_contents($fullpath, $svg);
+
+        return $filename;
+    }
+*/
+    private function generarLogbook($logs)
+    {
+        // --- CONFIGURACIÓN ---
+        $yStatusMap = [
+            'OFF' => 0, 'SB' => 1, 'D' => 2, 'ON' => 3, 'WT' => 4, 'PC' => 5, 'YM' => 6
+        ];
+
+        $colorMap = [
+            'OFF' => '#6c757d',   // Gris oscuro
+            'SB'  => '#ffc107',   // Amarillo
+            'D'   => '#0d6efd',   // Azul
+            'ON'  => '#198754',   // Verde
+            'WT'  => '#adb5bd',   // Gris claro
+            'PC'  => '#fd7e14',   // Naranja fuerte
+            'YM'  => '#6610f2'    // Morado
+        ];
+
+        // --- PREPARACIÓN ---
+        $directory = public_path('logbook_graphs');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0775, true);
+        }
+
+        $width = 1100;
+        $height = 260;
+        $rowHeight = 35;
+        $dayStart = \Carbon\Carbon::parse($logs->first()->changed_at)->copy()->startOfDay();
+        $dayEnd   = $dayStart->copy()->endOfDay();
+
+        // --- ORDENAR LOGS ---
+        $logs = $logs->sortBy('changed_at')->values();
+
+        // --- RECONSTRUCCIÓN MINUTO A MINUTO ---
+        $statuses = [];
+        $logIndex = 0;
+        $currentStatus = 'OFF';
+
+        for ($i = 0; $i < 1440; $i++) {
+            $minute = $dayStart->copy()->addMinutes($i);
+
+            while ($logIndex < count($logs) &&
+                \Carbon\Carbon::parse($logs[$logIndex]->changed_at)->lte($minute)) {
+                $currentStatus = strtoupper($logs[$logIndex]->status);
+                if (!isset($yStatusMap[$currentStatus])) {
+                    $currentStatus = 'OFF';
+                }
+                $logIndex++;
+            }
+
+            $statuses[$i] = $currentStatus;
+        }
+
+        // --- AGRUPAR SEGMENTOS CONTINUOS ---
+        $segments = [];
+        $startMinute = 0;
+
+        for ($i = 1; $i <= 1440; $i++) {
+            if ($i == 1440 || $statuses[$i] !== $statuses[$i-1]) {
+                $segments[] = [
+                    'status' => $statuses[$i-1],
+                    'start' => $startMinute,
+                    'end' => $i
+                ];
+                $startMinute = $i;
+            }
+        }
+        $svgTransitions = "";
+
+        $lastStatus = $statuses[0];
+
+        for ($i = 1; $i < 1440; $i++) {
+            $currentStatus = $statuses[$i];
+
+            if ($currentStatus !== $lastStatus) {
+
+                // calcular la coordenada x correcta
+                $x = ($i / 1440) * $width;
+
+                // obtener Y del estado anterior y nuevo
+                $y1 = 20 + ($yStatusMap[$lastStatus] * $rowHeight);
+                $y2 = 20 + ($yStatusMap[$currentStatus] * $rowHeight);
+
+                // ⬇ ESTA ES LA LÍNEA VERTICAL DEL CAMBIO DE ESTADO
+                $svgTransitions .= "<line x1='{$x}' y1='{$y1}' x2='{$x}' y2='{$y2}' stroke='black' stroke-width='2' />";
+
+            }
+
+            $lastStatus = $currentStatus;
+        }
+
+
+        // --- CÁLCULO DE TIEMPOS POR ESTADO ---
+        $totalTimes = [
+            'OFF' => 0, 'SB' => 0, 'D' => 0, 'ON' => 0, 'WT' => 0, 'PC' => 0, 'YM' => 0
+        ];
+
+        foreach ($segments as $seg) {
+            $s = $seg['status'];
+            if (isset($totalTimes[$s])) {
+                $totalTimes[$s] += ($seg['end'] - $seg['start']);
+            }
+        }
+
+        // --- CREAR SVG ---
+        
+        $svg  = "<?xml version='1.0' encoding='UTF-8'?>";
+        $svg .= "<svg xmlns='http://www.w3.org/2000/svg' width='{$width}' height='{$height}' style='background:#fff'>";
+
+        // Líneas horizontales + etiquetas
+        foreach ($yStatusMap as $status => $index) {
+            $y = 20 + $index * $rowHeight;
+            $svg .= "<line x1='0' y1='{$y}' x2='{$width}' y2='{$y}' stroke='#e5e5e5'/>";
+            $svg .= "<text x='5' y='".($y + 12)."' font-size='12'>{$status}</text>";
+        }
+
+        // Líneas verticales por hora
+        for ($h = 0; $h < 24; $h++) {
+            $x = ($h * 60) * ($width / 1440);
+            $label = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
+            $svg .= "<line x1='{$x}' y1='0' x2='{$x}' y2='{$height}' stroke='#ddd'/>";
+            $svg .= "<text x='".($x+2)."' y='".($height - 5)."' font-size='12'>{$label}</text>";
+        }
+
+        // Dibujar segmentos
+        foreach ($segments as $seg) {
+            $status = $seg['status'];
+            $x1 = ($seg['start'] / 1440) * $width;
+            $x2 = ($seg['end'] / 1440) * $width;
+            $y = 20 + $yStatusMap[$status] * $rowHeight;
+
+            $svg .= "<rect x='{$x1}' y='".($y - 10)."' width='".($x2 - $x1)."' height='20' fill='{$colorMap[$status]}'/>";
+        }
+        
+
+        // --- TIEMPOS A LA DERECHA ---
+        $yOffset = 15;
+        foreach ($totalTimes as $st => $mins) {
+            $h = floor($mins / 60);
+            $m = $mins % 60;
+
+            $svg .= "<text x='".($width - 50)."' y='".($yOffset)."'
+                    font-size='14' fill='#000'>{$st}: {$h}h {$m}m</text>";
+
+            $yOffset += 35;
+        }
+        $svg .= $svgTransitions;
+
+        $svg .= "</svg>";
+
+        // Guardar archivo
+        $filename = 'graph_' . uniqid() . '.svg';
+        file_put_contents($directory.'/'.$filename, $svg);
+
+        return $filename;
+    }
+
+    //para obtener el camion asignado y la distancia del form fuel log
+    public function getVehicleAndDistance($driverId)
+    {
+        // Obtener el vehículo asignado al driver
+        $truck = Truck::where('driver_id', $driverId)->first();
+
+        if (!$truck) {
+            return response()->json(['message' => 'No vehicle assigned'], 404);
+        }
+
+        // Obtener el último registro de fuel_form del vehículo
+        $lastFuel = $truck->fuelForms()->latest()->first();
+
+        return [
+            'vehicle' => [
+                'id'            => $truck->id,
+                'license_plate' => $truck->license_plate,
+                'brand'         => $truck->brand,
+                'model'         => $truck->model,
+                'year'          => $truck->year,
+            ],
+            'distance' => $lastFuel ? $lastFuel->distance : 0
+        ];
     }
 
 }

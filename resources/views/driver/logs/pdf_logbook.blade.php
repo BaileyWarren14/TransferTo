@@ -24,7 +24,7 @@
     </div>
 
     <div class="section">
-        <strong>Driver:</strong> {{ strtoupper($driver->last_name) }}, {{ ucfirst($driver->first_name) }}
+        <strong>Driver:</strong> {{ ($driver->lastname) }} {{ ($driver->name) }}
         <span style="float: right;"><strong>Co-Drivers:</strong> _____________</span><br>
         <strong>Fleet ID:</strong> ____________ <br>
         <strong>Distance:</strong> {{ $day['distance'] }} <br>
@@ -39,8 +39,10 @@
     {{-- Aquí puedes insertar tu gráfico electrónico (SVG o imagen generada) --}}
     <div class="section">
         <h4>Electronic Logbook</h4>
-        <img src="{{ $day['graph'] }}" alt="Daily Graph" width="100%">
+        <img src="{{ public_path('logbook_graphs/'.$day['graph']) }}" width="100%">
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <h4>Duty Status Logs</h4>
     <table>
@@ -69,6 +71,7 @@
         <div class="page-break"></div>
     @endif
 @endforeach
+
 
 </body>
 </html>
