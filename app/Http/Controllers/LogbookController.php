@@ -943,6 +943,7 @@ class LogbookController extends Controller
         $width = 1100;
         $height = 260;
         $rowHeight = 35;
+        $heightColor = 37;
         $dayStart = \Carbon\Carbon::parse($logs->first()->changed_at)->copy()->startOfDay();
         $dayEnd   = $dayStart->copy()->endOfDay();
 
@@ -996,11 +997,11 @@ class LogbookController extends Controller
                 $x = ($i / 1440) * $width;
 
                 // obtener Y del estado anterior y nuevo
-                $y1 = 20 + ($yStatusMap[$lastStatus] * $rowHeight);
-                $y2 = 20 + ($yStatusMap[$currentStatus] * $rowHeight);
+                $y1 = 15 + ($yStatusMap[$lastStatus] * $heightColor);
+                $y2 = 15 + ($yStatusMap[$currentStatus] * $heightColor);
 
                 // ⬇ ESTA ES LA LÍNEA VERTICAL DEL CAMBIO DE ESTADO
-                $svgTransitions .= "<line x1='{$x}' y1='{$y1}' x2='{$x}' y2='{$y2}' stroke='black' stroke-width='2' />";
+                $svgTransitions .= "<line x1='{$x}' y1='{$y1}' x2='{$x}' y2='{$y2}' stroke='black' stroke-width='5' />";
 
             }
 
@@ -1028,7 +1029,7 @@ class LogbookController extends Controller
         // Líneas horizontales + etiquetas
         foreach ($yStatusMap as $status => $index) {
             $y = 20 + $index * $rowHeight;
-            $svg .= "<line x1='0' y1='{$y}' x2='{$width}' y2='{$y}' stroke='#e5e5e5'/>";
+            $svg .= "<line x1='0' y1='{$y}' x2='{$width}' y2='{$y}' stroke='#000' />";
             $svg .= "<text x='5' y='".($y + 12)."' font-size='12'>{$status}</text>";
         }
 
@@ -1046,8 +1047,8 @@ class LogbookController extends Controller
             $x1 = ($seg['start'] / 1440) * $width;
             $x2 = ($seg['end'] / 1440) * $width;
             $y = 20 + $yStatusMap[$status] * $rowHeight;
-
-            $svg .= "<rect x='{$x1}' y='".($y - 10)."' width='".($x2 - $x1)."' height='20' fill='{$colorMap[$status]}'/>";
+            //Aqui podemos cambiar el alto de la linea que se grafica
+            $svg .= "<rect x='{$x1}' y='".($y - 5)."' width='".($x2 - $x1)."' height='5' fill='{$colorMap[$status]}'/>";
         }
         
 
