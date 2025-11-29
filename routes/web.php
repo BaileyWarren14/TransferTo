@@ -205,6 +205,8 @@ Route::middleware(['auth:driver'])->group(function () {
     Route::get('today', [LogbookController::class, 'today'])->name('driver.logs.today');
     //ruta para ver el libro electronico
     Route::get('/driver/show', [LogbookController::class, 'index'])->name('driver.logs.show');
+    //Para que el logbook se actualice con ajax
+    Route::get('/driver/logbook/data', [DriverController::class, 'getLogbookData'])->name('driver.logbook.data');
     //para obtener los timers de los cronometros
     Route::get('/driver/timers', [DashboardController::class, 'timers'])->name('driver.logs.show.timers');
     // ruta para generar el pdf del libro electronico

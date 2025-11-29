@@ -48,7 +48,7 @@
     <table>
         <thead>
             <tr>
-                <Th></Th>
+                
                 <th>Status</th>
                 <th>Time</th>
                 <th>Location</th>

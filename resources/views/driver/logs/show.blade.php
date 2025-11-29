@@ -160,10 +160,10 @@
         <!-- Botones principales -->
         <div class="d-flex flex-column flex-sm-row gap-2 w-100 w-md-auto">
             <!-- Descargar libro electrónico 8 días -->
-            <a href="{{ route('driver.logbook.download') }}" class="btn btn-primary w-100 w-sm-auto">
+           <button onclick="downloadLogbook()" class="btn btn-primary w-100 w-sm-auto">
                 <i class="fas fa-download me-1"></i>
                 <span data-key="download_logbook">Descargar libro electrónico 8 días</span>
-            </a>
+            </button>
 
             <!-- Compartir -->
             <button type="button" class="btn btn-success w-100 w-sm-auto" id="shareLogbook"  onclick="shareLogbook()">
@@ -246,24 +246,45 @@
     <div class="card shadow mb-4">
         <div class="card-header bg-secondary text-white" ><span data-key="last_days">Last 14 Days</span></div>
         <div class="card-body">
-            @foreach($last14Days as $date => $logs)
+          @foreach($last14Days as $date => $logs)
+
                 @php
-                    $firstOff = null;
+                    // 🔹 Asegurar orden ASC por fecha REAL
+                    $logs = $logs->sortBy(function($l) {
+                        return \Carbon\Carbon::parse($l->changed_at)->timestamp;
+                    })->values();
+
                     $totalMinutes = 0;
-                    foreach($logs as $log){
-                        if($log->status === 'OFF'){
-                            $firstOff = \Carbon\Carbon::parse($log->changed_at);
-                        } else {
-                            if($firstOff){
-                                
-                                $totalMinutes += \Carbon\Carbon::parse($log->changed_at)->diffInMinutes($firstOff);
-                                $firstOff = null;
-                            }
+
+                    // 🔹 Recorrer pares (actual → siguiente)
+                    for ($i = 0; $i < count($logs) - 1; $i++) {
+
+                        $current = $logs[$i];
+                        $next = $logs[$i + 1];
+
+                        // Saltar si el actual es OFF
+                        if ($current->status === 'OFF') continue;
+
+                        // Parse robusto
+                        $start = \Carbon\Carbon::parse($current->changed_at);
+                        $end   = \Carbon\Carbon::parse($next->changed_at);
+
+                        // 🔥 EVITAR NEGATIVOS
+                        if ($end->lessThanOrEqualTo($start)) {
+                            continue; // ignora intervalos inválidos
                         }
+
+                        $totalMinutes += $start->diffInMinutes($end);
                     }
+
+                    // 🔹 Nunca dejar que sea negativo por cualquier razón
+                    if ($totalMinutes < 0) $totalMinutes = 0;
+
                     $hours = intdiv($totalMinutes, 60);
                     $minutes = $totalMinutes % 60;
+
                 @endphp
+
                 <div class="d-flex justify-content-between align-items-center border p-2 mb-2 rounded">
                     <div>
                         <strong>{{ \Carbon\Carbon::parse($date)->format('l, M d, Y') }}</strong><br>
@@ -271,7 +292,11 @@
                     </div>
                     <a href="{{ route('driver.logs.activities', ['date' => $date]) }}" class="btn btn-primary btn-sm">➡️</a>
                 </div>
+
             @endforeach
+
+
+
         </div>
     </div>
 
@@ -346,127 +371,138 @@
 
 
 <script>
-    // 📌 Recibimos directamente desde PHP 
-    const labels = @json($labels);
-    const duty_status = @json($dutyStatuses);
-    const rawLogs = @json($rawLogs);
-    
-    // Debug temporal
-    /*alert(
-        "📌 Registros originales de la BD:\n" +
-        JSON.stringify(rawLogs, null, 2) +
-        "\n\n📌 Labels (96 bloques):\n" +
-        JSON.stringify(labels) +
-        "\n\n📌 Duty Statuses (96 valores):\n" +
-        JSON.stringify(duty_status)
-    );*/
+    function reloadLogbook() {
+        $.ajax({
+            url: "{{ route('driver.logbook.data') }}",
+            method: "GET",
+            data: {
+                date: $('#selectedDate').val() // si NO usas fecha, elimínalo
+            },
+            success: function(response) {
+                if (!response.success) return;
 
-    // Opcional: debug
-    console.log("Registros originales:", rawLogs);
-    console.log("96 bloques:", labels);
-    console.log("Estados de cada bloque:", duty_status);
+                updateChart(response.labels, response.dutyStatuses, response.rawLogs);
+            },
+            error: function(xhr) {
+                console.error("Error cargando data AJAX:", xhr);
+            }
+        });
+    }
 
-    // Categorías del eje Y
-    const yCategories = ['OFF', 'SB', 'D', 'ON', 'WT'];
 
-    const minutesPerBlock = 1;
+
+    // ----------------------
+//    VARIABLES INICIALES
+// ----------------------
+let logbookChart;
+
+// Inicialización con datos PHP la primera vez
+let labels = @json($labels);
+let duty_status = @json($dutyStatuses);
+let rawLogs = @json($rawLogs);
+
+const yCategories = ['OFF', 'SB', 'D', 'ON', 'WT'];
+const minutesPerBlock = 1;
+
+// ----------------------
+//    FUNCIÓN PARA ACTUALIZAR LA GRÁFICA
+// ----------------------
+function updateChart(newLabels, newDutyStatus, newRawLogs) {
+    labels = newLabels;
+    duty_status = newDutyStatus;
+    rawLogs = newRawLogs;
+
+    // Recalculate summary if needed
     const stateTimes = { 'OFF':0, 'SB':0, 'D':0, 'ON':0, 'WT':0 };
 
-    // Calcular tiempo por estado
     duty_status.forEach(statusIndex => {
-         if (statusIndex === null) return; // ignorar bloques futuros
+        if (statusIndex === null) return;
         const state = yCategories[statusIndex];
         stateTimes[state] += minutesPerBlock;
     });
 
-    // 🔹 Mostrar todos los estados aunque estén en 0
-    const stateSummary = [];
-    let totalMinutes = 0;
+    // ACTUALIZAR GRÁFICA
+    logbookChart.data.labels = labels;
+    logbookChart.data.datasets[0].data = duty_status;
+    logbookChart.update();
+}
 
-    for (const [state, mins] of Object.entries(stateTimes)) {
-        const hours = Math.floor(mins / 60);
-        const remainingMins = mins % 60;
+// ----------------------
+//    CREACIÓN DE LA GRÁFICA ORIGINAL UNA SOLA VEZ
+// ----------------------
+const ctx = document.getElementById('logbookChart').getContext('2d');
 
-        // Aquí quitamos el nombre del estado y solo mostramos tiempo
-        stateSummary.push(`${hours}h ${remainingMins}m`);
-        totalMinutes += mins;
-    }
-
-    const ctx = document.getElementById('logbookChart').getContext('2d');
-    new Chart(ctx, {
-          type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Driver Status',
-                    data: duty_status,       
-                    borderColor: 'blue',
-                    borderWidth: 2,
-                    pointRadius: 0,
-                    tension: 0,
-                    stepped: true,    
-                    fill: false,
-                    
-                }]
-              
-    },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            aspectRatio: 2.5,
-            scales: {
-                y: {
-                    type: 'linear',
-                    min: 0,
-                    max: 4,
-                    reverse: true,
-                    ticks: {
-                        stepSize: 1,
-                        callback: function(value) {
-                            return yCategories[value] ?? value;
-                        }
-                    },
-                    grid: { drawTicks: true, color: '#ccc' }
-                    },
-                x: {
-                    grid: {
-                        drawTicks: true,
-                        tickLength: 5,
-                        color: ctx => {
-                            if (ctx.index % 60 === 0) {
-                                return '#444'; // línea fuerte cada 60
-                            } else if (ctx.index % 15 === 0) {
-                                return '#aaa'; // línea fina cada 15
-                            } else {
-                                return 'transparent'; // no dibujar
-                            }
-                        },
-                        borderColor: '#333'
-                    },
-                    ticks: {
-                        autoSkip: false,
-                        callback: function(value, index) {
-                            // Mostrar solo las etiquetas de cada hora (cada 4 bloques de 15 min)
-                            return index % 60 === 0 ? labels[index] : '';
-                        },
-                        font: { size: 10 },
-                        maxRotation: 0,
-                        minRotation: 0
-                    }
-                }
+logbookChart = new Chart(ctx, {
+      type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Driver Status',
+                data: duty_status,       
+                borderColor: 'blue',
+                borderWidth: 2,
+                pointRadius: 0,
+                tension: 0,
+                stepped: true,    
+                fill: false,
+            }]
+        },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        aspectRatio: 2.5,
+        scales: {
+            y: {
+                type: 'linear',
+                min: 0,
+                max: 4,
+                reverse: true,
+                ticks: {
+                    stepSize: 1,
+                    callback: value => yCategories[value] ?? value
+                },
+                grid: { drawTicks: true, color: '#ccc' }
             },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return `Status: ${yCategories[context.raw]} - ${labels[context.dataIndex]}`;
-                        }
-                    }
+            x: {
+                grid: {
+                    drawTicks: true,
+                    tickLength: 5,
+                    color: ctx => {
+                        if (ctx.index % 60 === 0) return '#444';
+                        if (ctx.index % 15 === 0) return '#aaa';
+                        return 'transparent';
+                    },
+                    borderColor: '#333'
+                },
+                ticks: {
+                    autoSkip: false,
+                    callback: (value, index) =>
+                        index % 60 === 0 ? labels[index] : '',
+                    font: { size: 10 },
+                    maxRotation: 0,
+                    minRotation: 0
+                }
+            }
+        },
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: context =>
+                        `Status: ${yCategories[context.raw]} - ${labels[context.dataIndex]}`
                 }
             }
         }
-    });
+    }
+});
+
+// ----------------------
+//    AUTO-ACTUALIZACIÓN CADA 30s
+// ----------------------
+setInterval(reloadLogbook, 30000);
+
+// También cargar justo al entrar
+reloadLogbook();
 
    
 
@@ -783,55 +819,118 @@ document.getElementById('closeSidebar')?.addEventListener('click', () => {
     setInterval(updateLocation,3000);
 
 async function shareLogbook() {
-    const email = prompt("Introduce el correo al que deseas enviar el logbook:");
+    // Ask for email using a SweetAlert2 form
+    const { value: email } = await Swal.fire({
+        title: "Send Logbook by Email",
+        html: `
+            <input 
+                type="email" 
+                id="swal-email-input" 
+                class="swal2-input" 
+                placeholder="Enter the recipient's email">
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: "Send",
+        cancelButtonText: "Cancel",
+        preConfirm: () => {
+            const emailValue = document.getElementById("swal-email-input").value;
+
+            if (!emailValue) {
+                Swal.showValidationMessage("Please enter an email address.");
+                return false;
+            }
+
+            // Basic email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(emailValue)) {
+                Swal.showValidationMessage("Please enter a valid email address.");
+                return false;
+            }
+
+            return emailValue;
+        }
+    });
+
+    // If user cancelled
     if (!email) return;
+
+    // ---- Show loading animation ----
+    Swal.fire({
+        title: 'Sending email...',
+        text: 'Please wait while we send the logbook.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
 
     try {
         const res = await fetch("{{ route('driver.logbook.email') }}", {
             method: "POST",
-            credentials: "same-origin", // asegura que se envíen cookies de sesión
+            credentials: "same-origin",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                "X-Requested-With": "XMLHttpRequest" // ayuda a Laravel a detectar AJAX
+                "X-Requested-With": "XMLHttpRequest"
             },
             body: JSON.stringify({ email })
         });
 
-        console.log("Fetch status:", res.status, res.statusText);
-
-        // Si no es 2xx, leer el cuerpo como texto (útil para ver HTML de redirect o error)
         if (!res.ok) {
             const text = await res.text();
-            console.error("Server returned non-OK response:", res.status, text);
-            // Mostrar alerta amigable
+            console.error("Server non-OK response:", res.status, text);
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: `Server responded with status ${res.status}. Open console for more details.`
+                text: `Server responded with status ${res.status}.`
             });
             return;
         }
 
-        // Intentar parsear JSON seguro
         const data = await res.json();
-        console.log("Response JSON:", data);
 
         Swal.fire({
             icon: 'success',
-            title: 'Enviado',
-            text: data.message || 'El logbook ha sido enviado correctamente.'
+            title: 'Email Sent!',
+            text: data.message || 'The logbook has been successfully sent.'
         });
 
     } catch (err) {
-        // Error de red o parseo -> mostrar info útil en consola
         console.error("Fetch failed:", err);
+
         Swal.fire({
             icon: 'error',
-            title: 'Network/error',
-            text: 'No se pudo conectar al servidor. Revisa la consola (F12) y la pestaña Network.'
+            title: 'Network Error',
+            text: 'Unable to contact the server. Please check your connection.'
         });
     }
+}
+
+function downloadLogbook() {
+
+    Swal.fire({
+        title: "Preparing your PDF...",
+        text: "Please wait while we generate your logbook.",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    const downloadUrl = "{{ route('driver.logbook.download') }}";
+
+    // Creamos un iframe oculto que dispara la descarga
+    const iframe = document.createElement("iframe");
+    iframe.style.display = "none";
+    iframe.src = downloadUrl;
+
+    // Cuando cargue, cerramos la animación
+    iframe.onload = () => {
+        Swal.close();
+    };
+
+    document.body.appendChild(iframe);
+
+    // Cierre automático a los 6s si el navegador no dispara onload
+    setTimeout(() => Swal.close(), 6000);
 }
 
 

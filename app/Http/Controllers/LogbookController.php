@@ -91,14 +91,30 @@ class LogbookController extends Controller
     $totalOnDutyHours = intdiv($totalOnDutyMinutes, 60);
     $totalOnDutyMins = $totalOnDutyMinutes % 60;
 
-    // 🔹 Últimos 14 días sin conversión
-    $last14Days = dutystatuslog::where('driver_id', $driver->id)
-        ->orderBy('changed_at', 'desc')
-        ->get()
-        ->groupBy(function($log) {
-            return Carbon::parse($log->changed_at)->format('Y-m-d');
-        })
-        ->take(14);
+    // 🔹 Últimos 14 días consecutivos (hoy hacia atrás) usando la lógica actual de la vista
+    $last14Days = collect();
+    $driverId = $driver->id;
+
+    $today = Carbon::today();
+
+    for ($i = 0; $i < 14; $i++) {
+
+        // Día a procesar
+        $day = $today->copy()->subDays($i);
+        $dayKey = $day->format('Y-m-d');
+
+        // Obtener logs del día en el mismo formato que usaba tu consulta anterior
+        $logsOfDay = dutystatuslog::where('driver_id', $driverId)
+            ->whereBetween('changed_at', [
+                $day->copy()->startOfDay(),
+                $day->copy()->endOfDay()
+            ])
+            ->orderBy('changed_at', 'asc')
+            ->get();
+
+        // Aunque no haya logs, lo guardamos igualmente
+        $last14Days[$dayKey] = $logsOfDay;
+    }
 
     // 🔹 Logs "raw"
     $rawLogs = $todayLogs->map(function($log) {
@@ -120,6 +136,83 @@ class LogbookController extends Controller
         'rawLogs'
     ));
 }
+
+    //Preparar para usar ajax para el logbook
+    public function getLogbookData(Request $request)
+    {
+        $driver = Auth::guard('driver')->user();
+
+        // Fecha opcional recibida por AJAX
+        $date = $request->query('date', now()->toDateString());
+
+        // Forzar zona horaria
+        date_default_timezone_set('America/Mexico_City');
+
+        $today = Carbon::parse($date)->startOfDay();
+        $now = Carbon::now();
+
+        // Obtener logs del día solicitado
+        $todayLogs = dutystatuslog::where('driver_id', $driver->id)
+            ->whereBetween('changed_at', [$today->copy()->startOfDay(), $today->copy()->endOfDay()])
+            ->orderBy('changed_at')
+            ->get();
+
+        // Mapa estado → índice
+        $yStatusMap = ['OFF'=>0, 'SB'=>1, 'D'=>2, 'ON'=>3, 'WT'=>4];
+
+        // LABELS (1440 min → cada hora muestra letra)
+        $labels = [];
+        for ($h = 0; $h < 24; $h++) {
+            $hour = ($h == 0) ? 'M' : (($h == 12) ? 'N' : ($h > 12 ? $h - 12 : $h));
+            for ($m = 0; $m < 60; $m++) {
+                $labels[] = $m == 0 ? $hour : '';
+            }
+        }
+
+        // Estados minuto por minuto
+        $dutyStatuses = [];
+        $blocks = 1440;
+        $start = $today->copy();
+        $logIndex = 0;
+        $lastStatus = 'OFF';
+
+        for ($i = 0; $i < $blocks; $i++) {
+            $time = $start->copy()->addMinutes($i);
+            if ($time->gt($now)) break;
+
+            while (isset($todayLogs[$logIndex]) &&
+                Carbon::parse($todayLogs[$logIndex]->changed_at)->lte($time)) {
+
+                $lastStatus = $todayLogs[$logIndex]->status;
+                $logIndex++;
+            }
+
+            $dutyStatuses[] = $yStatusMap[$lastStatus];
+        }
+
+        // Llenar minutos futuros con null
+        while (count($dutyStatuses) < $blocks) {
+            $dutyStatuses[] = null;
+        }
+
+        // Logs crudos para debugging/tooltip
+        $rawLogs = $todayLogs->map(function ($log) {
+            return [
+                'status' => $log->status,
+                'changed_at' => $log->changed_at,
+            ];
+        });
+
+        // Devolver EXACTAMENTE lo que el frontend necesita
+        return response()->json([
+            'success' => true,
+            'labels' => $labels,
+            'dutyStatuses' => $dutyStatuses,
+            'rawLogs' => $rawLogs
+        ]);
+    }
+
+
 
     public function today()
     {
@@ -619,7 +712,7 @@ class LogbookController extends Controller
                 ->attachData($pdfContent, 'Driver_Logbook.pdf');
         });
 
-        return response()->json(['success' => true, 'message' => 'Logbook enviado correctamente']);
+        return response()->json(['success' => true, 'message' => 'Logbook sent successfully']);
     }
     private function generateDailyGraphSVG($logs, $date, $driverId)
     {
@@ -919,6 +1012,8 @@ class LogbookController extends Controller
 */
     private function generarLogbook($logs)
     {
+        $driver= Auth::guard('driver')->user();
+        $date = now()->toDateString();
         // --- CONFIGURACIÓN ---
         $yStatusMap = [
             'OFF' => 0, 'SB' => 1, 'D' => 2, 'ON' => 3, 'WT' => 4, 'PC' => 5, 'YM' => 6
@@ -945,10 +1040,12 @@ class LogbookController extends Controller
         $rowHeight = 35;
         $heightColor = 37;
         $dayStart = \Carbon\Carbon::parse($logs->first()->changed_at)->copy()->startOfDay();
+        
+        
         $dayEnd   = $dayStart->copy()->endOfDay();
 
-        // --- ORDENAR LOGS ---
-        $logs = $logs->sortBy('changed_at')->values();
+        // // --- ORDENAR LOGS ---
+        $logs = $logs->sortBy('changed_at')->values();        
 
         // --- RECONSTRUCCIÓN MINUTO A MINUTO ---
         $statuses = [];
@@ -1098,5 +1195,48 @@ class LogbookController extends Controller
             'distance' => $lastFuel ? $lastFuel->distance : 0
         ];
     }
+
+    public function obtenerLogs8Dias($driverId, $date)
+{
+    $driver = Auth::guard('driver')->user();
+    $startDay = Carbon::parse($date)->startOfDay();
+
+    // Rango de 8 días: día actual + 7 anteriores
+    $days = collect();
+    for ($i = 0; $i < 8; $i++) {
+        $days->push($startDay->copy()->subDays($i));
+    }
+
+    $resultado = [];
+
+    foreach ($days as $day) {
+
+        // Obtener logs de ese día
+        $logs = DutyStatusLog::where('driver_id', $driverId) // <-- aquí pasamos el ID correcto
+            ->whereBetween('changed_at', [
+                $day->copy()->startOfDay(),
+                $day->copy()->endOfDay()
+            ])
+            ->orderBy('changed_at', 'asc')
+            ->get();
+
+        // Si NO hay registros -> generar un solo registro OFF
+        if ($logs->isEmpty()) {
+            $fake = collect([
+                (object)[
+                    'status' => 'OFF',
+                    'changed_at' => $day->copy()->startOfDay()->toDateTimeString()
+                ]
+            ]);
+
+            $resultado[$day->toDateString()] = $fake;
+        } else {
+            // Si hay registros reales
+            $resultado[$day->toDateString()] = $logs;
+        }
+    }
+
+    return $resultado;
+}
 
 }
