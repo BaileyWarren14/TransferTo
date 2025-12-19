@@ -163,7 +163,7 @@ window.translations = window.translations || {
         time:"Hora",
         actions:"Acciones",
         edit:"Editar",
-        download:"Descargar PDF",
+        downloadPDF:"Descargar PDF",
 
         //vista activities
         back_to_logbook:"Regresar al Libro Electrónico",
@@ -393,8 +393,42 @@ window.translations = window.translations || {
 
         //Comming soon
         coming_title: "Próximamente",
-        coming_message: "Estamos trabajando para ofrecerte algo increíble. ¡Mantente atento!"
+        coming_message: "Estamos trabajando para ofrecerte algo increíble. ¡Mantente atento!",
 
+        driver_violations:"Incumplimientos del Conductor",
+        driver_violations: "Violaciones del Conductor",
+        hos: "HOS",
+        dot_inspection: "Inspección DOT",
+        violation_8hr_drive: "Alerta de violación — 8 horas de conducción continua",
+        violation_11hr_drive: "Alerta de violación — Más de 11 horas de conducción",
+        violation_14hr_on: "Alerta de violación — Más de 14 horas en servicio",
+        violation_no_insp: "Alerta de violación — Más de 15 minutos sin realizar inspección",
+
+        with:"Con",
+
+        fuel_records:"Registros de Combustible",
+        date: "Fecha",
+        bol: "Guia de Carga (BOL)",
+        trailer: "Remolque",
+        from: "Origen",
+        destination: "Destino",
+        fuel_gallons: "Combustible (Gal)",
+        total_miles: "Millas Totales",
+        actions: "Acciones",
+    
+        finish_trip:"Finalizar viaje",
+        upload_bol:"Cargar BOL",
+        no_file_uploaded:"No hay archivo cargado",
+        driver_hos_reports:"Reportes HOS de Conductores",
+
+        driver_names:"Nombre del Conductor",
+        category:"Categoría",
+        desde:"Desde",
+        all:"Todos",
+        to:"A",
+        filter:"Filtrar",
+        clear:"Limpiar",
+        no_violations_detected:"No hay Violaciones detectadas.",
 
     },
     en: {
@@ -559,7 +593,7 @@ window.translations = window.translations || {
         time:"Time",
         actions:"Actions",
         edit:"Edit",
-        download:"Download PDF",
+        downloadPDF:"Download PDF",
 
         //vista activities
         back_to_logbook:"Back To Logbook",
@@ -791,6 +825,41 @@ window.translations = window.translations || {
 
         //Comming soon
         coming_title: "Coming Soon",
-        coming_message: "We're working hard to bring you something amazing. Stay tuned!"
+        coming_message: "We're working hard to bring you something amazing. Stay tuned!",
+
+        driver_violations:"Driver Violations",
+        driver_violations: "Driver Violations",
+        hos: "HOS",
+        dot_inspection: "DOT Inspection",
+        violation_8hr_drive: "Violation Alert — 8 Hours continuous driving",
+        violation_11hr_drive: "Violation Alert — More than 11 hours driving time expired",
+        violation_14hr_on: "Violation Alert — More than 14 hours on duty time expired",
+        violation_no_insp: "Violation Alert — More than 15 minutes without doing inspection",
+
+        with:"With",
+
+        fuel_records:"Fuel Record",
+        date: "Date",
+        bol: "BOL",
+        trailer: "Trailer",
+        from: "From",
+        destination: "Destination",
+        fuel_gallons: "Fuel (Gal)",
+        total_miles: "Total Miles",
+        actions: "Actions",
+
+        finish_trip:"Finish Trip",
+        upload_bol:"Upload BOL",
+        no_file_uploaded:"No file uploaded",
+        driver_hos_reports:"Driver HOS Reports",
+
+        driver_names:"Driver Name",
+        category:"Category",
+        desde:"From",
+        all:"All",
+        to:"To",
+        filter:"Filter",
+        clear:"Clear",
+        no_violations_detected:"No violations detected.",
     }
 };

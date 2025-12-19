@@ -212,7 +212,7 @@ body {
     <a href="{{ url('/driver/show') }}"><i class="fas fa-chart-line"></i> <span data-key="logs">Logs</span></a>
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span data-key="duty_status">Duty Status</span></a>
     <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span data-key="dot">DOT Inspection Mode</span></a>
-    <a href="{{ url('/driver/menu') }}"><i class="fas fa-info-circle"></i> <span data-key="work_order">Work Order</span></a>
+    <a href="{{ url('/driver/menu') }}"><i class="fas fa-clipboard-check"></i> <span data-key="work_order">Work Order</span></a>
     <a href="{{ url('/driver/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
     <a href="{{ url('/driver/safety') }}"><i class="fas fa-shield-alt"></i> <span data-key="safety">Safety</span></a>
     <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span data-key="truck_information">Truck information</span></a>
@@ -250,7 +250,7 @@ body {
     <a href="{{ url('/driver/show') }}"><i class="fas fa-chart-line"></i> <span data-key="logs">Logs</span></a>
     <a href="{{ url('/driver/change_duty_status') }}"><i class="fas fa-toggle-on"></i> <span data-key="duty_status">Duty Status</span></a>
     <a href="{{ url('/driver/list') }}"><i class="fas fa-plus-circle"></i> <span data-key="dot">DOT Inspection Mode</span></a>
-    <a href="{{ url('/driver/menu') }}"><i class="fas fa-info-circle"></i> <span data-key="work_order">Work Order</span></a>
+    <a href="{{ url('/driver/menu') }}"><i class="fas fa-clipboard-check"></i> <span data-key="work_order">Work Order</span></a>
     <a href="{{ url('/driver/messages') }}"><i class="fas fa-envelope"></i> <span data-key="messages">Messages</span></a>
     <a href="{{ url('/driver/safety') }}"><i class="fas fa-shield-alt"></i> <span data-key="safety">Safety</span></a>
     <a href="{{ url('/driver/about') }}"><i class="fas fa-info-circle"></i> <span data-key="truck_information">Truck information</span></a>
@@ -339,6 +339,9 @@ function applyLanguage(lang) {
                 if (el.hasAttribute('placeholder')) {
                     el.placeholder = translations[lang][key];
                 }
+                 if (el.hasAttribute("data-placeholder-key")) {
+                    el.placeholder = translations[lang][key];
+                }
 
             } else if (el.tagName === "SELECT") {
                 // Si quieres traducir opciones de select (opcional)
@@ -354,6 +357,12 @@ function applyLanguage(lang) {
                 el.textContent = translations[lang][key];
             }
 
+        }
+    });
+     document.querySelectorAll("[data-placeholder-key]").forEach(el => {
+        const key = el.getAttribute("data-placeholder-key");
+        if (translations[lang] && translations[lang][key]) {
+            el.placeholder = translations[lang][key];
         }
     });
 }

@@ -20,6 +20,69 @@
         </div>
     @endif
 
+    <div class="card shadow-sm border-0 rounded-4 mb-4 filter-container">
+        <div class="card-body">
+            <form method="GET" action="{{ route('drivers.index') }}">
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" data-key="first_name">First Name</label>
+                        <input type="text"
+                            name="name"
+                            value="{{ request('name') }}"
+                            class="form-control"
+                            placeholder="John">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold" data-key="last_name">Last Name</label>
+                        <input type="text"
+                            name="lastname"
+                            value="{{ request('lastname') }}"
+                            class="form-control"
+                            placeholder="Doe">
+                    </div>
+
+                     {{-- License Number --}}
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold" data-key="driver_license">License</label>
+                        <input type="text"
+                            name="license_number"
+                            value="{{ request('license_number') }}"
+                            class="form-control"
+                            placeholder="DL123456">
+                    </div>
+
+                     <div class="col-md-2">
+                        <label class="form-label fw-semibold" data-key="status">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="" data-key="all">All</option>
+                            <option value="ON" {{ request('status') == 'ON' ? 'selected' : '' }} data-key="">ON Duty</option>
+                            <option value="D" {{ request('status') == 'D' ? 'selected' : '' }} data-key="">Drive</option>
+                            <option value="OFF" {{ request('status') == 'OFF' ? 'selected' : '' }} data-key="">OFF Duty</option>
+                            <option value="PC" {{ request('status') == 'PC' ? 'selected' : '' }} data-key="">Personal Conveyance</option>
+                            <option value="WT" {{ request('status') == 'WT' ? 'selected' : '' }} data-key="">Waiting Time</option>
+                            <option value="SB" {{ request('status') == 'SB' ? 'selected' : '' }} data-key="">Sleeper Berth</option>
+                            <option value="YM" {{ request('status') == 'YM' ? 'selected' : '' }} data-key="">Yard Move</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 d-flex gap-2">
+                        <button class="btn btn-primary w-100">
+                            <i class="fas fa-filter me-1"></i> <span data-key="filter">Filter</span>
+                        </button>
+
+                        <a href="{{ route('drivers.index') }}"
+                        class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-eraser me-1"></i> <span data-key="clear">Clear</span>
+                        </a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
     @if($drivers->count() > 0)
         <div class="card shadow-sm border-0 rounded-4">
             <div class="card-body p-0">
@@ -121,5 +184,115 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+<style>
+    .dark-mode .filter-container {
+        background-color: #1f2937;
+        border: 1px solid #374151;
+    }
 
+    .dark-mode .filter-container .form-label {
+        color: #d1d5db;
+    }
+
+    .dark-mode .filter-container .form-control,
+    .dark-mode .filter-container .form-select {
+        background-color: #111827;
+        color: #e5e7eb;
+        border: 1px solid #374151;
+    }
+
+    .dark-mode .filter-container .form-control::placeholder {
+        color: #9ca3af;
+    }
+
+    .dark-mode .filter-container .form-control:focus,
+    .dark-mode .filter-container .form-select:focus {
+        background-color: #111827;
+        color: #e5e7eb;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 0.15rem rgba(99,102,241,.25);
+    }
+
+    /* Botones */
+    .dark-mode .btn-outline-secondary {
+        color: #e5e7eb;
+        border-color: #6b7280;
+    }
+
+    .dark-mode .btn-outline-secondary:hover {
+        background-color: #374151;
+    }
+
+    /* =========================
+    TABLA
+    ========================= */
+
+    .dark-mode .card {
+        background-color: #1f2937;
+    }
+
+    .dark-mode table {
+        color: #e5e7eb;
+    }
+
+    .dark-mode .table-bordered th,
+    .dark-mode .table-bordered td {
+        border-color: #374151;
+    }
+
+    .dark-mode .table-striped > tbody > tr:nth-of-type(odd) {
+        background-color: #111827;
+    }
+
+    .dark-mode .table-striped > tbody > tr:nth-of-type(even) {
+        background-color: #1f2937;
+    }
+
+    .dark-mode .table tbody tr:hover {
+        background-color: #374151;
+    }
+
+    /* Header tabla */
+    .dark-mode .table-header th {
+        background: linear-gradient(90deg, #4338ca, #6366f1);
+        color: #ffffff;
+    }
+
+    /* =========================
+    BADGES
+    ========================= */
+
+    .dark-mode .badge.bg-success {
+        background-color: #16a34a !important;
+    }
+
+    .dark-mode .badge.bg-secondary {
+        background-color: #6b7280 !important;
+    }
+
+    /* =========================
+    ALERTS
+    ========================= */
+
+    .dark-mode .alert-success {
+        background-color: #064e3b;
+        color: #ecfdf5;
+        border-color: #065f46;
+    }
+
+    .dark-mode .alert-info {
+        background-color: #1e3a8a;
+        color: #eff6ff;
+        border-color: #1d4ed8;
+    }
+
+    /* =========================
+    TEXTOS
+    ========================= */
+
+    .dark-mode h2,
+    .dark-mode .text-primary {
+        color: #c7d2fe !important;
+    }
+</style>
 @endsection

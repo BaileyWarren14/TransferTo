@@ -43,11 +43,44 @@ class TruckController extends Controller
     }
 
      // Listado de Trucks
-    public function index()
+    public function index(Request $request)
     {
-        $trucks = Truck::with('driver')->get(); // Carga los drivers junto con los trucks
-    return view('admin.trucks.list_trucks', compact('trucks'));
+        $query = Truck::with('driver');
+
+        // 🔍 Filtrar por placa
+        if ($request->filled('license_plate')) {
+            $query->where('license_plate', 'like', '%' . $request->license_plate . '%');
+        }
+
+        // 🔍 Filtrar por marca
+        if ($request->filled('brand')) {
+            $query->where('brand', 'like', '%' . $request->brand . '%');
+        }
+
+        // 🔍 Filtrar por año
+        if ($request->filled('year')) {
+            $query->where('year', $request->year);
+        }
+
+        // 🔍 Filtrar por estatus
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // 🔍 Filtrar por driver
+        if ($request->filled('driver')) {
+            $query->whereHas('driver', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->driver . '%');
+            });
+        }
+
+        $trucks = $query
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('admin.trucks.list_trucks', compact('trucks'));
     }
+
 
     // Formulario Crear Truck
     public function create()

@@ -22,6 +22,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\SafetyController;
 use App\Http\Controllers\FuelController;
+use App\Http\Controllers\ReportsController;
 
 
 
@@ -396,9 +397,31 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/admin/drivers/{id}/documents', [DriverController::class, 'documents'])->name('admin.drivers.documents');
 
     //Para ver los docuemntso
-    Route::get('/admin/documents/view/{id}', [DocumentController::class, 'show_ad'])->name('documents.view');
+    //Route::get('/admin/documents/view/{id}', [DocumentController::class, 'show_ad'])->name('documents.view');
+
+    Route::get('/admin/view-file/{type}/{id}', 
+    [DocumentController::class, 'viewFile'])
+    ->name('admin.view.file');
+
+    Route::get('/admin/documents/{driver}/create', [DocumentController::class, 'Adcreate'])->name('documents.create');
+    Route::delete('/admin/documents/{id}', [DocumentController::class, 'AdminDestroyDocuments'])->name('documents.deletes');
+    Route::get('/admin/documents/download/{id}', [DocumentController::class, 'AdminDownloadDocuments'])->name('documents.downloads');
+
+    // Descargar BOL
+    Route::get('/admin/fuelbol/download/{id}', [FuelController::class, 'FuelBOLdownload'])
+        ->name('fuelbol.download');
+
+    // Eliminar BOL
+    Route::delete('/admin/fuelbol/{id}', [FuelController::class, 'FuelBOLdestroy'])
+        ->name('fuelbol.delete');
 
 
+
+    // Route::get('/fuel/{id}/bol/download', [FuelController::class, 'downloadBol'])
+    // ->name('fuel.bol.download');
+
+    // Route::delete('/fuel/{id}/bol/delete', [FuelController::class, 'deleteBol'])
+    // ->name('fuel.bol.delete');
 
      // Dashboard Trucks
     Route::get('/admin/trucks', [TruckController::class, 'index'])->name('trucks.list_trucks');
@@ -414,7 +437,7 @@ Route::middleware(['auth:admin'])->group(function () {
     // Eliminar Truck
     Route::delete('/admin/trucks/{truck}', [TruckController::class, 'destroy'])->name('trucks.destroy');
 
-
+   
   
     // Listado de trailers
     Route::get('/admin/trailers', [TrailerController::class, 'index'])->name('trailers.index');
@@ -457,7 +480,9 @@ Route::middleware(['auth:admin'])->group(function () {
     Route::get('/messages/{type}/{id}/json', [MessageController::class, 'messagesJson'])->name('messages.json_ad');
 
     //Para ver los reportes
-    Route::get('/reports', [NotificationController::class, 'driversReports'])->name('reports');
+    Route::get('/reports', [ReportsController::class, 'driversReports'])->name('reports');
+    //Realizar el filtrado de reportes
+    Route::get('/admin/reports/filter', [ReportsController::class, 'filterDriversReports']);
 
 
     // Mostrar vista de notifications
@@ -481,35 +506,3 @@ Route::middleware(['auth:admin'])->group(function () {
 //para el log out de usuarios
 Route::post('/logout', [LogController::class, 'logout'])->name('logout');
 
-
-
-//para crear administradores de forma temporal
-
-
-   
-
-
-    // Dashboard
-    //Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
-
-    
-
-    // Details
-    //Route::get('/details', [AdminDashboardController::class, 'details'])->name('admin.details');
-
-
-
-
-//Para poder automatizar el registro del log a las 00:00
-//Route::get('/logbook/{logbook}', [LogbookController::class, 'show'])->name('logbook.show');
-
-// Mostrar Logbook diario
-//Route::get('/driver/logs/today', [LogbookController::class, 'today'])
-  //  ->name('driver.logs.today')
-    //->middleware('auth:driver');
-
-    // Guardar estado (ya existe)
-
-
-
-//Route::get('/logbook/today', [LogbookController::class, 'today'])->name('logbook.today');

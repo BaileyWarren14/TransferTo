@@ -6,203 +6,203 @@
 
 <style>
 /* =========================== General =========================== */
-body {
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 0;
-}
-
-/* =========================== Sidebar Desktop =========================== */
-.sidebar {
-    height: 100%;
-    width: 250px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    background-color: #2a5298;
-    z-index: 1000;
-    overflow-x: hidden;
-    transition: width 0.3s, left 0.3s;
-    padding-top: 60px;
-}
-
-.sidebar.collapsed {
-    width: 80px;
-}
-
-.sidebar a {
-    padding: 10px;
-    text-decoration: none;
-    font-size: 18px;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    transition: 0.3s;
-}
-
-.sidebar a i {
-    margin-right: 10px;
-}
-
-.sidebar a:hover {
-    background-color: #1e3c72;
-}
-
-.sidebar.collapsed a span {
-    display: none;
-}
-
-.sidebar.collapsed a i {
-    margin: 0 auto;
-}
-/* Sidebar colapsado: ocultar textos de logout y footer */
-.sidebar.collapsed .btn-logout span,
-.sidebar.collapsed .sidebar-footer span {
-    display: none;
-}
-
-/* Centrar iconos de logout y footer cuando esté colapsado */
-.sidebar.collapsed .btn-logout i,
-.sidebar.collapsed .sidebar-footer i {
-    margin: 0 auto;
-}
-
-
-/* Toggle sidebar desktop */
-#sidebarToggle {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    background-color: #2a5298;
-    color: #fff;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1100;
-}
-
-/* Footer desktop */
-.sidebar-footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 15px;
-    color: #fff;
-}
-
-/* =========================== Mobile =========================== */
-.mobile-navbar {
-    display: none;
-}
-.mobile-menu {
-     position: fixed;
-    top: 0;
-    left: -100%;
-    width: 70%;
-    max-width: 300px;
-    height: 100%;
-    background-color: #2a5298;
-    padding: 60px 20px 20px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    transition: left 0.3s ease;
-    z-index: 2100;
-    overflow-y: auto;   /* ✅ Permite desplazamiento vertical */
-    -webkit-overflow-scrolling: touch; /* ✅ Scroll suave en iOS */
-}
-.mobile-menu a, .mobile-menu button {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    background: none;
-    border: none;
-    text-align: left;
-    padding: 10px 0;
-    width: 100%;
-    cursor: pointer;
-}
-.mobile-menu a:hover, .mobile-menu button:hover {
-    background-color: #1e3c72;
-    border-radius: 5px;
-}
-.mobile-menu.show { left: 0; }
-
-/* Hamburger */
-.hamburger i {
-    font-size: 24px;
-    color: white;
-    cursor: pointer;
-}
-
-/* Close button */
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 24px;
-    color: white;
-    cursor: pointer;
-}
-
-/* Toggles mobile */
-.dark-mode-toggle-mobile, .language-toggle-mobile {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    margin-top: 20px;
-}
-
-/* =========================== Responsive =========================== */
-@media(max-width:768px){
-    .sidebar {
-        display: none;
+    body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
     }
-    .mobile-navbar {
-        display: flex;
+
+    /* =========================== Sidebar Desktop =========================== */
+    .sidebar {
+        height: 100%;
+        width: 250px;
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
         background-color: #2a5298;
-        z-index: 2000;
-        justify-content: space-between;
-        align-items: center;
+        z-index: 1000;
+        overflow-x: hidden;
+        transition: width 0.3s, left 0.3s;
+        padding-top: 60px;
+    }
+
+    .sidebar.collapsed {
+        width: 80px;
+    }
+
+    .sidebar a {
         padding: 10px;
+        text-decoration: none;
+        font-size: 18px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
     }
-    .main-content {
-        margin-left: 0 !important;
-        padding-top: 60px !important;
+
+    .sidebar a i {
+        margin-right: 10px;
     }
-}
-.btn-logout {
-    background: none;
-    border: none;
-    color: white;
-    padding: 15px;
-    width: 100%;
-    text-align: left;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-}
 
-.btn-logout i {
-    margin-right: 10px;
-}
+    .sidebar a:hover {
+        background-color: #1e3c72;
+    }
 
-.btn-logout:hover {
-    background-color: #1e3c72;
-    border-radius: 5px;
-}
-.sidebar form {
-    margin-bottom: 20px; /* ajusta el valor según necesites */
-}
+    .sidebar.collapsed a span {
+        display: none;
+    }
+
+    .sidebar.collapsed a i {
+        margin: 0 auto;
+    }
+    /* Sidebar colapsado: ocultar textos de logout y footer */
+    .sidebar.collapsed .btn-logout span,
+    .sidebar.collapsed .sidebar-footer span {
+        display: none;
+    }
+
+    /* Centrar iconos de logout y footer cuando esté colapsado */
+    .sidebar.collapsed .btn-logout i,
+    .sidebar.collapsed .sidebar-footer i {
+        margin: 0 auto;
+    }
+
+
+    /* Toggle sidebar desktop */
+    #sidebarToggle {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background-color: #2a5298;
+        color: #fff;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 1100;
+    }
+
+    /* Footer desktop */
+    .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        padding: 15px;
+        color: #fff;
+    }
+
+    /* =========================== Mobile =========================== */
+    .mobile-navbar {
+        display: none;
+    }
+    .mobile-menu {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 70%;
+        max-width: 300px;
+        height: 100%;
+        background-color: #2a5298;
+        padding: 60px 20px 20px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        transition: left 0.3s ease;
+        z-index: 2100;
+        overflow-y: auto;   /* ✅ Permite desplazamiento vertical */
+        -webkit-overflow-scrolling: touch; /* ✅ Scroll suave en iOS */
+    }
+    .mobile-menu a, .mobile-menu button {
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 10px 0;
+        width: 100%;
+        cursor: pointer;
+    }
+    .mobile-menu a:hover, .mobile-menu button:hover {
+        background-color: #1e3c72;
+        border-radius: 5px;
+    }
+    .mobile-menu.show { left: 0; }
+
+    /* Hamburger */
+    .hamburger i {
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+    }
+
+    /* Close button */
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+    }
+
+    /* Toggles mobile */
+    .dark-mode-toggle-mobile, .language-toggle-mobile {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        margin-top: 20px;
+    }
+
+    /* =========================== Responsive =========================== */
+    @media(max-width:768px){
+        .sidebar {
+            display: none;
+        }
+        .mobile-navbar {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: #2a5298;
+            z-index: 2000;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+        }
+        .main-content {
+            margin-left: 0 !important;
+            padding-top: 60px !important;
+        }
+    }
+    .btn-logout {
+        background: none;
+        border: none;
+        color: white;
+        padding: 15px;
+        width: 100%;
+        text-align: left;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .btn-logout i {
+        margin-right: 10px;
+    }
+
+    .btn-logout:hover {
+        background-color: #1e3c72;
+        border-radius: 5px;
+    }
+    .sidebar form {
+        margin-bottom: 20px; /* ajusta el valor según necesites */
+    }
 </style>
 
 <!-- =========================== Sidebar Desktop =========================== -->

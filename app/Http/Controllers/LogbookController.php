@@ -91,13 +91,15 @@ class LogbookController extends Controller
     $totalOnDutyHours = intdiv($totalOnDutyMinutes, 60);
     $totalOnDutyMins = $totalOnDutyMinutes % 60;
 
-    // 🔹 Últimos 14 días consecutivos (hoy hacia atrás) usando la lógica actual de la vista
+    //  Últimos 14 días consecutivos (hoy hacia atrás) usando la lógica actual de la vista
     $last14Days = collect();
     $driverId = $driver->id;
 
     $today = Carbon::today();
-
-    for ($i = 0; $i < 14; $i++) {
+    //Dependiendo de donde inicia el for es depende desde que dia empieza
+    // En cero inicia hoy
+    // En uno inicia ayer
+    for ($i = 1; $i < 14; $i++) {
 
         // Día a procesar
         $day = $today->copy()->subDays($i);

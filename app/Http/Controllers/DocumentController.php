@@ -60,30 +60,63 @@ class DocumentController extends Controller
     {
         $doc = Document::findOrFail($id);
 
-        // if ($doc->driver_id != auth('driver')->id()) {
-        //     abort(403);
-        // }
+        if ($doc->driver_id != auth('driver')->id()) {
+            abort(403);
+        }
 
         return response()->file(storage_path('app/public/' . $doc->file_path));
-
     }
+
 
     public function show_ad($id)
     {
-        // Obtenemos el driver
-        $driver = Driver::findOrFail($id);
+        $document = Document::findOrFail($id);
+        
+        if (!$document->file_path) {
+            abort(404);
+        }
 
-        // Documentos asociados al driver
-        $documents = Document::where('driver_id', $driver->id)->get();
+        $path = storage_path('app/public/' . $document->file_path);
 
-        // BOLs de Fuel asociados al driver
-        $fuelBOLs = Fuel::where('driver_id', $driver->id)
-            ->whereNotNull('bol_path') // solo los que tienen archivo
-            ->get();
+        if (!file_exists($path)) {
+            abort(404);
+        }
 
-        return view('admin.drivers.documents', compact('driver', 'documents', 'fuelBOLs'));
+        return response()->file($path);
 
     }
+    public function viewFile($type, $id)
+    {
+        if ($type === 'document') {
+
+            $doc = Document::findOrFail($id);
+
+            $fullPath = storage_path('app/public/' . $doc->file_path);
+
+            if (!file_exists($fullPath)) {
+                abort(404, "Archivo no encontrado");
+            }
+
+            return response()->file($fullPath);
+        }
+
+        if ($type === 'bol') {
+
+            $fuel = Fuel::findOrFail($id);
+
+            $fullPath = storage_path('app/public/' . $fuel->bol_path);
+
+            if (!file_exists($fullPath)) {
+                abort(404, "Archivo BOL no encontrado");
+            }
+
+            return response()->file($fullPath);
+        }
+
+        abort(400, "Tipo no reconocido");
+    }
+
+
 
 
     public function showFuelBOL($id)
@@ -122,6 +155,75 @@ class DocumentController extends Controller
         return view('admin.drivers.documents', compact('driver', 'documents', 'fuelBOLs'));
     }
 
+
+     // Mostrar formulario de creación (admin)
+    public function Adcreate($driverId)
+    {
+        return view('admin.documents.create', compact('driverId'));
+    }
+
+    // Eliminar documento (admin)
+    public function AdminDestroyDocuments($id)
+    {
+        $doc = Document::findOrFail($id);
+
+        // Eliminar archivo físico si existe
+        if ($doc->file_path && Storage::exists('public/' . $doc->file_path)) {
+            Storage::delete('public/' . $doc->file_path);
+        }
+
+        $doc->delete();
+
+        return back()->with('success', 'Document deleted successfully.');
+    }
+
+    // Descargar documento (admin)
+    public function AdminDownloadDocuments($id)
+    {
+        $doc = Document::findOrFail($id);
+
+        $filePath = storage_path('app/public/' . $doc->file_path);
+
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File not found.');
+        }
+
+        return response()->download($filePath, $doc->file_name);
+    }
+
+    //Ya no lo ocupo
+    public function downloadBol($id)
+    {
+       $fuel = Fuel::findOrFail($id);
+
+        $fullPath = storage_path('app/public/' . $fuel->bol_path);
+
+        if (!file_exists($fullPath)) {
+            abort(404, "Archivo BOL no encontrado");
+        }
+
+        return response()->download($fullPath);
+    }
+
+    //Ya no lo ocupo
+    public function deleteBol($id)
+    {
+         $fuel = Fuel::findOrFail($id);
+
+        $fullPath = storage_path('app/public/' . $fuel->bol_path);
+
+        // Eliminar archivo físico
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+
+        // Limpiar referencia en BD
+        $fuel->bol_path = null;
+        $fuel->save();
+
+        return back()->with('success', 'BOL deleted successfully.');
+        
+    }
 
 
 }

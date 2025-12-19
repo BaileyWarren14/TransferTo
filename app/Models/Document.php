@@ -9,7 +9,8 @@ class Document extends Model
 {
     //
      protected $fillable = ['type', 'file_name', 'file_path',  'driver_id',];
-      public function driver()
+      
+     public function driver()
     {
         return $this->belongsTo(Driver::class, 'driver_id');
     }

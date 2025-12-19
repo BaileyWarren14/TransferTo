@@ -79,13 +79,13 @@
         </a>
     </div>
 <div class="chat-container">
-    <h3>Chat with {{ $user->name }} {{ $user->lastname }}</h3>
+    <h3>Chat <span data-key="with">with</span> {{ $user->name }} {{ $user->lastname }}</h3>
 
     <div id="chatBox" class="chat-box"></div>
 
     <form id="chatForm" class="chat-input">
         @csrf
-        <input type="text" id="messageInput" name="message" data-key="type_your_message" placeholder="Escribe tu mensaje..." required>
+        <input type="text" id="messageInput" name="message"   data-placeholder-key="type_your_message" placeholder="Escribe tu mensaje..." required>
         <input type="hidden" name="client_time" id="client_time">
         <button type="submit">Send</button>
     </form>

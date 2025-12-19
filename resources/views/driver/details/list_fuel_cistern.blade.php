@@ -19,20 +19,20 @@
 
     <!-- 🔹 Tabla -->
     <div class="card shadow p-3">
-        <h4 class="mb-3">Fuel Records</h4>
+        <h4 class="mb-3" data-key="fuel_records">Fuel Records</h4>
 
         <div class="table-responsive">
             <table class="table table-striped table-dark align-middle text-center mb-0">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>BOL</th>
-                        <th>Trailer</th>
-                        <th>From</th>
-                        <th>Destination</th>
-                        <th>Fuel (Gal)</th>
-                        <th>Total Miles</th>
-                        <th>Actions</th>
+                        <th data-key="date">Date</th>
+                        <th data-key="bol">BOL</th>
+                        <th data-key="trailer">Trailer</th>
+                        <th data-key="from">From</th>
+                        <th data-key="destination">Destination</th>
+                        <th data-key="fuel_gallons">Fuel (Gal)</th>
+                        <th data-key="total_miles">Total Miles</th>
+                        <th data-key="actions">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +49,8 @@
                                 <div class="d-flex flex-wrap justify-content-center gap-2">
                                     <!-- Edit -->
                                     <a href="{{ route('workorder.cistern.edit', $fuel) }}" class="btn btn-warning btn-sm">
-                                        <i class="bi bi-pencil-square me-1"></i> Edit
+                                        <i class="bi bi-pencil-square me-1"></i>   
+                                        <span data-key="edit">Edit</span>
                                     </a>
 
                                     <!-- Delete -->
@@ -57,7 +58,8 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" class="btn btn-danger btn-sm btn-delete" data-id="{{ $fuel->id }}">
-                                            <i class="bi bi-trash me-1"></i> Delete
+                                            <i class="bi bi-trash me-1"></i> 
+                                            <span data-key="delete">Delete</span>
                                         </button>
                                     </form>
 
@@ -69,7 +71,8 @@
                                         data-mileage-before="{{ $fuel->mileage_before }}"
                                         data-fuel-dispensed="{{ $fuel->fuel_dispensed }}"
                                         @if($fuel->mileage_after > 0 || $fuel->fuel_dispensed > 0) disabled @endif>
-                                        <i class="bi bi-flag-checkered me-1"></i> Finish Trip
+                                        <i class="bi bi-flag-checkered me-1"></i> 
+                                        <span data-key="finish_trip">Finish Trip</span>
                                     </button>
 
                                     <!-- Upload BOL -->
@@ -77,7 +80,8 @@
                                         data-bs-toggle="modal" 
                                         data-bs-target="#uploadBolModal" 
                                         data-fuel-id="{{ $fuel->id }}">
-                                        <i class="bi bi-upload me-1"></i> Upload BOL
+                                        <i class="bi bi-upload me-1"></i> 
+                                        <span data-key="upload_bol">Upload BOL</span>
                                     </button>
                                 </div>
                             </td>

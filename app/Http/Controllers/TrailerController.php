@@ -9,9 +9,27 @@ class TrailerController extends Controller
 {
     //
      // Listado de Trailers
-    public function index()
+    public function index(Request $request)
     {
-        $trailers = Trailer::all();
+         $query = Trailer::query();
+
+        // 🔹 Filtro por Axles
+        if ($request->filled('axles')) {
+            $query->where('axles', $request->axles);
+        }
+
+        // 🔹 Filtro por Type
+        if ($request->filled('trailer_type')) {
+            $query->where('trailer_type', 'like', '%' . $request->trailer_type . '%');
+        }
+
+        // 🔹 Filtro por License Plate
+        if ($request->filled('license_plate')) {
+            $query->where('license_plate', 'like', '%' . $request->license_plate . '%');
+        }
+
+        // Ejecutar query
+        $trailers = $query->orderBy('id', 'desc')->get();
         return view('admin.trailers.list_trailers', compact('trailers'));
     }
 

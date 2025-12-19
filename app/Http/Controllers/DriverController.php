@@ -20,11 +20,30 @@ class DriverController extends Controller
     /**
      * Mostrar todos los drivers
      */
-     public function index()
+    public function index(Request $request)
     {
-        $drivers = Driver::all();
+        $drivers = Driver::query();
+
+        if ($request->filled('name')) {
+            $drivers->where('name', 'like', '%' . $request->name . '%');
+        }
+
+        if ($request->filled('lastname')) {
+            $drivers->where('lastname', 'like', '%' . $request->lastname . '%');
+        }
+        if ($request->filled('license_number')) {
+            $drivers->where('license_number', 'like', '%' . $request->license_number . '%');
+        }
+
+        if ($request->filled('status')) {
+            $drivers->where('status', $request->status);
+        }
+
+        $drivers = $drivers->get();
+
         return view('admin.drivers.list_drivers', compact('drivers'));
     }
+
 
     public function create()
     {

@@ -2,25 +2,83 @@
 
 @section('content')
 <style>
-/* Tabla similar a drivers */
-.truck-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width: 100%;
-}
-.truck-table th, .truck-table td {
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-    text-align: center;
-}
-.truck-table tbody tr:nth-of-type(odd) { background-color: #f8f9fa; }
-.truck-table tbody tr:hover { background-color: #dbe4ff; }
-.table-header th {
-    background: linear-gradient(90deg, #4e54c8, #8f94fb);
-    color: white;
-}
-.add-truck-btn { border-radius: 10px; padding: 10px 20px; }
-.action-btn { border-radius: 8px; padding: 6px 12px; min-width: 70px; }
+    /* Tabla similar a drivers */
+    .truck-table {
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+    .truck-table th, .truck-table td {
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+        text-align: center;
+    }
+    .truck-table tbody tr:nth-of-type(odd) { background-color: #f8f9fa; }
+    .truck-table tbody tr:hover { background-color: #dbe4ff; }
+    .table-header th {
+        background: linear-gradient(90deg, #4e54c8, #8f94fb);
+        color: white;
+    }
+    .add-truck-btn { border-radius: 10px; padding: 10px 20px; }
+    .action-btn { border-radius: 8px; padding: 6px 12px; min-width: 70px; }
+
+    body.dark-mode .card {
+        background-color: #1c1f26;
+        border: 1px solid #2c313a;
+    }
+
+    body.dark-mode .card label {
+        color: #e9ecef;
+        font-weight: 500;
+    }
+
+    /* Inputs & Selects */
+    body.dark-mode .form-control,
+    body.dark-mode .form-select {
+        background-color: #0d1117;
+        color: #e9ecef;
+        border-color: #2c313a;
+    }
+
+    body.dark-mode .form-control::placeholder {
+        color: #9aa0a6;
+    }
+
+    /* Focus */
+    body.dark-mode .form-control:focus,
+    body.dark-mode .form-select:focus {
+        background-color: #0d1117;
+        color: #ffffff;
+        border-color: #4e54c8;
+        box-shadow: 0 0 0 0.2rem rgba(78, 84, 200, 0.25);
+    }
+
+    /* Buttons */
+    body.dark-mode .btn-primary {
+        background-color: #4e54c8;
+        border-color: #4e54c8;
+    }
+
+    body.dark-mode .btn-primary:hover {
+        background-color: #5f65e0;
+        border-color: #5f65e0;
+    }
+
+    body.dark-mode .btn-outline-secondary {
+        color: #adb5bd;
+        border-color: #adb5bd;
+    }
+
+    body.dark-mode .btn-outline-secondary:hover {
+        background-color: #adb5bd;
+        color: #0d1117;
+    }
+
+    /* Disabled (si algún día lo usas) */
+    body.dark-mode .form-control:disabled {
+        background-color: #161b22;
+        color: #6c757d;
+    }
 </style>
 
 
@@ -41,6 +99,76 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
+
+    <form method="GET"
+      action="{{ route('trucks.list_trucks') }}"
+      class="card p-3 mb-4 shadow-sm">
+
+        <div class="row g-3 align-items-end">
+
+            <!-- License plate -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold" data-key="license_plate">License Plate</label>
+                <input type="text"
+                    name="license_plate"
+                    value="{{ request('license_plate') }}"
+                    class="form-control"
+                    placeholder="ABC-123">
+            </div>
+
+            <!-- Brand -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold" data-key="brand">Brand</label>
+                <input type="text"
+                    name="brand"
+                    value="{{ request('brand') }}"
+                    class="form-control">
+            </div>
+
+            <!-- Driver -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold" data-key="driver">Driver</label>
+                <input type="text"
+                    name="driver"
+                    value="{{ request('driver') }}"
+                    class="form-control"
+                    placeholder="Driver name" data-key="driver_names">
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold" data-key="status">Status</label>
+                <select name="status" class="form-select">
+                    <option value="" data-key="all">All</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }} data-key="active">Active</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }} data-key="inactive">Inactive</option>
+                </select>
+            </div>
+
+            <!-- Year -->
+            <div class="col-md-2">
+                <label class="form-label fw-semibold" data-key="year">Year</label>
+                <input type="number"
+                    name="year"
+                    value="{{ request('year') }}"
+                    class="form-control">
+            </div>
+
+            <!-- Buttons -->
+            <div class="col-md-2 d-flex gap-2 flex-column flex-md-row">
+
+                <button class="btn btn-primary w-50">
+                    <i class="fas fa-filter me-1"></i> <span data-key="filter">Filter</span>
+                </button>
+                <a href="{{ route('trucks.list_trucks') }}"
+                class="btn btn-outline-secondary w-50">
+                      <i class="fas fa-eraser me-1"></i> <span data-key="clear">Clear</span>
+                </a>
+            </div>
+
+        </div>
+    </form>
+
 
     @if($trucks->count() > 0)
         <div class="card shadow-sm border-0 rounded-4">
